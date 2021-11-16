@@ -1,5 +1,6 @@
 import jig.ResourceManager;
 import jig.Vector;
+import org.lwjgl.Sys;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
@@ -146,6 +147,11 @@ class PlayingState extends BasicGameState {
 
 		if (input.isKeyPressed(Input.KEY_0)) {
 			btg.showGrid = !btg.showGrid;
+		}
+		//Temporary
+		else if(input.isKeyPressed(Input.KEY_ESCAPE)){
+			btg.client.sendString("logout");
+			System.exit(0);
 		}
 
 	}

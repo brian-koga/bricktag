@@ -36,6 +36,7 @@ public class BrickTagGame extends StateBasedGame {
 
 
 	boolean showGrid = true;
+	Client client = new Client();
 
 
 	public BrickTagGame(String name, int width, int height) {
