@@ -29,6 +29,7 @@ class StartUpState extends BasicGameState {
 		container.setSoundOn(false);
 
 		BrickTagGame btg = (BrickTagGame) game;
+//		btg.variables = btg.client.receiveGameState();
 	}
 
 
@@ -37,10 +38,11 @@ class StartUpState extends BasicGameState {
 			Graphics g) throws SlickException {
 
 		BrickTagGame btg = (BrickTagGame) game;
+		BrickTagGameVariables btgV = btg.variables;
 
 		//g.drawString("Brian Koga", 10, mg.ScreenHeight -20);
 
-		g.drawString("< Start >", btg.ScreenWidth/2 -30, btg.ScreenHeight/2 -20);
+		g.drawString("< Start >", btgV.ScreenWidth/2 -30, btgV.ScreenHeight/2 -20);
 	}
 
 	@Override
@@ -51,8 +53,21 @@ class StartUpState extends BasicGameState {
 		BrickTagGame btg = (BrickTagGame) game;
 
 		if(input.isKeyPressed(Input.KEY_SPACE)) {
-			btg.enterState(BrickTagGame.PLAYINGSTATE);
+			btg.client.sendString("SPACE");
+		}else{
+			btg.client.sendString("");
 		}
+
+		btg.client.checkIfNeedToGetNewGameState();
+
+		//Needs to be at bottom of method
+		btg.variables = btg.client.brickTagGameVariables;
+		System.out.println(btg.client.brickTagGameVariables.currentState);
+
+		if(btg.variables.currentState!=BrickTagGame.STARTUPSTATE){
+			btg.enterState(btg.variables.currentState);
+		}
+
 	}
 
 	@Override
