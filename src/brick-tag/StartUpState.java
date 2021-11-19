@@ -1,4 +1,3 @@
-import jig.ResourceManager;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
@@ -29,7 +28,6 @@ class StartUpState extends BasicGameState {
 		container.setSoundOn(false);
 
 		BrickTagGame btg = (BrickTagGame) game;
-//		btg.variables = btg.client.receiveGameState();
 	}
 
 
@@ -39,8 +37,6 @@ class StartUpState extends BasicGameState {
 
 		BrickTagGame btg = (BrickTagGame) game;
 		BrickTagGameVariables btgV = btg.variables;
-
-		//g.drawString("Brian Koga", 10, mg.ScreenHeight -20);
 
 		g.drawString("< Start >", btgV.ScreenWidth/2 -30, btgV.ScreenHeight/2 -20);
 	}

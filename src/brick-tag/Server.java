@@ -1,20 +1,17 @@
-import org.lwjgl.Sys;
 import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Vector;
 
 @SuppressWarnings("InfiniteLoopStatement")
 public class Server {
 	static Vector<ClientHandler> playerList = new Vector<>();
 	static int numberOfActivePlayers = 0;
-//	static BrickTagGameServer btg;
 
 	public static void main(String[] args) throws IOException {
 		//Start a new server listening on port 5000
 		ServerSocket server = new ServerSocket(5000);
 		Socket socket;
-
-//		Server.btg = new BrickTagGameServer("Brick Tag!", 1280, 720);
 
 		while(true){
 			try{
@@ -22,9 +19,11 @@ public class Server {
 				socket = server.accept();
 				System.out.println("NEW CLIENT");
 
+				//Creates the sockets for reading and writing strings
 				DataInputStream input = new DataInputStream(socket.getInputStream());
 				DataOutputStream output = new DataOutputStream(socket.getOutputStream());
 
+				//Creates the sockets for reading and writing the GameStateVariable objects
 				ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
 				objectOutputStream.flush();
 				ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
@@ -40,6 +39,8 @@ public class Server {
 			}
 		}
 	}
+
+
 }
 
 class ClientHandler implements Runnable{
@@ -63,38 +64,40 @@ class ClientHandler implements Runnable{
 	@Override
 	public void run(){
 		while (true){
-			try {
-				received = inputStream.readUTF();
-//				System.out.println(received);
-				if(received.equals("SPACE")) {
-					this.btgVariables.currentState = BrickTagGame.PLAYINGSTATE;
-					System.out.println("PLAYING");
-					sendVariables();
-				} else if(received.equals("logout")){
-					Server.numberOfActivePlayers--;
-					this.socket.close();
-					break;
-				}
-//				else if(received.equals("")){
-//					sendVariables();
-//				}
-//
-				this.outputStream.writeUTF("");
-			} catch (IOException ignored) {}
+			if (clientHandlerLoop()){
+				break;
+			}
 		}
-//		try {
-//			this.inputStream.close();
-//			this.outputStream.close();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
 	}
 
-	public void sendVariables(){
+	private boolean clientHandlerLoop() {
+		received = receiveString();
+		boolean shouldWePlay = received.equals("SPACE") && this.btgVariables.currentState == BrickTagGame.STARTUPSTATE;
+		if(shouldWePlay) {
+			this.btgVariables.currentState = BrickTagGame.PLAYINGSTATE;
+			sendVariablesToClient();
+		} else if(received.equals("logout")){
+			logoutClient();
+			return true;
+		}
+		writeToClient("",this.outputStream);
+		return false;
+	}
+
+	private void logoutClient(){
+		try {
+			Server.numberOfActivePlayers--;
+			this.socket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void sendVariablesToClient(){
 		for(ClientHandler ch : Server.playerList) {
 			try {
-				System.out.println(btgVariables.currentState);
-				ch.outputStream.writeUTF("CHANGE");
+				//Tells the client there is a change and then sends the updated btgVariable instance
+				writeToClient("CHANGE", ch.outputStream);
 				ch.objectOutputStream.writeObject(this.btgVariables);
 				ch.objectOutputStream.flush();
 			} catch (IOException e) {
@@ -110,5 +113,13 @@ class ClientHandler implements Runnable{
 			e.printStackTrace();
 		}
 		return "";
+	}
+
+	private void writeToClient(String s,DataOutputStream localOutputStream){
+		try {
+			localOutputStream.writeUTF(s);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

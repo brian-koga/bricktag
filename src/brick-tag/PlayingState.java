@@ -154,7 +154,7 @@ class PlayingState extends BasicGameState {
 		}
 		//Temporary
 		else if(input.isKeyPressed(Input.KEY_ESCAPE)){
-//			btg.client.sendString("logout");
+			btg.client.sendString("logout");
 			System.exit(0);
 		}
 

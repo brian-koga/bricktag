@@ -14,12 +14,23 @@ public class Client {
 			socket = new Socket("127.0.0.1",5000);
 //			socket = new Socket("192.168.1.2",5000);
 			this.brickTagGameVariables = btgV;
+
+			createStreams();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void createStreams(){
+		try {
+			//Creates the sockets that read and write strings
 			this.inputStream = new DataInputStream(socket.getInputStream());
 			this.outputStream = new DataOutputStream(socket.getOutputStream());
+
+			//Creates the sockets that read and write objects
 			objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
 			objectOutputStream.flush();
 			objectInputStream = new ObjectInputStream(socket.getInputStream());
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -27,10 +38,7 @@ public class Client {
 
 	public void receiveGameState(){
 		try {
-			System.out.println("RGS");
 			this.brickTagGameVariables = (BrickTagGameVariables) objectInputStream.readObject();
-			System.out.println(this.brickTagGameVariables.currentState);
-			System.out.println("RGSR");
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -50,7 +58,6 @@ public class Client {
 	public void checkIfNeedToGetNewGameState(){
 		try {
 			String message = inputStream.readUTF();
-			System.out.println(message);
 			if(message.equals("CHANGE")){
 				receiveGameState();
 			}
