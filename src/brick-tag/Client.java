@@ -14,7 +14,6 @@ public class Client {
 			socket = new Socket("127.0.0.1",5000);
 //			socket = new Socket("192.168.1.2",5000);
 			this.brickTagGameVariables = btgV;
-
 			createStreams();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -38,7 +37,8 @@ public class Client {
 
 	public void receiveGameState(){
 		try {
-			this.brickTagGameVariables = (BrickTagGameVariables) objectInputStream.readObject();
+			this.brickTagGameVariables = null;
+			this.setBrickTagGameVariables((BrickTagGameVariables) objectInputStream.readObject());
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -47,6 +47,7 @@ public class Client {
 	public void sendString(String s){
 		try{
 			outputStream.writeUTF(s);
+			outputStream.flush();
 			if(s.equals("logout")){
 				socket.close();
 			}
@@ -64,5 +65,9 @@ public class Client {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void setBrickTagGameVariables(BrickTagGameVariables brickTagGameVariables) {
+		this.brickTagGameVariables = brickTagGameVariables;
 	}
 }

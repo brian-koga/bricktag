@@ -8,9 +8,9 @@ import org.newdawn.slick.state.StateBasedGame;
 /**
  * This state is active prior to the Game starting.
  *
- * 
+ *
  * Transitions From (Initialization), GameOverState
- * 
+ *
  * Transitions To PlayingState
  */
 
@@ -20,9 +20,9 @@ class StartUpState extends BasicGameState {
 
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
-			throws SlickException {
+		throws SlickException {
 	}
-	
+
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
 		container.setSoundOn(false);
@@ -30,11 +30,8 @@ class StartUpState extends BasicGameState {
 		BrickTagGame btg = (BrickTagGame) game;
 	}
 
-
 	@Override
-	public void render(GameContainer container, StateBasedGame game,
-			Graphics g) throws SlickException {
-
+	public void render(GameContainer container, StateBasedGame game,Graphics g) throws SlickException {
 		BrickTagGame btg = (BrickTagGame) game;
 		BrickTagGameVariables btgV = btg.variables;
 
@@ -42,33 +39,26 @@ class StartUpState extends BasicGameState {
 	}
 
 	@Override
-	public void update(GameContainer container, StateBasedGame game,
-			int delta) throws SlickException {
-
+	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
 		Input input = container.getInput();
 		BrickTagGame btg = (BrickTagGame) game;
 
 		if(input.isKeyPressed(Input.KEY_SPACE)) {
 			btg.client.sendString("SPACE");
-		}else{
+		} else {
 			btg.client.sendString("");
 		}
 
-		btg.client.checkIfNeedToGetNewGameState();
-
 		//Needs to be at bottom of method
-		btg.variables = btg.client.brickTagGameVariables;
-		System.out.println(btg.client.brickTagGameVariables.currentState);
+		btg.setVariablesFromClient();
 
 		if(btg.variables.currentState!=BrickTagGame.STARTUPSTATE){
 			btg.enterState(btg.variables.currentState);
 		}
-
 	}
 
 	@Override
 	public int getID() {
 		return BrickTagGame.STARTUPSTATE;
 	}
-	
 }

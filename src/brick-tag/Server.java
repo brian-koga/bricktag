@@ -39,18 +39,15 @@ public class Server {
 			}
 		}
 	}
-
-
 }
 
 class ClientHandler implements Runnable{
-	final DataInputStream inputStream;
-	final DataOutputStream outputStream;
+	DataInputStream inputStream;
+	DataOutputStream outputStream;
 	final Socket socket;
 	ObjectInputStream objectInputStream;
 	ObjectOutputStream objectOutputStream;
 	BrickTagGameVariables btgVariables;
-	String received;
 
 	ClientHandler(Socket socket, DataInputStream inputStream, DataOutputStream outputStream,ObjectOutputStream objectOutputStream,ObjectInputStream objectInputStream,BrickTagGameVariables btg) throws IOException {
 		this.socket = socket;
@@ -68,25 +65,32 @@ class ClientHandler implements Runnable{
 				break;
 			}
 		}
+		logoutClient();
 	}
 
 	private boolean clientHandlerLoop() {
-		received = receiveString();
-		boolean shouldWePlay = received.equals("SPACE") && this.btgVariables.currentState == BrickTagGame.STARTUPSTATE;
-		if(shouldWePlay) {
-			this.btgVariables.currentState = BrickTagGame.PLAYINGSTATE;
-			sendVariablesToClient();
-		} else if(received.equals("logout")){
-			logoutClient();
+		String received = receiveString();
+		boolean didSendMessage = false;
+		if(received.equals("logout")){
 			return true;
+		}else if(received.equals("NEW_MAP")){
+			receiveGameState();
+		}else if(btgVariables.currentState==BrickTagGame.STARTUPSTATE) {
+			didSendMessage = checkStartControls(received);
+		}else if(btgVariables.currentState==BrickTagGame.PLAYINGSTATE) {
+			didSendMessage = checkPlayingControls(received);
 		}
-		writeToClient("",this.outputStream);
+
+		if(!didSendMessage) {
+			writeToClient("", this.outputStream);
+		}
 		return false;
 	}
 
 	private void logoutClient(){
 		try {
 			Server.numberOfActivePlayers--;
+			Server.playerList.remove(this);
 			this.socket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -98,7 +102,9 @@ class ClientHandler implements Runnable{
 			try {
 				//Tells the client there is a change and then sends the updated btgVariable instance
 				writeToClient("CHANGE", ch.outputStream);
-				ch.objectOutputStream.writeObject(this.btgVariables);
+				BrickTagGameVariables temp = this.btgVariables;
+				ch.objectOutputStream.reset();
+				ch.objectOutputStream.writeObject(temp);
 				ch.objectOutputStream.flush();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -109,8 +115,8 @@ class ClientHandler implements Runnable{
 	public String receiveString(){
 		try {
 			return inputStream.readUTF();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException ignored) {
+//			e.printStackTrace();
 		}
 		return "";
 	}
@@ -118,7 +124,38 @@ class ClientHandler implements Runnable{
 	private void writeToClient(String s,DataOutputStream localOutputStream){
 		try {
 			localOutputStream.writeUTF(s);
-		} catch (IOException e) {
+			localOutputStream.flush();
+		} catch (IOException ignored) {}
+	}
+
+	private boolean checkStartControls(String input){
+		if(input.equals("SPACE")){
+			this.btgVariables.currentState = BrickTagGame.PLAYINGSTATE;
+			sendVariablesToClient();
+			return true;
+		}
+		return false;
+	}
+
+	private boolean checkPlayingControls(String input){
+		if(input.equals("0")){
+			this.btgVariables.toggleShowGrid();
+		}
+
+		if(!input.equals("")){
+			sendVariablesToClient();
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	public void receiveGameState(){
+		try {
+			for(ClientHandler ch : Server.playerList) {
+				ch.btgVariables = (BrickTagGameVariables) ch.objectInputStream.readObject();
+			}
+		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}

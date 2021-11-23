@@ -16,10 +16,14 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 	BrickTagGameVariables variables;
 	Client client;
 
-
 	public BrickTagGame(String name, int width, int height) {
 		super(name);
 		this.variables = new BrickTagGameVariables(height,width);
+	}
+
+	public void setVariablesFromClient() {
+		this.client.checkIfNeedToGetNewGameState();
+		this.variables = this.client.brickTagGameVariables;
 	}
 
 	@Override
@@ -30,7 +34,6 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 
 		// preload all the resources to avoid warnings & minimize latency...
 		ResourceManager.loadImage(Block_RSC);
-
 	}
 
 	public static void main(String[] args){

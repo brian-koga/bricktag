@@ -7,6 +7,7 @@ import org.newdawn.slick.state.StateBasedGame;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Scanner;
@@ -45,6 +46,8 @@ class PlayingState extends BasicGameState {
 			setupLevel(btg, "Brick-Tag/src/brick-tag/resource/Level2.txt");
 		}
 
+		sendNewMap(btg, btgV);
+
 		// ***** create elements in the world ****
 		/*
 		for(int i = 0; i < 28; i++) {
@@ -53,6 +56,17 @@ class PlayingState extends BasicGameState {
 		}
 		 */
 
+	}
+
+	private void sendNewMap(BrickTagGame btg, BrickTagGameVariables btgV) {
+		btg.client.sendString("NEW_MAP");
+		try {
+			btg.client.objectOutputStream.reset();
+			btg.client.objectOutputStream.writeObject(btgV);
+			btg.client.objectOutputStream.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void setupLevel(BrickTagGame btg, String path) {
@@ -102,8 +116,6 @@ class PlayingState extends BasicGameState {
 		//g.drawString("Score: " + btg.score, 110, 10);
 		g.drawString("Level: " + btgV.level, 110, 30);
 
-
-
 		// draw grid
 		if(btgV.showGrid) {
 			float x = 0;
@@ -113,7 +125,6 @@ class PlayingState extends BasicGameState {
 				g.drawLine(x, 0, x, btgV.ScreenHeight);
 				x += btgV.tileSize;
 			}
-
 
 			for (int i = 0; i < btgV.WorldTileHeight + 1; i++) {
 				g.drawLine(0, y, btgV.ScreenWidth, y);
@@ -146,18 +157,24 @@ class PlayingState extends BasicGameState {
 
 		Input input = container.getInput();
 		BrickTagGame btg = (BrickTagGame) game;
-		BrickTagGameVariables btgV = btg.variables;
-
 
 		if (input.isKeyPressed(Input.KEY_0)) {
-			btgV.showGrid = !btgV.showGrid;
+			btg.client.sendString("0");
 		}
 		//Temporary
 		else if(input.isKeyPressed(Input.KEY_ESCAPE)){
 			btg.client.sendString("logout");
 			System.exit(0);
+		}else{
+			btg.client.sendString("");
 		}
 
+		//Needs to be at bottom of method
+		btg.setVariablesFromClient();
+
+		if(btg.variables.currentState!=BrickTagGame.PLAYINGSTATE){
+			btg.enterState(btg.variables.currentState);
+		}
 	}
 
 	@Override
