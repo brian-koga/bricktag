@@ -3,6 +3,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
 
+
 @SuppressWarnings("InfiniteLoopStatement")
 public class Server {
 	static Vector<ClientHandler> playerList = new Vector<>();

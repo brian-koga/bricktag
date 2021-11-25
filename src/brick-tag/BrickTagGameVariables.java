@@ -1,4 +1,5 @@
 import java.io.Serializable;
+import jig.Vector;
 
 public class BrickTagGameVariables implements Serializable {
 	public final float ScreenWidth;
@@ -23,6 +24,10 @@ public class BrickTagGameVariables implements Serializable {
 	int currentState;
 	boolean showGrid;
 
+	// gravity vectors
+	Vector gravity;
+	Vector jump;
+
 	public BrickTagGameVariables(int height,int width){
 		ScreenHeight = (float)height;
 		ScreenWidth = (float)width;
@@ -36,6 +41,11 @@ public class BrickTagGameVariables implements Serializable {
 		this.WorldTileHeight = 11;
 
 		tileGrid = new Tile[WorldTileWidth][WorldTileHeight];
+
+		// adjust these values to change jumping behavior
+		gravity = new Vector(0f, +.025f); // .025 & .8 work quite nice
+		jump	= new Vector(0f, -.8f);
+
 		this.currentState = BrickTagGame.STARTUPSTATE;
 		this.tileSize = 64;
 		this.level = 1;
