@@ -28,6 +28,8 @@ public class BrickTagGameVariables implements Serializable {
 	Vector gravity;
 	Vector jump;
 
+	PlayerVariables playerVariables;
+
 	public BrickTagGameVariables(int height,int width){
 		ScreenHeight = (float)height;
 		ScreenWidth = (float)width;
@@ -50,6 +52,11 @@ public class BrickTagGameVariables implements Serializable {
 		this.tileSize = 64;
 		this.level = 1;
 		this.showGrid = true;
+		this.playerVariables = new PlayerVariables(640, 352, 0, 0);
+	}
+
+	public void setPv(PlayerVariables pv) {
+		this.playerVariables = pv;
 	}
 
 	public void setLevel(int level) {

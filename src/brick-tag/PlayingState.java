@@ -1,6 +1,5 @@
 import jig.ResourceManager;
 import jig.Vector;
-import org.lwjgl.Sys;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
@@ -8,8 +7,6 @@ import org.newdawn.slick.state.StateBasedGame;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Scanner;
 import java.lang.Math;
 
@@ -24,7 +21,7 @@ import java.lang.Math;
 class PlayingState extends BasicGameState {
 
 	int levelNumber;
-	boolean airborn = true;
+//	boolean airborn = true;
 
 	
 	@Override
@@ -39,6 +36,10 @@ class PlayingState extends BasicGameState {
 		BrickTagGame btg = (BrickTagGame) game;
 		BrickTagGameVariables btgV = btg.variables;
 
+		System.out.println(btg.player);
+
+		btgV.playerVariables = btg.player.getVariables();
+
 		// setup level
 		levelNumber = btgV.level;
 
@@ -48,7 +49,8 @@ class PlayingState extends BasicGameState {
 			setupLevel(btg, "Brick-Tag/src/brick-tag/resource/Level2.txt");
 		}
 
-		sendNewMap(btg, btgV);
+		btg.player.setTileGrid(btgV.tileGrid);
+		sendNewGameState(btg, btgV);
 
 		// ***** create elements in the world ****
 		/*
@@ -60,8 +62,8 @@ class PlayingState extends BasicGameState {
 
 	}
 
-	private void sendNewMap(BrickTagGame btg, BrickTagGameVariables btgV) {
-		btg.client.sendString("NEW_MAP");
+	private void sendNewGameState(BrickTagGame btg, BrickTagGameVariables btgV) {
+		btg.client.sendString("NEW");
 		try {
 			btg.client.objectOutputStream.reset();
 			btg.client.objectOutputStream.writeObject(btgV);
@@ -217,96 +219,102 @@ class PlayingState extends BasicGameState {
 		else if(input.isKeyPressed(Input.KEY_ESCAPE)){
 			btg.client.sendString("logout");
 			System.exit(0);
+		}else if(input.isKeyPressed(Input.KEY_SPACE)){
+			btg.client.sendString("SPACE");
+		}else if(input.isKeyDown(Input.KEY_A)){
+			btg.client.sendString("A");
+		}else if(input.isKeyDown(Input.KEY_D)){
+			btg.client.sendString("D");
 		}else{
 			btg.client.sendString("");
 		}
 
-
-
-
-
-
-		// "infinite" value
-		int xMax = 99;
-		int yMax = 99;
-		int xMin = -99;
-		int yMin = -99; //used for checking "head bonks" on block above. not implemented yet
-
-		//get player position in tile grid
-		int playerX = (int)Math.floor(btg.player.getX() / 64);
-		int playerY = (int)Math.floor(btg.player.getY() / 64);
-
-		//East
-		if( btgV.tileGrid[playerX + 1][playerY].designation != 0){ xMax = playerX + 1; }
-
-		//West
-		if( btgV.tileGrid[playerX - 1][playerY].designation != 0){ xMin = playerX - 1; }
-
-		//South
-		if( btgV.tileGrid[playerX][playerY + 1].designation != 0){
-			yMax = playerY + 1;
-		}else{
-			airborn = true;
-		}
-
-		//Ground Check
-		if(airborn) {
-			if (btg.player.getY() > ((yMax) * 64) - 32) {
-
-				System.out.println("Landed!");
-				//btg.player.translate(5, 0);
-				btg.player.setY(((yMax) * 64) - 32);
-				btg.player.setVelocity(new Vector(0f, 0f));
-				airborn = false;
-			}
-		}
-
-		//JUMPING
-		if(airborn) {
-			btg.player.setVelocity(btg.player.getVelocity().add(btgV.gravity));
-		}else {
-			if (input.isKeyPressed(Input.KEY_SPACE)) {
-				btg.player.setVelocity(btg.player.getVelocity().add(btgV.jump));
-				airborn = true;
-			}
-		}
-
-		//Movement - lots of seemingly random values here... had to adjust for smooth contact against tiles
-		//Move Left
-		if (input.isKeyDown(Input.KEY_A)) {
-			btg.player.translate(-5, 0);
-			if(btg.player.getX() < ((xMin)* 64) + 96){
-				btg.player.setX((xMin + 1)* 64 + 32);
-			}
-		}
-
-		//Move Right
-		if (input.isKeyDown(Input.KEY_D)) {
-			btg.player.translate(5, 0);
-			if(btg.player.getX() > ((xMax)* 64) - 32){
-				btg.player.setX((xMax)* 64 - 32);
-			}
-		}
-
-		btg.player.update(delta);
-
-
-
-
-
-
-
-
-
-
-
+//		boolean airborn = btgV.playerVariables.isAirborne();
+//
+//		// "infinite" value
+//		int xMax = 99;
+//		int yMax = 99;
+//		int xMin = -99;
+//		int yMin = -99; //used for checking "head bonks" on block above. not implemented yet
+//
+//		//get player position in tile grid
+//		int playerX = (int)Math.floor(btg.player.getX() / 64);
+//		int playerY = (int)Math.floor(btg.player.getY() / 64);
+//
+//		//East
+//		if( btgV.tileGrid[playerX + 1][playerY].designation != 0){ xMax = playerX + 1; }
+//
+//		//West
+//		if( btgV.tileGrid[playerX - 1][playerY].designation != 0){ xMin = playerX - 1; }
+//
+//		//South
+//		if( btgV.tileGrid[playerX][playerY + 1].designation != 0){
+//			yMax = playerY + 1;
+//		}else{
+//			airborn = true;
+//		}
+//
+//		//Ground Check
+//		if(airborn) {
+//			if (btg.player.getY() > ((yMax) * 64) - 32) {
+//
+//				System.out.println("Landed!");
+//				//btg.player.translate(5, 0);
+//				btg.player.setY(((yMax) * 64) - 32);
+//				btg.player.getVariables().setVelocity(new Vector(0f, 0f));
+//				airborn = false;
+//			}
+//		}
+//
+//		//JUMPING
+//		if(airborn) {
+//			btg.player.getVariables().setVelocity(btg.player.getVariables().getVelocity().add(btgV.gravity));
+//		}else {
+//			if (input.isKeyPressed(Input.KEY_SPACE)) {
+//				btg.player.getVariables().setVelocity(btg.player.getVariables().getVelocity().add(btgV.jump));
+//				airborn = true;
+//			}
+//		}
+//
+//
+//
+//		//Movement - lots of seemingly random values here... had to adjust for smooth contact against tiles
+//		//Move Left
+//		if (input.isKeyDown(Input.KEY_A)) {
+//			btg.player.translate(-5, 0);
+//			if(btg.player.getX() < ((xMin)* 64) + 96){
+//				btg.player.setX((xMin + 1)* 64 + 32);
+//			}
+//		}
+//
+//		//Move Right
+//		if (input.isKeyDown(Input.KEY_D)) {
+//			btg.player.translate(5, 0);
+//			if(btg.player.getX() > ((xMax)* 64) - 32){
+//				btg.player.setX((xMax)* 64 - 32);
+//			}
+//		}
+//
 
 		//Needs to be at bottom of method
 		btg.setVariablesFromClient();
 
+		btg.player.update(delta);
+
+//		sendPlayerPos(btg);
+
+		btgV.setPv(btg.player.getVariables());
+
+		this.sendNewGameState(btg,btgV);
+
 		if(btg.variables.currentState!=BrickTagGame.PLAYINGSTATE){
 			btg.enterState(btg.variables.currentState);
 		}
+	}
+
+	private void sendPlayerPos(BrickTagGame btg){
+		btg.client.sendPos(btg.player.getX());
+		btg.client.sendPos(btg.player.getY());
 	}
 
 	@Override

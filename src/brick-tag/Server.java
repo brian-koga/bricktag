@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Locale;
 import java.util.Vector;
 
 
@@ -72,14 +73,18 @@ class ClientHandler implements Runnable{
 	private boolean clientHandlerLoop() {
 		String received = receiveString();
 		boolean didSendMessage = false;
+
+		if(received.equals("NEW")){
+			receiveGameState();
+		}
+
 		if(received.equals("logout")){
 			return true;
-		}else if(received.equals("NEW_MAP")){
-			receiveGameState();
 		}else if(btgVariables.currentState==BrickTagGame.STARTUPSTATE) {
 			didSendMessage = checkStartControls(received);
 		}else if(btgVariables.currentState==BrickTagGame.PLAYINGSTATE) {
 			didSendMessage = checkPlayingControls(received);
+//			setPlayerPosition();
 		}
 
 		if(!didSendMessage) {
@@ -108,7 +113,7 @@ class ClientHandler implements Runnable{
 				ch.objectOutputStream.writeObject(temp);
 				ch.objectOutputStream.flush();
 			} catch (IOException e) {
-				e.printStackTrace();
+//				e.printStackTrace();
 			}
 		}
 	}
@@ -143,12 +148,97 @@ class ClientHandler implements Runnable{
 			this.btgVariables.toggleShowGrid();
 		}
 
-		if(!input.equals("")){
-			sendVariablesToClient();
-			return true;
+		this.movePlayer(input);
+
+		sendVariablesToClient();
+		return true;
+	}
+
+	private void movePlayer(String input){
+		// "infinite" value
+		int xMax = 99;
+		int yMax = 99;
+		int xMin = -99;
+		int yMin = -99; //used for checking "head bonks" on block above. not implemented yet
+
+		//get player position in tile grid
+		int playerX = (int)Math.floor(this.btgVariables.playerVariables.getX() / 64);
+		int playerY = (int)Math.floor(this.btgVariables.playerVariables.getY() / 64);
+
+//		int playerX = this.btgVariables.playerVariables.getPlayerX();
+//		int playerY = this.btgVariables.playerVariables.getPlayerY();
+
+		//East
+		if( this.btgVariables.tileGrid[playerX + 1][playerY].designation != 0){ xMax = playerX + 1; }
+
+		//West
+		if( this.btgVariables.tileGrid[playerX - 1][playerY].designation != 0){ xMin = playerX - 1; }
+
+		//South
+		if( this.btgVariables.tileGrid[playerX][playerY + 1].designation != 0){
+			yMax = playerY + 1;
 		}else{
-			return false;
+			this.btgVariables.playerVariables.setAirborne(true);
 		}
+
+//		Ground Check
+		if(this.btgVariables.playerVariables.isAirborne()) {
+			if (this.btgVariables.playerVariables.getY() > ((yMax) * 64) - 32) {
+
+				System.out.println("Landed!");
+//				btg.player.translate(5, 0);
+				this.btgVariables.playerVariables.setVariableY(((yMax) * 64) - 32);
+				this.btgVariables.playerVariables.setVelocity(0,0);
+				this.btgVariables.playerVariables.setAirborne(false);
+			}
+		}
+
+		if(this.btgVariables.playerVariables.isAirborne()){
+			this.btgVariables.playerVariables.setVelocity(this.btgVariables.playerVariables.getVelocity().add(this.btgVariables.gravity));
+		}else{
+			if(input.equals("SPACE")){
+				this.btgVariables.playerVariables.setVelocity(this.btgVariables.playerVariables.getVelocity().add(this.btgVariables.jump));
+				this.btgVariables.playerVariables.setAirborne(true);
+			}
+		}
+
+		if(input.equals("A")){
+			jig.Vector v = this.btgVariables.playerVariables.getVelocity();
+			if(this.btgVariables.playerVariables.getVelocity().getX()>0) {
+				v = this.btgVariables.playerVariables.getVelocity().add(new jig.Vector(-.1f, 0));
+			}
+			this.btgVariables.playerVariables.setVelocity(v);
+			if(this.btgVariables.playerVariables.getX() < ((xMin)* 64) + 96){
+				this.btgVariables.playerVariables.setVariableX((xMin + 1)* 64 + 32);
+			}
+		}else if(input.equals("D")){
+			jig.Vector v = this.btgVariables.playerVariables.getVelocity();
+			if(this.btgVariables.playerVariables.getVelocity().getX()<0) {
+				v = this.btgVariables.playerVariables.getVelocity().add(new jig.Vector(.1f, 0));
+			}
+			this.btgVariables.playerVariables.setVelocity(v);
+			if(this.btgVariables.playerVariables.getX() > ((xMax)* 64) - 32){
+				this.btgVariables.playerVariables.setVariableX((xMax)* 64 - 32);
+			}
+		}
+
+		if(input.equals("") && this.btgVariables.playerVariables.getVelocity().getY()==0){
+			this.btgVariables.playerVariables.setVelocity(0,0);
+		}
+	}
+
+	private void setPlayerPosition(){
+		float x = 0;
+		float y = 0;
+		try {
+			x = inputStream.readFloat();
+			y = inputStream.readFloat();
+			this.btgVariables.playerVariables.setVariableX(x);
+			this.btgVariables.playerVariables.setVariableY(y);
+		} catch (IOException e) {
+//			e.printStackTrace();
+		}
+
 	}
 
 	public void receiveGameState(){

@@ -31,6 +31,7 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 	public void setVariablesFromClient() {
 		this.client.checkIfNeedToGetNewGameState();
 		this.variables = this.client.brickTagGameVariables;
+		this.player.setVariables(this.client.brickTagGameVariables.playerVariables);
 	}
 
 	@Override

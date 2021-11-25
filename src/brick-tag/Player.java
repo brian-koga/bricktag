@@ -1,6 +1,7 @@
 import jig.ResourceManager;
-import jig.Vector;
 import jig.Entity;
+import jig.Vector;
+import org.lwjgl.Sys;
 
 
 /**
@@ -10,26 +11,14 @@ import jig.Entity;
  *
  */
 class Player extends Entity {
+	private PlayerVariables variables;
+	private Tile[][] tileGrid;
 
-    private Vector velocity;
-    private int countdown;
-
-    public Player(final float x, final float y, final float vx, final float vy) {
-        super(x, y);
-        addImageWithBoundingBox(ResourceManager.getImage(BrickTagGame.PLAYER_RSC));
-        velocity = new Vector(vx, vy);
-        countdown = 0;
-    }
-
-    public void setVelocity(final Vector v) {
-        velocity = v;
-    }
-
-    public Vector getVelocity() {
-        return velocity;
-    }
-
-
+	public Player(final float x, final float y, final float vx, final float vy) {
+		super(x, y);
+		addImageWithBoundingBox(ResourceManager.getImage(BrickTagGame.PLAYER_RSC));
+		this.variables = new PlayerVariables(x, y, vx, vy);
+	}
 
 	/*
 
@@ -43,18 +32,130 @@ class Player extends Entity {
 
 	*/
 
+	public void setTileGrid(Tile[][] tileGrid) {
+		this.tileGrid = tileGrid;
+	}
 
+	public void setVariables(PlayerVariables variables) {
+		this.variables = variables;
+	}
 
+	public PlayerVariables getVariables() {
+		return variables;
+	}
 
-    public void update(final int delta) {
-        translate(velocity.scale(delta));
-        if (countdown > 0) {
-            countdown -= delta;
-            if (countdown <= 0) {
-                addImageWithBoundingBox(ResourceManager.getImage(BrickTagGame.PLAYER_RSC));
-                removeImage(ResourceManager.getImage(BrickTagGame.PLAYER_RSC));
-            }
-        }
-    }
+	public void update(final int delta) {
+//		setPosition(variables.getX(),variables.getY());
+
+//		// "infinite" value
+//		int xMax = 99;
+//		int yMax = 99;
+//		int xMin = -99;
+//		int yMin = -99; //used for checking "head bonks" on block above. not implemented yet
+//
+//		//get player position in tile grid
+//		int playerX = (int) Math.floor(this.getX() / 64);
+//		int playerY = (int) Math.floor(this.getY() / 64);
+//
+//
+//		//East
+//		if (this.tileGrid[playerX + 1][playerY].designation != 0) {
+//			xMax = playerX + 1;
+//		}
+//
+//		//West
+//		if (this.tileGrid[playerX - 1][playerY].designation != 0) {
+//			xMin = playerX - 1;
+//		}
+//
+//		//South
+//		if (this.tileGrid[playerX][playerY + 1].designation != 0) {
+//			yMax = playerY + 1;
+//		} else {
+//			this.variables.setAirborne(true);
+//		}
+//
+//		//Ground Check
+//		if (this.variables.isAirborne()) {
+//			if (this.getY() > ((yMax) * 64) - 32) {
+////				System.out.println("Landed!");
+//				this.setY(((yMax) * 64) - 32);
+//				this.variables.setAirborne(false);
+//			}
+//		}
+//
+//		if (this.getX() < ((xMin) * 64) + 96) {
+//			this.setX((xMin + 1) * 64 + 32);
+//		}
+//
+//		if (this.getX() > ((xMax) * 64) - 32) {
+//			this.setX((xMax) * 64 - 32);
+//		}
+
+		translate(variables.getVelocity().scale(delta));
+	}
+
+//		// "infinite" value
+//		int xMax = 99;
+//		int yMax = 99;
+//		int xMin = -99;
+//		int yMin = -99;
+//		int playerX = (int)Math.floor(this.getX() / 64);
+//		int playerY = (int)Math.floor(this.getY() / 64);
+//		if( btgV.tileGrid[playerX + 1][playerY].designation != 0){ xMax = playerX + 1; }
+//		if( btgV.tileGrid[playerX - 1][playerY].designation != 0){ xMin = playerX - 1; }
+//		if( btgV.tileGrid[playerX][playerY + 1].designation != 0){
+//			yMax = playerY + 1;
+//		}else{
+//			airborn = true;
+//		}
+//		if(airborn) {
+//			if (this.getY() > ((yMax) * 64) - 32) {
+//				this.setY(((yMax) * 64) - 32);
+//				airborn = false;
+//			}
+//		}
+//		if(this.getX() < ((xMin)* 64) + 96){
+//			this.setX((xMin + 1)* 64 + 32);
+//		}
+//		if(this.getX() > ((xMax)* 64) - 32){
+//			this.setX((xMax)* 64 - 32);
+//		}
+//
+//		this.variables.setVariableX(this.getX());
+//		this.variables.setVariableY(this.getY());
+//
+//	}
+//
+//
+//	{
+//		// "infinite" value
+//		int xMax = 99;
+//		int yMax = 99;
+//		int xMin = -99;
+//		int yMin = -99;
+//		int playerX = (int)Math.floor(this.getX() / 64);
+//		int playerY = (int)Math.floor(this.getY() / 64);
+//		if( btgV.tileGrid[playerX + 1][playerY].designation != 0){ xMax = playerX + 1; }
+//		if( btgV.tileGrid[playerX - 1][playerY].designation != 0){ xMin = playerX - 1; }
+//		if( btgV.tileGrid[playerX][playerY + 1].designation != 0){
+//			yMax = playerY + 1;
+//		}else{
+//			airborn = true;
+//		}
+//		if(airborn) {
+//			if (this.getY() > ((yMax) * 64) - 32) {
+//				this.setY(((yMax) * 64) - 32);
+//				airborn = false;
+//			}
+//		}
+//		if(this.getX() < ((xMin)* 64) + 96){
+//			this.setX((xMin + 1)* 64 + 32);
+//		}
+//		if(this.getX() > ((xMax)* 64) - 32){
+//			this.setX((xMax)* 64 - 32);
+//		}
+//	}
+
 }
 
