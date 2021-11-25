@@ -1,8 +1,10 @@
+import jig.Entity;
 import jig.ResourceManager;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
+
 
 import java.io.Serializable;
 
@@ -13,11 +15,16 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 	public static final int GAMEOVERSTATE = 2;
 
 	public static final String Block_RSC = "resource/red_outlet_tile_64px.png";
+	//public static final String PLAYER_RSC = "resource/player.png";
+	public static final String PLAYER_RSC = "resource/red_outlet_tile_64px.png";
+
 	BrickTagGameVariables variables;
 	Client client;
+	Player player;
 
 	public BrickTagGame(String name, int width, int height) {
 		super(name);
+		Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
 		this.variables = new BrickTagGameVariables(height,width);
 	}
 
@@ -34,6 +41,9 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 
 		// preload all the resources to avoid warnings & minimize latency...
 		ResourceManager.loadImage(Block_RSC);
+		ResourceManager.loadImage(PLAYER_RSC);
+
+		player = new Player(640, 352, 0, 0);
 	}
 
 	public static void main(String[] args){
