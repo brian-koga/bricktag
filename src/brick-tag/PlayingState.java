@@ -1,6 +1,5 @@
 import jig.ResourceManager;
 import jig.Vector;
-import org.lwjgl.Sys;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
@@ -8,8 +7,6 @@ import org.newdawn.slick.state.StateBasedGame;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Scanner;
 import java.lang.Math;
 
@@ -24,8 +21,6 @@ import java.lang.Math;
 class PlayingState extends BasicGameState {
 
 	int levelNumber;
-	boolean airborn = true;
-
 	
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
@@ -39,6 +34,10 @@ class PlayingState extends BasicGameState {
 		BrickTagGame btg = (BrickTagGame) game;
 		BrickTagGameVariables btgV = btg.variables;
 
+		//System.out.println(btg.player);
+
+		btgV.PV = btg.player.getVariables();
+
 		// setup level
 		levelNumber = btgV.level;
 
@@ -48,7 +47,8 @@ class PlayingState extends BasicGameState {
 			setupLevel(btg, "Brick-Tag/src/brick-tag/resource/Level2.txt");
 		}
 
-		sendNewMap(btg, btgV);
+		btg.player.setTileGrid(btgV.tileGrid);
+		sendNewGameState(btg, btgV);
 
 		// ***** create elements in the world ****
 		/*
@@ -60,8 +60,8 @@ class PlayingState extends BasicGameState {
 
 	}
 
-	private void sendNewMap(BrickTagGame btg, BrickTagGameVariables btgV) {
-		btg.client.sendString("NEW_MAP");
+	private void sendNewGameState(BrickTagGame btg, BrickTagGameVariables btgV) {
+		btg.client.sendString("NEW");
 		try {
 			btg.client.objectOutputStream.reset();
 			btg.client.objectOutputStream.writeObject(btgV);
@@ -151,61 +151,13 @@ class PlayingState extends BasicGameState {
 
 		// draw players
 		btg.player.render(g);
-
 	}
-
-
-
-
-
-
-	/*
-
-	//checks for collisions with a provided brick & the ball, return 0 on no collision, 1 on side, 2 on roof/floor
-	public int collision(GameContainer container, StateBasedGame game, Tile object) throws SlickException {
-		BrickTagGame btg = (BrickTagGame) game;
-
-		if (btg.ball.getCoarseGrainedMaxX() > object.getCoarseGrainedMinX()){
-			if(btg.ball.getCoarseGrainedMinX() < object.getCoarseGrainedMaxX()){
-				if( btg.ball.getCoarseGrainedMaxY() > object.getCoarseGrainedMinY() &&
-						btg.ball.getCoarseGrainedMinY() < object.getCoarseGrainedMaxY()) {
-
-					//variables for each side, value closest to zero is collision side
-					float west, east, north, south;
-
-					west = (bg.ball.getCoarseGrainedMaxX() - object.getCoarseGrainedMinX());
-					east = (bg.ball.getCoarseGrainedMinX() - object.getCoarseGrainedMaxX());
-					north = (bg.ball.getCoarseGrainedMaxY() - object.getCoarseGrainedMinY());
-					south = (bg.ball.getCoarseGrainedMinY() - object.getCoarseGrainedMaxY());
-
-					if(west < 0) { west = west * (-1);}
-					if(east < 0) { east = east * (-1);}
-					if(north < 0) { north = north * (-1);}
-					if(south < 0) { south = south * (-1);}
-
-					//System.out.println("N: " + north + " E: " + east + " S: " + south + " W: " + west);
-
-					if(((north < east) && (north < west)) || ((south < east) && (south < west))){
-						//System.out.println("north/south");
-						return 2;
-					}
-
-					return 1;
-				}
-			}
-		}
-		return 0;
-	}
-
-
-	*/
-
-
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game,
 			int delta) throws SlickException {
 
+		//System.out.println("update start");
 		Input input = container.getInput();
 		BrickTagGame btg = (BrickTagGame) game;
 		BrickTagGameVariables btgV = btg.variables;
@@ -217,96 +169,33 @@ class PlayingState extends BasicGameState {
 		else if(input.isKeyPressed(Input.KEY_ESCAPE)){
 			btg.client.sendString("logout");
 			System.exit(0);
+		}else if(input.isKeyPressed(Input.KEY_SPACE)){
+			btg.client.sendString("SPACE");
+		}else if(input.isKeyDown(Input.KEY_A)){
+			btg.client.sendString("A");
+		}else if(input.isKeyDown(Input.KEY_D)){
+			btg.client.sendString("D");
 		}else{
 			btg.client.sendString("");
 		}
 
 
-
-
-
-
-		// "infinite" value
-		int xMax = 99;
-		int yMax = 99;
-		int xMin = -99;
-		int yMin = -99; //used for checking "head bonks" on block above. not implemented yet
-
-		//get player position in tile grid
-		int playerX = (int)Math.floor(btg.player.getX() / 64);
-		int playerY = (int)Math.floor(btg.player.getY() / 64);
-
-		//East
-		if( btgV.tileGrid[playerX + 1][playerY].designation != 0){ xMax = playerX + 1; }
-
-		//West
-		if( btgV.tileGrid[playerX - 1][playerY].designation != 0){ xMin = playerX - 1; }
-
-		//South
-		if( btgV.tileGrid[playerX][playerY + 1].designation != 0){
-			yMax = playerY + 1;
-		}else{
-			airborn = true;
+		if(btgV.PV != null) {
+			System.out.println("Client Coords: " + btgV.PV.getX() + " " + btgV.PV.getY());
+			btg.player.setPosition(btgV.PV.getX(), btgV.PV.getY());
 		}
 
-		//Ground Check
-		if(airborn) {
-			if (btg.player.getY() > ((yMax) * 64) - 32) {
 
-				System.out.println("Landed!");
-				//btg.player.translate(5, 0);
-				btg.player.setY(((yMax) * 64) - 32);
-				btg.player.setVelocity(new Vector(0f, 0f));
-				airborn = false;
-			}
-		}
-
-		//JUMPING
-		if(airborn) {
-			btg.player.setVelocity(btg.player.getVelocity().add(btgV.gravity));
-		}else {
-			if (input.isKeyPressed(Input.KEY_SPACE)) {
-				btg.player.setVelocity(btg.player.getVelocity().add(btgV.jump));
-				airborn = true;
-			}
-		}
-
-		//Movement - lots of seemingly random values here... had to adjust for smooth contact against tiles
-		//Move Left
-		if (input.isKeyDown(Input.KEY_A)) {
-			btg.player.translate(-5, 0);
-			if(btg.player.getX() < ((xMin)* 64) + 96){
-				btg.player.setX((xMin + 1)* 64 + 32);
-			}
-		}
-
-		//Move Right
-		if (input.isKeyDown(Input.KEY_D)) {
-			btg.player.translate(5, 0);
-			if(btg.player.getX() > ((xMax)* 64) - 32){
-				btg.player.setX((xMax)* 64 - 32);
-			}
-		}
-
-		btg.player.update(delta);
-
-
-
-
-
-
-
-
-
-
-
-
-		//Needs to be at bottom of method
 		btg.setVariablesFromClient();
+		btgV.setPv(btg.player.getVariables());
 
-		if(btg.variables.currentState!=BrickTagGame.PLAYINGSTATE){
-			btg.enterState(btg.variables.currentState);
-		}
+		if(btg.variables.currentState!=BrickTagGame.PLAYINGSTATE){ btg.enterState(btg.variables.currentState); }
+
+	}
+
+	private void sendPlayerPos(BrickTagGame btg){
+		btg.client.sendPos(btg.player.getX());
+		btg.client.sendPos(btg.player.getY());
 	}
 
 	@Override

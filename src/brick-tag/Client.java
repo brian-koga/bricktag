@@ -13,6 +13,7 @@ public class Client {
 		try {
 			socket = new Socket("127.0.0.1",5000);
 //			socket = new Socket("192.168.1.2",5000);
+
 			this.brickTagGameVariables = btgV;
 			createStreams();
 		} catch (IOException e) {
@@ -37,6 +38,7 @@ public class Client {
 
 	public void receiveGameState(){
 		try {
+			//System.out.println("receive GameState");
 			this.brickTagGameVariables = null;
 			this.setBrickTagGameVariables((BrickTagGameVariables) objectInputStream.readObject());
 		} catch (IOException | ClassNotFoundException e) {
@@ -51,6 +53,15 @@ public class Client {
 			if(s.equals("logout")){
 				socket.close();
 			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void sendPos(float pos){
+		try {
+			outputStream.writeFloat(pos);
+			outputStream.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
