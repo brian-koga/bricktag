@@ -49,7 +49,7 @@ class ClientHandler implements Runnable{
 	final Socket socket;
 	ObjectInputStream objectInputStream;
 	ObjectOutputStream objectOutputStream;
-	BrickTagGameVariables btgVariables;
+	BrickTagGameVariables BTGV;
 
 	ClientHandler(Socket socket, DataInputStream inputStream, DataOutputStream outputStream,ObjectOutputStream objectOutputStream,ObjectInputStream objectInputStream,BrickTagGameVariables btg) throws IOException {
 		this.socket = socket;
@@ -57,7 +57,7 @@ class ClientHandler implements Runnable{
 		this.outputStream = outputStream;
 		this.objectOutputStream = objectOutputStream;
 		this.objectInputStream = objectInputStream;
-		this.btgVariables = btg;
+		this.BTGV = btg;
 	}
 
 	@Override
@@ -80,9 +80,9 @@ class ClientHandler implements Runnable{
 
 		if(received.equals("logout")){
 			return true;
-		}else if(btgVariables.currentState==BrickTagGame.STARTUPSTATE) {
+		}else if(BTGV.currentState==BrickTagGame.STARTUPSTATE) {
 			didSendMessage = checkStartControls(received);
-		}else if(btgVariables.currentState==BrickTagGame.PLAYINGSTATE) {
+		}else if(BTGV.currentState==BrickTagGame.PLAYINGSTATE) {
 			didSendMessage = checkPlayingControls(received);
 //			setPlayerPosition();
 		}
@@ -108,7 +108,7 @@ class ClientHandler implements Runnable{
 			try {
 				//Tells the client there is a change and then sends the updated btgVariable instance
 				writeToClient("CHANGE", ch.outputStream);
-				BrickTagGameVariables temp = this.btgVariables;
+				BrickTagGameVariables temp = this.BTGV;
 				ch.objectOutputStream.reset();
 				ch.objectOutputStream.writeObject(temp);
 				ch.objectOutputStream.flush();
@@ -124,6 +124,7 @@ class ClientHandler implements Runnable{
 		} catch (IOException ignored) {
 //			e.printStackTrace();
 		}
+
 		return "";
 	}
 
@@ -136,7 +137,7 @@ class ClientHandler implements Runnable{
 
 	private boolean checkStartControls(String input){
 		if(input.equals("SPACE")){
-			this.btgVariables.currentState = BrickTagGame.PLAYINGSTATE;
+			this.BTGV.currentState = BrickTagGame.PLAYINGSTATE;
 			sendVariablesToClient();
 			return true;
 		}
@@ -144,88 +145,144 @@ class ClientHandler implements Runnable{
 	}
 
 	private boolean checkPlayingControls(String input){
-		if(input.equals("0")){
-			this.btgVariables.toggleShowGrid();
-		}
+		if(input.equals("0")){ this.BTGV.toggleShowGrid(); }
 
 		this.movePlayer(input);
-
 		sendVariablesToClient();
+
 		return true;
 	}
 
 	private void movePlayer(String input){
+
+		PlayerVariables newLocation;
+
+		//Leave at top
+		if(BTGV.PV == null){
+			System.out.println("position currently null - this is expected - setting to default");
+			newLocation = new PlayerVariables(280, 352, 0, 0);
+			this.BTGV.setPv(newLocation);
+			this.BTGV.PV.setAirborne(true);
+		}
+
+		update();
+
 		// "infinite" value
 		int xMax = 99;
 		int yMax = 99;
 		int xMin = -99;
-		int yMin = -99; //used for checking "head bonks" on block above. not implemented yet
+		int yMin = -99;
 
 		//get player position in tile grid
-		int playerX = (int)Math.floor(this.btgVariables.playerVariables.getX() / 64);
-		int playerY = (int)Math.floor(this.btgVariables.playerVariables.getY() / 64);
-
-//		int playerX = this.btgVariables.playerVariables.getPlayerX();
-//		int playerY = this.btgVariables.playerVariables.getPlayerY();
+		int playerX = (int)Math.floor(this.BTGV.PV.getX() / 64);
+		int playerY = (int)Math.floor(this.BTGV.PV.getY() / 64);
 
 		//East
-		if( this.btgVariables.tileGrid[playerX + 1][playerY].designation != 0){ xMax = playerX + 1; }
+		if(playerX == (BTGV.WorldTileWidth - 1)){ xMax = (BTGV.WorldTileWidth); }
+		else if (BTGV.tileGrid[playerX + 1][playerY].designation != 0) {
+			xMax = playerX + 1;
+		}else{}
 
 		//West
-		if( this.btgVariables.tileGrid[playerX - 1][playerY].designation != 0){ xMin = playerX - 1; }
+		if(playerX == 0){ xMin = -1; }
+		else if (BTGV.tileGrid[playerX - 1][playerY].designation != 0) {
+			xMin = playerX - 1;
+		}else{}
 
 		//South
-		if( this.btgVariables.tileGrid[playerX][playerY + 1].designation != 0){
+		if( this.BTGV.tileGrid[playerX][playerY + 1].designation != 0){
 			yMax = playerY + 1;
 		}else{
-			this.btgVariables.playerVariables.setAirborne(true);
+			this.BTGV.PV.setAirborne(true);
 		}
 
-//		Ground Check
-		if(this.btgVariables.playerVariables.isAirborne()) {
-			if (this.btgVariables.playerVariables.getY() > ((yMax) * 64) - 32) {
+		//North
+		if(playerY == 0){ yMin = -1; }
+		else if (BTGV.tileGrid[playerX][playerY - 1].designation != 0) {
+			yMin = playerY - 1;
+		}else{}
 
-				System.out.println("Landed!");
-//				btg.player.translate(5, 0);
-				this.btgVariables.playerVariables.setVariableY(((yMax) * 64) - 32);
-				this.btgVariables.playerVariables.setVelocity(0,0);
-				this.btgVariables.playerVariables.setAirborne(false);
+
+
+
+		//Roof Check
+		if(this.BTGV.PV.isAirborne()) {
+			if (this.BTGV.PV.getY() < ((yMin) * 64) + 96) {
+				System.out.println("Bonk!");
+				this.BTGV.PV.setVariableY(((yMin + 1) * 64) + 32);
+				this.BTGV.PV.resetVelocity();
 			}
 		}
 
-		if(this.btgVariables.playerVariables.isAirborne()){
-			this.btgVariables.playerVariables.setVelocity(this.btgVariables.playerVariables.getVelocity().add(this.btgVariables.gravity));
+		//Ground Check
+		if(this.BTGV.PV.isAirborne()) {
+			if (this.BTGV.PV.getY() > ((yMax) * 64) - 32) {
+				System.out.println("Landed!");
+				this.BTGV.PV.setVariableY(((yMax) * 64) - 32);
+				this.BTGV.PV.resetVelocity();
+				this.BTGV.PV.setAirborne(false);
+			}
+		}
+
+		//Gravity
+		if(this.BTGV.PV.isAirborne()){
+			System.out.println("add gravity!");
+			translateMoveHelper(0f,0f,0f,this.BTGV.gravityValue);
 		}else{
 			if(input.equals("SPACE")){
-				this.btgVariables.playerVariables.setVelocity(this.btgVariables.playerVariables.getVelocity().add(this.btgVariables.jump));
-				this.btgVariables.playerVariables.setAirborne(true);
+				translateMoveHelper(0f,0f,0f,this.BTGV.jumpValue);
+				this.BTGV.PV.setAirborne(true);
 			}
 		}
 
+		//MOVE WEST
 		if(input.equals("A")){
-			jig.Vector v = this.btgVariables.playerVariables.getVelocity();
-			if(this.btgVariables.playerVariables.getVelocity().getX()>0) {
-				v = this.btgVariables.playerVariables.getVelocity().add(new jig.Vector(-.1f, 0));
-			}
-			this.btgVariables.playerVariables.setVelocity(v);
-			if(this.btgVariables.playerVariables.getX() < ((xMin)* 64) + 96){
-				this.btgVariables.playerVariables.setVariableX((xMin + 1)* 64 + 32);
-			}
-		}else if(input.equals("D")){
-			jig.Vector v = this.btgVariables.playerVariables.getVelocity();
-			if(this.btgVariables.playerVariables.getVelocity().getX()<0) {
-				v = this.btgVariables.playerVariables.getVelocity().add(new jig.Vector(.1f, 0));
-			}
-			this.btgVariables.playerVariables.setVelocity(v);
-			if(this.btgVariables.playerVariables.getX() > ((xMax)* 64) - 32){
-				this.btgVariables.playerVariables.setVariableX((xMax)* 64 - 32);
+			translateMoveHelper(-5f,0f,0f,0f);
+
+			if(this.BTGV.PV.getX() < ((xMin)* 64) + 96 || (this.BTGV.PV.getX() < 32)){
+				this.BTGV.PV.setVariableX((xMin + 1)* 64 + 32);
 			}
 		}
 
-		if(input.equals("") && this.btgVariables.playerVariables.getVelocity().getY()==0){
-			this.btgVariables.playerVariables.setVelocity(0,0);
+		//MOVE EAST
+		if(input.equals("D")){
+			translateMoveHelper(5f,0f,0f,0f);
+
+			if(this.BTGV.PV.getX() > ((xMax)* 64) - 32){
+				this.BTGV.PV.setVariableX((xMax)* 64 - 32);
+			}
+		}
+
+
+		if(input.equals("") && this.BTGV.PV.getVelocity().getY()==0){
+			this.BTGV.PV.setVelocity(0,0);
 		}
 	}
+
+	//Adds velocity to position
+	private void update(){
+		float tempVX = BTGV.PV.getVX();
+		float tempVY = BTGV.PV.getVY();
+		translateMoveHelper(tempVX, tempVY, 0f, 0f);
+	}
+
+	//Adds given value to pre-existing value - pretty much translate();
+	private void translateMoveHelper(float x, float y, float vx, float vy){
+		PlayerVariables newLocation;
+
+		float tempX = BTGV.PV.getX();
+		float tempY = BTGV.PV.getY();
+		float tempVX = BTGV.PV.getVX();
+		float tempVY = BTGV.PV.getVY();
+		boolean airborne = this.BTGV.PV.isAirborne();
+		BTGV.PV = null;
+
+		newLocation = new PlayerVariables(tempX + (x), tempY + (y),tempVX + (vx), tempVY  + (vy));
+		this.BTGV.setPv(newLocation);
+
+		this.BTGV.PV.setAirborne(airborne);
+	}
+
 
 	private void setPlayerPosition(){
 		float x = 0;
@@ -233,8 +290,8 @@ class ClientHandler implements Runnable{
 		try {
 			x = inputStream.readFloat();
 			y = inputStream.readFloat();
-			this.btgVariables.playerVariables.setVariableX(x);
-			this.btgVariables.playerVariables.setVariableY(y);
+			this.BTGV.PV.setVariableX(x);
+			this.BTGV.PV.setVariableY(y);
 		} catch (IOException e) {
 //			e.printStackTrace();
 		}
@@ -242,12 +299,26 @@ class ClientHandler implements Runnable{
 	}
 
 	public void receiveGameState(){
+		PlayerVariables tempPvHolder = null;
+		BrickTagGameVariables tempBTGVHolder = null;
+		//System.out.println("receive game state");
+		if(BTGV.PV != null){
+			//System.out.println("receive GS print x before: " + BTGV.PV.getX() );
+			tempPvHolder = BTGV.PV;
+			tempBTGVHolder = BTGV;
+		}
+
 		try {
 			for(ClientHandler ch : Server.playerList) {
-				ch.btgVariables = (BrickTagGameVariables) ch.objectInputStream.readObject();
+				ch.BTGV = (BrickTagGameVariables) ch.objectInputStream.readObject();
 			}
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
+		}
+
+		if(BTGV.PV != null){
+			this.BTGV.setPv(tempPvHolder);
+			this.BTGV = tempBTGVHolder;
 		}
 	}
 }

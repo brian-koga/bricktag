@@ -7,9 +7,8 @@ public class PlayerVariables implements Serializable {
 
 	private Vector velocity;
 	private int countdown;
-	private float x;
-	private float y;
-	private boolean airborne = true;
+	private float x, y, vx, vy;
+	private boolean airborne;
 	private int playerX;
 	private int playerY;
 
@@ -17,6 +16,8 @@ public class PlayerVariables implements Serializable {
 	PlayerVariables(final float x, final float y, final float vx, final float vy){
 		this.x=x;
 		this.y=y;
+		this.vx=vx;
+		this.vy=vy;
 		this.velocity = new Vector(vx, vy);
 		this.countdown = 0;
 	}
@@ -41,17 +42,17 @@ public class PlayerVariables implements Serializable {
 		this.countdown = countdown;
 	}
 
-	public float getX() {
-		return x;
-	}
+	public float getX() {return x;}
+	public float getVX() {return vx;}
 
 	public void setVariableX(float x) {
 		this.x = x;
 	}
 
-	public float getY() {
-		return y;
-	}
+	public float getY() {return y;}
+	public float getVY() {return vy;}
+
+	public void resetVelocity() {this.vx = 0; this.vy = 0; velocity = new Vector(0,0);}
 
 	public void setVariableY(float y) {
 		this.y = y;
