@@ -21,8 +21,6 @@ import java.lang.Math;
 class PlayingState extends BasicGameState {
 
 	int levelNumber;
-//	boolean airborn = true;
-
 	
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
@@ -36,9 +34,9 @@ class PlayingState extends BasicGameState {
 		BrickTagGame btg = (BrickTagGame) game;
 		BrickTagGameVariables btgV = btg.variables;
 
-		System.out.println(btg.player);
+		//System.out.println(btg.player);
 
-		btgV.playerVariables = btg.player.getVariables();
+		btgV.PV = btg.player.getVariables();
 
 		// setup level
 		levelNumber = btgV.level;
@@ -153,61 +151,13 @@ class PlayingState extends BasicGameState {
 
 		// draw players
 		btg.player.render(g);
-
 	}
-
-
-
-
-
-
-	/*
-
-	//checks for collisions with a provided brick & the ball, return 0 on no collision, 1 on side, 2 on roof/floor
-	public int collision(GameContainer container, StateBasedGame game, Tile object) throws SlickException {
-		BrickTagGame btg = (BrickTagGame) game;
-
-		if (btg.ball.getCoarseGrainedMaxX() > object.getCoarseGrainedMinX()){
-			if(btg.ball.getCoarseGrainedMinX() < object.getCoarseGrainedMaxX()){
-				if( btg.ball.getCoarseGrainedMaxY() > object.getCoarseGrainedMinY() &&
-						btg.ball.getCoarseGrainedMinY() < object.getCoarseGrainedMaxY()) {
-
-					//variables for each side, value closest to zero is collision side
-					float west, east, north, south;
-
-					west = (bg.ball.getCoarseGrainedMaxX() - object.getCoarseGrainedMinX());
-					east = (bg.ball.getCoarseGrainedMinX() - object.getCoarseGrainedMaxX());
-					north = (bg.ball.getCoarseGrainedMaxY() - object.getCoarseGrainedMinY());
-					south = (bg.ball.getCoarseGrainedMinY() - object.getCoarseGrainedMaxY());
-
-					if(west < 0) { west = west * (-1);}
-					if(east < 0) { east = east * (-1);}
-					if(north < 0) { north = north * (-1);}
-					if(south < 0) { south = south * (-1);}
-
-					//System.out.println("N: " + north + " E: " + east + " S: " + south + " W: " + west);
-
-					if(((north < east) && (north < west)) || ((south < east) && (south < west))){
-						//System.out.println("north/south");
-						return 2;
-					}
-
-					return 1;
-				}
-			}
-		}
-		return 0;
-	}
-
-
-	*/
-
-
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game,
 			int delta) throws SlickException {
 
+		//System.out.println("update start");
 		Input input = container.getInput();
 		BrickTagGame btg = (BrickTagGame) game;
 		BrickTagGameVariables btgV = btg.variables;
@@ -229,87 +179,18 @@ class PlayingState extends BasicGameState {
 			btg.client.sendString("");
 		}
 
-//		boolean airborn = btgV.playerVariables.isAirborne();
-//
-//		// "infinite" value
-//		int xMax = 99;
-//		int yMax = 99;
-//		int xMin = -99;
-//		int yMin = -99; //used for checking "head bonks" on block above. not implemented yet
-//
-//		//get player position in tile grid
-//		int playerX = (int)Math.floor(btg.player.getX() / 64);
-//		int playerY = (int)Math.floor(btg.player.getY() / 64);
-//
-//		//East
-//		if( btgV.tileGrid[playerX + 1][playerY].designation != 0){ xMax = playerX + 1; }
-//
-//		//West
-//		if( btgV.tileGrid[playerX - 1][playerY].designation != 0){ xMin = playerX - 1; }
-//
-//		//South
-//		if( btgV.tileGrid[playerX][playerY + 1].designation != 0){
-//			yMax = playerY + 1;
-//		}else{
-//			airborn = true;
-//		}
-//
-//		//Ground Check
-//		if(airborn) {
-//			if (btg.player.getY() > ((yMax) * 64) - 32) {
-//
-//				System.out.println("Landed!");
-//				//btg.player.translate(5, 0);
-//				btg.player.setY(((yMax) * 64) - 32);
-//				btg.player.getVariables().setVelocity(new Vector(0f, 0f));
-//				airborn = false;
-//			}
-//		}
-//
-//		//JUMPING
-//		if(airborn) {
-//			btg.player.getVariables().setVelocity(btg.player.getVariables().getVelocity().add(btgV.gravity));
-//		}else {
-//			if (input.isKeyPressed(Input.KEY_SPACE)) {
-//				btg.player.getVariables().setVelocity(btg.player.getVariables().getVelocity().add(btgV.jump));
-//				airborn = true;
-//			}
-//		}
-//
-//
-//
-//		//Movement - lots of seemingly random values here... had to adjust for smooth contact against tiles
-//		//Move Left
-//		if (input.isKeyDown(Input.KEY_A)) {
-//			btg.player.translate(-5, 0);
-//			if(btg.player.getX() < ((xMin)* 64) + 96){
-//				btg.player.setX((xMin + 1)* 64 + 32);
-//			}
-//		}
-//
-//		//Move Right
-//		if (input.isKeyDown(Input.KEY_D)) {
-//			btg.player.translate(5, 0);
-//			if(btg.player.getX() > ((xMax)* 64) - 32){
-//				btg.player.setX((xMax)* 64 - 32);
-//			}
-//		}
-//
 
-		//Needs to be at bottom of method
+		if(btgV.PV != null) {
+			System.out.println("Client Coords: " + btgV.PV.getX() + " " + btgV.PV.getY());
+			btg.player.setPosition(btgV.PV.getX(), btgV.PV.getY());
+		}
+
+
 		btg.setVariablesFromClient();
-
-		btg.player.update(delta);
-
-//		sendPlayerPos(btg);
-
 		btgV.setPv(btg.player.getVariables());
 
-		this.sendNewGameState(btg,btgV);
+		if(btg.variables.currentState!=BrickTagGame.PLAYINGSTATE){ btg.enterState(btg.variables.currentState); }
 
-		if(btg.variables.currentState!=BrickTagGame.PLAYINGSTATE){
-			btg.enterState(btg.variables.currentState);
-		}
 	}
 
 	private void sendPlayerPos(BrickTagGame btg){
