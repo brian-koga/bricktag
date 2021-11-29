@@ -1,4 +1,7 @@
 import java.io.Serializable;
+import java.util.ArrayList;
+
+import jig.Entity;
 import jig.Vector;
 
 public class BrickTagGameVariables implements Serializable {
@@ -12,9 +15,13 @@ public class BrickTagGameVariables implements Serializable {
 	// size of tile in pixels
 	float tileSize;
 
-	// This will be the size of the world in tiles (set for the screen size for now)
+	// This will be the size of the world in tiles
 	public final int WorldTileWidth;
 	public final int WorldTileHeight;
+
+	// This will be the size of the screen in tiles
+	public final int ScreenTileWidth;
+	public final int ScreenTileHeight;
 
 	// what level it is (numbers for now, could change)
 	int level;
@@ -28,19 +35,24 @@ public class BrickTagGameVariables implements Serializable {
 	float gravityValue;
 	float jumpValue;
 
+
 	PlayerVariables PV;
 
 	public BrickTagGameVariables(int height,int width) {
 		ScreenHeight = (float) height;
 		ScreenWidth = (float) width;
 
-		// For now set these to be the same, when scrolling is added, the world size will be fixed as a
-		// class variable, or change based on the level, in which case these won't be finals
-		WorldHeight = ScreenHeight;
-		WorldWidth = ScreenWidth;
+		this.ScreenTileWidth = 20;
+		this.ScreenTileHeight = 11;
 
-		this.WorldTileWidth = 20;
-		this.WorldTileHeight = 11;
+
+		this.WorldTileWidth = ScreenTileWidth*3;
+		this.WorldTileHeight = ScreenTileHeight*2;
+
+		// do we want this to change based on the level?
+		WorldWidth = ScreenWidth*3;
+		WorldHeight = ScreenHeight*2;
+
 
 		tileGrid = new Tile[WorldTileWidth][WorldTileHeight];
 
@@ -49,10 +61,11 @@ public class BrickTagGameVariables implements Serializable {
 		gravityValue = .4f;
 		jumpValue = -13.0f;
 
+
 		this.currentState = BrickTagGame.STARTUPSTATE;
 		this.tileSize = 64;
 		this.level = 1;
-		this.showGrid = true;
+		this.showGrid = false;
 
 	}
 

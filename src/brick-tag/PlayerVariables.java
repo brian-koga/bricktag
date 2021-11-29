@@ -2,6 +2,7 @@ import jig.ResourceManager;
 import jig.Vector;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class PlayerVariables implements Serializable {
 
@@ -11,6 +12,9 @@ public class PlayerVariables implements Serializable {
 	private boolean airborne;
 	private int playerX;
 	private int playerY;
+	float x_SC, y_SC;
+
+	ArrayList<VisibleObject> objectsToRender = new ArrayList<>();
 
 
 	PlayerVariables(final float x, final float y, final float vx, final float vy){
