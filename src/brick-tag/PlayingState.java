@@ -1,3 +1,4 @@
+import jig.Entity;
 import jig.ResourceManager;
 import jig.Vector;
 import org.newdawn.slick.*;
@@ -7,6 +8,7 @@ import org.newdawn.slick.state.StateBasedGame;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.lang.Math;
 
@@ -123,12 +125,12 @@ class PlayingState extends BasicGameState {
 			float x = 0;
 			float y = 0;
 
-			for (int i = 0; i < btgV.WorldTileWidth; i++) {
+			for (int i = 0; i < btgV.ScreenTileWidth; i++) {
 				g.drawLine(x, 0, x, btgV.ScreenHeight);
 				x += btgV.tileSize;
 			}
 
-			for (int i = 0; i < btgV.WorldTileHeight + 1; i++) {
+			for (int i = 0; i < btgV.ScreenTileHeight + 1; i++) {
 				g.drawLine(0, y, btgV.ScreenWidth, y);
 				y += btgV.tileSize;
 			}
@@ -138,8 +140,9 @@ class PlayingState extends BasicGameState {
 
 		// draw blocks
 		//temporary, not an efficient way to do this, should only create them once
-		for(int i = 0; i < btgV.WorldTileWidth; i++) {
-			for(int j = 0; j < btgV.WorldTileHeight; j++) {
+	/*
+		for(int i = 0; i < btgV.ScreenTileWidth; i++) {
+			for(int j = 0; j < btgV.ScreenTileHeight; j++) {
 				if(btgV.tileGrid[i][j].designation == 1) {
 					// should be a block
 					g.drawImage(ResourceManager.getImage(BrickTagGame.Block_RSC), i*btgV.tileSize, j*btgV.tileSize);
@@ -147,7 +150,15 @@ class PlayingState extends BasicGameState {
 			}
 		}
 
+	 */
+
+
+
 		// draw others
+		for (VisibleObject objectToRender : btgV.PV.objectsToRender) {
+			if(objectToRender.objectType == 'b')
+				g.drawImage(ResourceManager.getImage(BrickTagGame.Block_RSC), objectToRender.x, objectToRender.y);
+		}
 
 		// draw players
 		btg.player.render(g);
@@ -181,7 +192,7 @@ class PlayingState extends BasicGameState {
 
 
 		if(btgV.PV != null) {
-			System.out.println("Client Coords: " + btgV.PV.getX() + " " + btgV.PV.getY());
+			//System.out.println("Client Coords: " + btgV.PV.getX() + " " + btgV.PV.getY());
 			btg.player.setPosition(btgV.PV.getX(), btgV.PV.getY());
 		}
 
@@ -191,6 +202,90 @@ class PlayingState extends BasicGameState {
 
 		if(btg.variables.currentState!=BrickTagGame.PLAYINGSTATE){ btg.enterState(btg.variables.currentState); }
 
+		// change the player coordinates to screen coordinates
+		calculateObjects(btgV);
+		// this is fine since a new game state will be sent on the next update
+		btg.player.setPosition(btgV.PV.x_SC, btgV.PV.y_SC);
+
+	}
+
+	public void calculateObjects(BrickTagGameVariables btgV) {
+		// find where the player is, this will be the center (usually)
+		float centerX = btgV.PV.getX();
+		float centerY = btgV.PV.getY();
+
+		//System.out.println("calculateObjects, precheck: player is at (" + BTGV.PV.getX() + "," +BTGV.PV.getY() + ")");
+		//System.out.println("calculateObjects, precheck: center is at (" + centerX + "," + centerY + ")");
+
+		// calculate edges of screen (in world coordinates)
+
+		// left and right
+		float left = centerX - btgV.ScreenWidth/2;
+		float right = centerX + btgV.ScreenWidth/2;
+		if(left < 0) {
+			left = 0;
+			centerX = btgV.ScreenWidth/2;
+			right = btgV.ScreenWidth;
+		}
+
+		if(right > btgV.WorldWidth) {
+			right = btgV.WorldWidth;
+			centerX = btgV.WorldWidth - btgV.ScreenWidth/2;
+			left = btgV.WorldWidth - btgV.ScreenWidth;
+		}
+
+		// top and bottom
+		float top = centerY - btgV.ScreenHeight/2;
+		float bottom = centerY + btgV.ScreenHeight/2;
+		if(top < 0) {
+			top = 0;
+			centerY = btgV.ScreenHeight / 2;
+			bottom = btgV.ScreenHeight;
+		}
+
+		if(bottom > btgV.WorldHeight) {
+			bottom = btgV.WorldHeight;
+			centerY = btgV.WorldHeight - btgV.ScreenHeight/2;
+			top = btgV.WorldHeight - btgV.ScreenHeight;
+		}
+
+		//System.out.println("calculateObjects: player is at (" + BTGV.PV.getX() + "," +BTGV.PV.getY() + ")");
+		//System.out.println("calculateObjects: center is at (" + centerX + "," + centerY + ")");
+		//System.out.println("calculateObjects: left, right is at (" + left + "," + right + ")");
+		//System.out.println("calculateObjects: top, bottom is at (" + top + "," + bottom + ")");
+
+		// define the center coordinates of screen (this is based on the screen size)
+		float centerX_SC = btgV.ScreenWidth/2;
+		float centerY_SC = btgV.ScreenHeight/2;
+
+		float xDiff = centerX - centerX_SC;
+		float yDiff = centerY - centerY_SC;
+
+		int leftTile = (int) (left/64);
+		int topTile = (int) (top/64);
+		int rightTile = leftTile + btgV.ScreenTileWidth;
+		int bottomTile = topTile + btgV.ScreenTileHeight;
+
+		//System.out.println("calculateObjects: leftTile, rightTile is (" + leftTile + "," + rightTile + ")");
+		//System.out.println("calculateObjects: topTile, bottomTile is (" + topTile + "," + bottomTile + ")");
+
+		btgV.PV.objectsToRender.clear();
+
+
+		for(int i = leftTile; i < rightTile; i++) {
+			for(int j = topTile; j < bottomTile; j++) {
+				if(btgV.tileGrid[i][j].designation == 1) {
+					// should be a block
+					btgV.PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'b'));
+				}
+				// other players?
+				// other objects?
+			}
+		}
+
+		// change the player screen coordinates
+		btgV.PV.x_SC = btgV.PV.getX() - xDiff;
+		btgV.PV.y_SC = btgV.PV.getY() - yDiff;
 	}
 
 	private void sendPlayerPos(BrickTagGame btg){
