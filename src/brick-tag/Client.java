@@ -38,7 +38,6 @@ public class Client {
 
 	public void receiveGameState(){
 		try {
-//			System.out.println("receive GameState");
 			this.brickTagGameVariables = null;
 			this.setBrickTagGameVariables((BrickTagGameVariables) objectInputStream.readObject());
 		} catch (IOException | ClassNotFoundException e) {

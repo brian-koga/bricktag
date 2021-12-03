@@ -16,8 +16,8 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 	public static final int GAMEOVERSTATE = 2;
 
 	public static final String Block_RSC = "resource/red_outlet_tile_64px.png";
-	//public static final String PLAYER_RSC = "resource/player.png";
-	public static final String PLAYER_RSC = "resource/red_outlet_tile_64px.png";
+	public static final String PLAYER_RSC = "resource/player.png";
+//	public static final String PLAYER_RSC = "resource/red_outlet_tile_64px.png";
 
 	BrickTagGameVariables variables;
 	Client client;
@@ -36,7 +36,7 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 		this.variables = this.client.brickTagGameVariables;
 		for(int i = 0;i<this.client.brickTagGameVariables.playerList.size();i++){
 			PlayerVariables newPV = this.client.brickTagGameVariables.playerList.get(i);
-			if(this.allPlayers.get(i)==null){
+			if(i>this.allPlayers.size()-1){
 				this.allPlayers.add(new Player(0,0,0,0));
 			}
 			this.allPlayers.get(i).setVariables(newPV);
@@ -55,7 +55,6 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 
 		//creates player, position here is kinda irrelevant as its changed instantly.
 		player = new Player(240, 352, 0, 0);
-		allPlayers.add(player);
 	}
 
 	public static void main(String[] args){

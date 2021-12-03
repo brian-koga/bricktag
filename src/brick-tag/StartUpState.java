@@ -31,24 +31,10 @@ class StartUpState extends BasicGameState {
 
 		BrickTagGame btg = (BrickTagGame) game;
 		int index = btg.client.receiveIndex();
-		if(index!=-1){
+		if(index!=-1) {
 			btg.player.setIndex(index);
 		}
-		btg.allPlayers.add(btg.player);
-//		sendNewPlayerVariables(btg,btg.variables);
 	}
-
-//	private void sendNewPlayerVariables(BrickTagGame btg, BrickTagGameVariables btgV) {
-//		KeyboardCommand kc = new KeyboardCommand(-1,"PV");
-//		PlayingState.sendKeyboardCommands(kc,btg);
-//		try {
-//			btg.client.objectOutputStream.reset();
-//			btg.client.objectOutputStream.writeObject(btg.player.getVariables());
-//			btg.client.objectOutputStream.flush();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//	}
 
 	@Override
 	public void render(GameContainer container, StateBasedGame game,Graphics g) throws SlickException {

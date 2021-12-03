@@ -45,9 +45,7 @@ class PlayingState extends BasicGameState {
 		}
 
 		playerIndex = btg.player.getIndex();
-
 		btg.player.setTileGrid(btgV.tileGrid);
-//		sendNewGameState(btg, btgV);
 
 		sendNewPlayerVariables(btg);
 		btg.setVariablesFromClient();
@@ -74,20 +72,7 @@ class PlayingState extends BasicGameState {
 		}
 	}
 
-	private void sendNewGameState(BrickTagGame btg, BrickTagGameVariables btgV) {
-		KeyboardCommand kc = new KeyboardCommand(-1,"NEW");
-		sendKeyboardCommands(kc,btg);
-		try {
-			btg.client.objectOutputStream.reset();
-			btg.client.objectOutputStream.writeObject(btgV);
-			btg.client.objectOutputStream.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 	static void sendKeyboardCommands(KeyboardCommand kc,BrickTagGame btg) {
-//		btg.client.sendString("NEW");
 		try {
 			btg.client.objectOutputStream.reset();
 			btg.client.objectOutputStream.writeObject(kc);
@@ -134,8 +119,7 @@ class PlayingState extends BasicGameState {
 
 
 	@Override
-	public void render(GameContainer container, StateBasedGame game,
-					   Graphics g) throws SlickException {
+	public void render(GameContainer container, StateBasedGame game, Graphics g) {
 		BrickTagGame btg = (BrickTagGame) game;
 		BrickTagGameVariables btgV = btg.variables;
 		g.setColor(Color.white);
@@ -176,52 +160,34 @@ class PlayingState extends BasicGameState {
 		// draw others
 
 		// draw players
-//		btg.player.render(g);
-//		for(Player p : btg.allPlayers){
-//			p.render(g);
-//		}
 		for(int i = 0; i<btg.allPlayers.size(); i++){
 			btg.allPlayers.get(i).render(g);
 		}
 	}
 
 	@Override
-	public void update(GameContainer container, StateBasedGame game,
-					   int delta) throws SlickException {
-
-		//System.out.println("update start");
+	public void update(GameContainer container, StateBasedGame game,int delta){
 		Input input = container.getInput();
 		BrickTagGame btg = (BrickTagGame) game;
 		BrickTagGameVariables btgV = btg.variables;
-//		PlayerVariables PV = btgV.playerList.get(playerIndex);
-
-//		String index = String.valueOf(this.playerIndex);
-//		System.out.println(index);
-//		btg.client.sendString(index);
 
 		KeyboardCommand kc = new KeyboardCommand();
 		kc.index = playerIndex;
 
 		if (input.isKeyPressed(Input.KEY_0)) {
-//			btg.client.sendString("DEBUG");
 			kc.command = "DEBUG";
 		}
 		//Temporary
 		else if(input.isKeyPressed(Input.KEY_ESCAPE)){
-//			btg.client.sendString("logout");
 			kc.command = "logout";
 			System.exit(0);
 		}else if(input.isKeyPressed(Input.KEY_SPACE)){
-//			btg.client.sendString("SPACE");
 			kc.command = "SPACE";
 		}else if(input.isKeyDown(Input.KEY_A)){
-//			btg.client.sendString("A");
 			kc.command = "A";
 		}else if(input.isKeyDown(Input.KEY_D)){
-//			btg.client.sendString("D");
 			kc.command = "D";
 		}else{
-//			btg.client.sendString("");
 			kc.command = "";
 		}
 
@@ -231,7 +197,6 @@ class PlayingState extends BasicGameState {
 		setPlayerPositions(btg, btgV);
 
 		if(btg.variables.currentState!=BrickTagGame.PLAYINGSTATE){ btg.enterState(btg.variables.currentState); }
-
 	}
 
 	private void setPlayerPositions(BrickTagGame btg, BrickTagGameVariables btgV) {

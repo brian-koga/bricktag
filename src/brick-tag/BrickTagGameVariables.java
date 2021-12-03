@@ -1,8 +1,6 @@
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import jig.Vector;
-
 public class BrickTagGameVariables implements Serializable {
 	public final float ScreenWidth;
 	public final float ScreenHeight;
@@ -30,7 +28,6 @@ public class BrickTagGameVariables implements Serializable {
 	float gravityValue;
 	float jumpValue;
 
-//	PlayerVariables PV;
 	ArrayList<PlayerVariables> playerList;
 
 	public BrickTagGameVariables(int height,int width) {

@@ -53,7 +53,6 @@ class ClientHandler implements Runnable{
 	final Socket socket;
 	ObjectInputStream objectInputStream;
 	ObjectOutputStream objectOutputStream;
-//	BrickTagGameVariables BTGV = Server.BTGV;
 	PlayerVariables PV;
 	final int playerIndex;
 
@@ -63,14 +62,12 @@ class ClientHandler implements Runnable{
 		this.outputStream = outputStream;
 		this.objectOutputStream = objectOutputStream;
 		this.objectInputStream = objectInputStream;
-//		this.BTGV = btg;
 		this.playerIndex = i;
 	}
 
 	@Override
 	public void run(){
 		this.writeIndex(this.playerIndex);
-//		setPlayerList();
 		Server.BTGV.playerList.add(new PlayerVariables(240, 352, 0, 0));
 		while (true){
 			if (clientHandlerLoop()){
@@ -78,12 +75,6 @@ class ClientHandler implements Runnable{
 			}
 		}
 		logoutClient();
-	}
-
-	private void setPlayerList() {
-		for(int i = 0; i <= this.playerIndex;i++) {
-			Server.BTGV.playerList.add(new PlayerVariables(240, 352, 0, 0));
-		}
 	}
 
 	private boolean clientHandlerLoop() {
@@ -95,10 +86,6 @@ class ClientHandler implements Runnable{
 		String received = kc.command;
 
 		boolean didSendMessage = false;
-
-//		if(!received.equals("")){
-//			System.out.println(this.playerIndex + " " + received);
-//		}
 
 		if(received.equals("NEW")){
 			receiveGameState();
@@ -155,18 +142,6 @@ class ClientHandler implements Runnable{
 	}
 
 	public void sendVariablesToClient(){
-//		for(ClientHandler ch : Server.playerList) {
-//			try {
-//				//Tells the client there is a change and then sends the updated btgVariable instance
-//				writeToClient("CHANGE", ch.outputStream);
-////				BrickTagGameVariables temp = this.BTGV;
-//				ch.objectOutputStream.reset();
-//				ch.objectOutputStream.writeObject(this.BTGV);
-//				ch.objectOutputStream.flush();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//		}
 		try {
 			writeToClient("CHANGE", this.outputStream);
 			this.objectOutputStream.reset();
@@ -176,15 +151,6 @@ class ClientHandler implements Runnable{
 			e.printStackTrace();
 		}
 
-	}
-
-	public String receiveString(){
-		try {
-			return inputStream.readUTF();
-		} catch (IOException ignored) {
-//			e.printStackTrace();
-		}
-		return "";
 	}
 
 	private void writeToClient(String s,DataOutputStream localOutputStream){
@@ -348,7 +314,6 @@ class ClientHandler implements Runnable{
 		Server.BTGV.setPv(newLocation,this.playerIndex);
 		this.PV = newLocation;
 		this.PV.setAirborne(airborne);
-		System.out.println("Server Coords " + this.playerIndex +": " + PV.getX() + " " + PV.getY());
 	}
 
 	public void receiveGameState(){
