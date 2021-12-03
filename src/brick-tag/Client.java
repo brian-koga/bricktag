@@ -38,12 +38,21 @@ public class Client {
 
 	public void receiveGameState(){
 		try {
-			//System.out.println("receive GameState");
+//			System.out.println("receive GameState");
 			this.brickTagGameVariables = null;
 			this.setBrickTagGameVariables((BrickTagGameVariables) objectInputStream.readObject());
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public int receiveIndex(){
+		try {
+			return inputStream.readInt();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return -1;
 	}
 
 	public void sendString(String s){
@@ -53,15 +62,6 @@ public class Client {
 			if(s.equals("logout")){
 				socket.close();
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void sendPos(float pos){
-		try {
-			outputStream.writeFloat(pos);
-			outputStream.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

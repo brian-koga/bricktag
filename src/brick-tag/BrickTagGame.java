@@ -7,6 +7,7 @@ import org.newdawn.slick.state.StateBasedGame;
 
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class BrickTagGame extends StateBasedGame implements Serializable {
 
@@ -21,17 +22,25 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 	BrickTagGameVariables variables;
 	Client client;
 	Player player;
+	ArrayList<Player> allPlayers;
 
 	public BrickTagGame(String name, int width, int height) {
 		super(name);
 		Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
 		this.variables = new BrickTagGameVariables(height,width);
+		allPlayers = new ArrayList<>(4);
 	}
 
 	public void setVariablesFromClient() {
 		this.client.checkIfNeedToGetNewGameState();
 		this.variables = this.client.brickTagGameVariables;
-		this.player.setVariables(this.client.brickTagGameVariables.PV);
+		for(int i = 0;i<this.client.brickTagGameVariables.playerList.size();i++){
+			PlayerVariables newPV = this.client.brickTagGameVariables.playerList.get(i);
+			if(this.allPlayers.get(i)==null){
+				this.allPlayers.add(new Player(0,0,0,0));
+			}
+			this.allPlayers.get(i).setVariables(newPV);
+		}
 	}
 
 	@Override
@@ -46,6 +55,7 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 
 		//creates player, position here is kinda irrelevant as its changed instantly.
 		player = new Player(240, 352, 0, 0);
+		allPlayers.add(player);
 	}
 
 	public static void main(String[] args){

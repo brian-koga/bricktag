@@ -5,6 +5,8 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+import java.io.IOException;
+
 /**
  * This state is active prior to the Game starting.
  *
@@ -28,7 +30,25 @@ class StartUpState extends BasicGameState {
 		container.setSoundOn(false);
 
 		BrickTagGame btg = (BrickTagGame) game;
+		int index = btg.client.receiveIndex();
+		if(index!=-1){
+			btg.player.setIndex(index);
+		}
+		btg.allPlayers.add(btg.player);
+//		sendNewPlayerVariables(btg,btg.variables);
 	}
+
+//	private void sendNewPlayerVariables(BrickTagGame btg, BrickTagGameVariables btgV) {
+//		KeyboardCommand kc = new KeyboardCommand(-1,"PV");
+//		PlayingState.sendKeyboardCommands(kc,btg);
+//		try {
+//			btg.client.objectOutputStream.reset();
+//			btg.client.objectOutputStream.writeObject(btg.player.getVariables());
+//			btg.client.objectOutputStream.flush();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 	@Override
 	public void render(GameContainer container, StateBasedGame game,Graphics g) throws SlickException {
@@ -43,11 +63,16 @@ class StartUpState extends BasicGameState {
 		Input input = container.getInput();
 		BrickTagGame btg = (BrickTagGame) game;
 
+		KeyboardCommand kc = new KeyboardCommand();
+		kc.index = btg.player.getIndex();
+
 		if(input.isKeyPressed(Input.KEY_SPACE)) {
-			btg.client.sendString("SPACE");
+			kc.command = "SPACE";
 		} else {
-			btg.client.sendString("");
+			kc.command = "";
 		}
+
+		PlayingState.sendKeyboardCommands(kc,btg);
 
 		//Needs to be at bottom of method
 		btg.setVariablesFromClient();

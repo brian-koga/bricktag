@@ -1,4 +1,6 @@
 import java.io.Serializable;
+import java.util.ArrayList;
+
 import jig.Vector;
 
 public class BrickTagGameVariables implements Serializable {
@@ -28,7 +30,8 @@ public class BrickTagGameVariables implements Serializable {
 	float gravityValue;
 	float jumpValue;
 
-	PlayerVariables PV;
+//	PlayerVariables PV;
+	ArrayList<PlayerVariables> playerList;
 
 	public BrickTagGameVariables(int height,int width) {
 		ScreenHeight = (float) height;
@@ -53,14 +56,33 @@ public class BrickTagGameVariables implements Serializable {
 		this.tileSize = 64;
 		this.level = 1;
 		this.showGrid = true;
-
+		this.playerList = new ArrayList<>(4);
+		setTileGrid();
 	}
 
-	public void setPv(PlayerVariables pv) {this.PV = pv;}
+	public void setPv(PlayerVariables pv,int index) {
+		this.playerList.set(index,pv);
+	}
 
 	public void setLevel(int level) {this.level = level;}
 
 	public void setCurrentState(int currentState) {this.currentState = currentState;}
 
 	public void toggleShowGrid() {this.showGrid = !this.showGrid;}
+
+	public void setTileGrid() {
+		String path = getMapFile(this.level);
+		PlayingState.setupLevel(this,path);
+	}
+
+	private String getMapFile(int levelNumber){
+		if(levelNumber == 1) {
+			return "Brick-Tag/src/brick-tag/resource/Level1.txt";
+		} else if(levelNumber == 2) {
+			return  "Brick-Tag/src/brick-tag/resource/Level2.txt";
+		}
+		else{
+			return null;
+		}
+	}
 }
