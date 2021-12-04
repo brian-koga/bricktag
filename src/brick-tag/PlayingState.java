@@ -1,6 +1,4 @@
-import jig.Entity;
 import jig.ResourceManager;
-import jig.Vector;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
@@ -8,25 +6,24 @@ import org.newdawn.slick.state.StateBasedGame;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Scanner;
-import java.lang.Math;
 
 
 /**
  * This state is active when the Game is being played.
- * 
+ *
  * Transitions From StartUpState, LevelOverState
- * 
+ *
  * Transitions To GameOverState, LevelOverState
  */
 class PlayingState extends BasicGameState {
 
 	int levelNumber;
-	
+	int playerIndex;
+
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
-			throws SlickException {
+		throws SlickException {
 	}
 
 	@Override
@@ -36,21 +33,20 @@ class PlayingState extends BasicGameState {
 		BrickTagGame btg = (BrickTagGame) game;
 		BrickTagGameVariables btgV = btg.variables;
 
-		//System.out.println(btg.player);
-
-		btgV.PV = btg.player.getVariables();
-
 		// setup level
 		levelNumber = btgV.level;
 
 		if(levelNumber == 1) {
-			setupLevel(btg, "Brick-Tag/src/brick-tag/resource/Level1.txt");
+			setupLevel(btgV, "Brick-Tag/src/brick-tag/resource/Level1.txt");
 		} else if(levelNumber == 2) {
-			setupLevel(btg, "Brick-Tag/src/brick-tag/resource/Level2.txt");
+			setupLevel(btgV, "Brick-Tag/src/brick-tag/resource/Level2.txt");
 		}
 
+		playerIndex = btg.player.getIndex();
 		btg.player.setTileGrid(btgV.tileGrid);
-		sendNewGameState(btg, btgV);
+
+		sendNewPlayerVariables(btg);
+		btg.setVariablesFromClient();
 
 		// ***** create elements in the world ****
 		/*
@@ -62,19 +58,30 @@ class PlayingState extends BasicGameState {
 
 	}
 
-	private void sendNewGameState(BrickTagGame btg, BrickTagGameVariables btgV) {
-		btg.client.sendString("NEW");
+	private void sendNewPlayerVariables(BrickTagGame btg) {
+		KeyboardCommand kc = new KeyboardCommand(this.playerIndex,"PV");
+		PlayingState.sendKeyboardCommands(kc,btg);
 		try {
 			btg.client.objectOutputStream.reset();
-			btg.client.objectOutputStream.writeObject(btgV);
+			btg.client.objectOutputStream.writeObject(btg.player.getVariables());
 			btg.client.objectOutputStream.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void setupLevel(BrickTagGame btg, String path) {
-		BrickTagGameVariables btgV = btg.variables;
+	static void sendKeyboardCommands(KeyboardCommand kc,BrickTagGame btg) {
+		try {
+			btg.client.objectOutputStream.reset();
+			btg.client.objectOutputStream.writeObject(kc);
+			btg.client.objectOutputStream.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void setupLevel(BrickTagGameVariables btgV, String path) {
+//		BrickTagGameVariables btgV = btg.variables;
 		try {
 			File f = new File(path);
 			Scanner scan = new Scanner(f);
@@ -110,8 +117,7 @@ class PlayingState extends BasicGameState {
 
 
 	@Override
-	public void render(GameContainer container, StateBasedGame game,
-			Graphics g) throws SlickException {
+	public void render(GameContainer container, StateBasedGame game, Graphics g) {
 		BrickTagGame btg = (BrickTagGame) game;
 		BrickTagGameVariables btgV = btg.variables;
 		g.setColor(Color.white);
@@ -155,64 +161,73 @@ class PlayingState extends BasicGameState {
 
 
 		// draw others
-		for (VisibleObject objectToRender : btgV.PV.objectsToRender) {
-			if(objectToRender.objectType == 'b')
+		PlayerVariables PV = btg.allPlayers.get(this.playerIndex).getVariables();
+		for (VisibleObject objectToRender : PV.objectsToRender) {
+			if(objectToRender.objectType == 'b') {
 				g.drawImage(ResourceManager.getImage(BrickTagGame.Block_RSC), objectToRender.x, objectToRender.y);
+			}else if(objectToRender.objectType == 'p'){
+				Player tempPlayerVariables = btg.allPlayers.get(objectToRender.playersIndexOnScreen);
+				btg.allPlayers.get(objectToRender.playersIndexOnScreen).setPosition(tempPlayerVariables.getScreenX(), tempPlayerVariables.getScreenY());
+				btg.allPlayers.get(objectToRender.playersIndexOnScreen).render(g);
+			}
 		}
 
+//		btg.allPlayers.get(this.playerIndex).render(g);
+
 		// draw players
-		btg.player.render(g);
+//		for(int i = 0; i<btg.allPlayers.size(); i++){
+//			btg.allPlayers.get(i).render(g);
+//		}
 	}
 
 	@Override
-	public void update(GameContainer container, StateBasedGame game,
-			int delta) throws SlickException {
-
-		//System.out.println("update start");
+	public void update(GameContainer container, StateBasedGame game,int delta){
 		Input input = container.getInput();
 		BrickTagGame btg = (BrickTagGame) game;
 		BrickTagGameVariables btgV = btg.variables;
 
+		KeyboardCommand kc = new KeyboardCommand();
+		kc.index = playerIndex;
+
 		if (input.isKeyPressed(Input.KEY_0)) {
-			btg.client.sendString("0");
+			kc.command = "DEBUG";
 		}
 		//Temporary
 		else if(input.isKeyPressed(Input.KEY_ESCAPE)){
-			btg.client.sendString("logout");
+			kc.command = "logout";
 			System.exit(0);
 		}else if(input.isKeyPressed(Input.KEY_SPACE)){
-			btg.client.sendString("SPACE");
+			kc.command = "SPACE";
 		}else if(input.isKeyDown(Input.KEY_A)){
-			btg.client.sendString("A");
+			kc.command = "A";
 		}else if(input.isKeyDown(Input.KEY_D)){
-			btg.client.sendString("D");
+			kc.command = "D";
 		}else{
-			btg.client.sendString("");
+			kc.command = "";
 		}
 
+//		if(btgV.PV != null) {
+//			//System.out.println("Client Coords: " + btgV.PV.getX() + " " + btgV.PV.getY());
+//			btg.player.setPosition(btgV.PV.getX(), btgV.PV.getY());
+//		}
 
-		if(btgV.PV != null) {
-			//System.out.println("Client Coords: " + btgV.PV.getX() + " " + btgV.PV.getY());
-			btg.player.setPosition(btgV.PV.getX(), btgV.PV.getY());
-		}
-
-
+		sendKeyboardCommands(kc,btg);
 		btg.setVariablesFromClient();
-		btgV.setPv(btg.player.getVariables());
-
-		if(btg.variables.currentState!=BrickTagGame.PLAYINGSTATE){ btg.enterState(btg.variables.currentState); }
 
 		// change the player coordinates to screen coordinates
-		calculateObjects(btgV);
-		// this is fine since a new game state will be sent on the next update
-		btg.player.setPosition(btgV.PV.x_SC, btgV.PV.y_SC);
 
+
+		// this is fine since a new game state will be sent on the next update
+		setPlayerPositions(btg, btgV);
+//		btg.player.setPosition(btgV.PV.x_SC, btgV.PV.y_SC);
+
+		if(btg.variables.currentState!=BrickTagGame.PLAYINGSTATE){ btg.enterState(btg.variables.currentState); }
 	}
 
-	public void calculateObjects(BrickTagGameVariables btgV) {
+	public PlayerVariables calculateObjects(BrickTagGameVariables btgV, PlayerVariables PV) {
 		// find where the player is, this will be the center (usually)
-		float centerX = btgV.PV.getX();
-		float centerY = btgV.PV.getY();
+		float centerX = PV.getX();
+		float centerY = PV.getY();
 
 		//System.out.println("calculateObjects, precheck: player is at (" + BTGV.PV.getX() + "," +BTGV.PV.getY() + ")");
 		//System.out.println("calculateObjects, precheck: center is at (" + centerX + "," + centerY + ")");
@@ -269,14 +284,14 @@ class PlayingState extends BasicGameState {
 		//System.out.println("calculateObjects: leftTile, rightTile is (" + leftTile + "," + rightTile + ")");
 		//System.out.println("calculateObjects: topTile, bottomTile is (" + topTile + "," + bottomTile + ")");
 
-		btgV.PV.objectsToRender.clear();
+		PV.objectsToRender.clear();
 
 
 		for(int i = leftTile; i < rightTile; i++) {
 			for(int j = topTile; j < bottomTile; j++) {
 				if(btgV.tileGrid[i][j].designation == 1) {
 					// should be a block
-					btgV.PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'b'));
+					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'b'));
 				}
 				// other players?
 				// other objects?
@@ -284,18 +299,34 @@ class PlayingState extends BasicGameState {
 		}
 
 		// change the player screen coordinates
-		btgV.PV.x_SC = btgV.PV.getX() - xDiff;
-		btgV.PV.y_SC = btgV.PV.getY() - yDiff;
+		PV.x_SC = PV.getX() - xDiff;
+		PV.y_SC = PV.getY() - yDiff;
+
+		for(int i = 0; i< btgV.playerList.size(); i++){
+			PlayerVariables playerVariables = btgV.playerList.get(i);
+			if(playerVariables.getX()>=left && playerVariables.getX()<=right && playerVariables.getY()>=top && playerVariables.getY()<=bottom){
+				PV.objectsToRender.add(new VisibleObject(i,'p'));
+			}
+		}
+
+		return PV;
 	}
 
-	private void sendPlayerPos(BrickTagGame btg){
-		btg.client.sendPos(btg.player.getX());
-		btg.client.sendPos(btg.player.getY());
+	private void setPlayerPositions(BrickTagGame btg, BrickTagGameVariables btgV) {
+		for(int i = 0; i<btgV.playerList.size(); i++){
+			PlayerVariables currPV = btgV.playerList.get(i);
+			currPV = calculateObjects(btgV,currPV);
+			btgV.playerList.set(i,currPV);
+			btg.allPlayers.get(i).setVariables(currPV);
+			btg.allPlayers.get(i).setScreenPosition();
+			btg.allPlayers.get(i).setWorldPosition();
+		}
+//		PlayerVariables PV = btgV.playerList.get(this.playerIndex);
+//		btg.allPlayers.get(this.playerIndex).setPosition(PV.x_SC, PV.y_SC);
 	}
 
 	@Override
 	public int getID() {
 		return BrickTagGame.PLAYINGSTATE;
 	}
-	
 }
