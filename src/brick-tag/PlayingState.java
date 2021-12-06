@@ -23,11 +23,12 @@ class PlayingState extends BasicGameState {
 
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
-		throws SlickException {
+			throws SlickException {
 	}
 
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
+		//System.out.println("enter");
 
 		container.setSoundOn(true);
 		BrickTagGame btg = (BrickTagGame) game;
@@ -59,6 +60,8 @@ class PlayingState extends BasicGameState {
 	}
 
 	private void sendNewPlayerVariables(BrickTagGame btg) {
+		//System.out.println("sendNewPlayerVariables");
+
 		KeyboardCommand kc = new KeyboardCommand(this.playerIndex,"PV");
 		PlayingState.sendKeyboardCommands(kc,btg);
 		try {
@@ -71,16 +74,25 @@ class PlayingState extends BasicGameState {
 	}
 
 	static void sendKeyboardCommands(KeyboardCommand kc,BrickTagGame btg) {
+		//System.out.println("sendKeyboardCommands");
+
 		try {
+			//System.out.println("reset");
 			btg.client.objectOutputStream.reset();
+			//System.out.println("write");
 			btg.client.objectOutputStream.writeObject(kc);
+			//System.out.println("flush");
 			btg.client.objectOutputStream.flush();
+			//System.out.println("done");
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	public static void setupLevel(BrickTagGameVariables btgV, String path) {
+		//System.out.println("setup level");
+
 //		BrickTagGameVariables btgV = btg.variables;
 		try {
 			File f = new File(path);
@@ -118,6 +130,7 @@ class PlayingState extends BasicGameState {
 
 	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics g) {
+		//System.out.println("render");
 		BrickTagGame btg = (BrickTagGame) game;
 		BrickTagGameVariables btgV = btg.variables;
 		g.setColor(Color.white);
@@ -182,6 +195,7 @@ class PlayingState extends BasicGameState {
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game,int delta){
+		//System.out.println("update");
 		Input input = container.getInput();
 		BrickTagGame btg = (BrickTagGame) game;
 		BrickTagGameVariables btgV = btg.variables;
@@ -189,22 +203,35 @@ class PlayingState extends BasicGameState {
 		KeyboardCommand kc = new KeyboardCommand();
 		kc.index = playerIndex;
 
+		//System.out.println("KC INDEX: " + kc.index);
+
 		if (input.isKeyPressed(Input.KEY_0)) {
 			kc.command = "DEBUG";
-		}
-		//Temporary
-		else if(input.isKeyPressed(Input.KEY_ESCAPE)){
+		}else if(input.isKeyPressed(Input.KEY_ESCAPE)){
 			kc.command = "logout";
 			System.exit(0);
 		}else if(input.isKeyPressed(Input.KEY_SPACE)){
 			kc.command = "SPACE";
+		}else if(input.isKeyDown(Input.KEY_A) && input.isKeyDown(Input.KEY_E)){
+			kc.command = "AE";
+		}else if(input.isKeyDown(Input.KEY_A) && input.isKeyDown(Input.KEY_Q)){
+			kc.command = "AQ";
+		}else if(input.isKeyDown(Input.KEY_D) && input.isKeyDown(Input.KEY_E)){
+			kc.command = "DE";
+		}else if(input.isKeyDown(Input.KEY_D) && input.isKeyDown(Input.KEY_Q)){
+			kc.command = "DQ";
 		}else if(input.isKeyDown(Input.KEY_A)){
 			kc.command = "A";
 		}else if(input.isKeyDown(Input.KEY_D)){
 			kc.command = "D";
+		}else if(input.isKeyDown(Input.KEY_Q)){
+			kc.command = "Q";
+		}else if(input.isKeyDown(Input.KEY_E)){
+			kc.command = "E";
 		}else{
 			kc.command = "";
 		}
+
 
 //		if(btgV.PV != null) {
 //			//System.out.println("Client Coords: " + btgV.PV.getX() + " " + btgV.PV.getY());
@@ -212,6 +239,7 @@ class PlayingState extends BasicGameState {
 //		}
 
 		sendKeyboardCommands(kc,btg);
+
 		btg.setVariablesFromClient();
 
 		// change the player coordinates to screen coordinates
@@ -313,6 +341,8 @@ class PlayingState extends BasicGameState {
 	}
 
 	private void setPlayerPositions(BrickTagGame btg, BrickTagGameVariables btgV) {
+		//System.out.println("setPlayerPositions");
+
 		for(int i = 0; i<btgV.playerList.size(); i++){
 			PlayerVariables currPV = btgV.playerList.get(i);
 			currPV = calculateObjects(btgV,currPV);

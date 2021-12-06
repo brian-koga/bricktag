@@ -67,6 +67,8 @@ class ClientHandler implements Runnable{
 
 	@Override
 	public void run(){
+		//System.out.println("run");
+
 		this.writeIndex(this.playerIndex);
 		Server.BTGV.playerList.add(new PlayerVariables(240, 352, 0, 0));
 		while (true){
@@ -78,12 +80,19 @@ class ClientHandler implements Runnable{
 	}
 
 	private boolean clientHandlerLoop() {
+		//System.out.println("clientHandlerLoop");
+
+		//System.out.println("START");
 		KeyboardCommand kc = receiveKeyboardCommand();
+		//System.out.println("FINISH -----------");
+
 		if(kc==null){
 			//Acts as a continue
 			return false;
 		}
 		String received = kc.command;
+		//System.out.println("String Recieved: " + received);
+
 
 		boolean didSendMessage = false;
 
@@ -113,15 +122,19 @@ class ClientHandler implements Runnable{
 	}
 
 	private KeyboardCommand receiveKeyboardCommand(){
+		//System.out.println("recieveKeyboardCommand");
+
 		try {
 			return (KeyboardCommand) this.objectInputStream.readObject();
 		} catch (IOException | ClassNotFoundException e) {
-//			e.printStackTrace();
+			e.printStackTrace();
 			return null;
 		}
 	}
 
 	private PlayerVariables receivePlayerVariables(){
+		//System.out.println("recievePlayerVariables");
+
 		try {
 			return (PlayerVariables) this.objectInputStream.readObject();
 
@@ -132,6 +145,8 @@ class ClientHandler implements Runnable{
 	}
 
 	private void logoutClient(){
+		//System.out.println("logoutClient");
+
 		try {
 			Server.numberOfActivePlayers--;
 			Server.playerList.remove(this);
@@ -142,6 +157,8 @@ class ClientHandler implements Runnable{
 	}
 
 	public void sendVariablesToClient(){
+		//System.out.println("sendVariablesToClient");
+
 		try {
 			writeToClient("CHANGE", this.outputStream);
 			this.objectOutputStream.reset();
@@ -154,6 +171,8 @@ class ClientHandler implements Runnable{
 	}
 
 	private void writeToClient(String s,DataOutputStream localOutputStream){
+		//System.out.println("writeToClient");
+
 		try {
 			localOutputStream.writeUTF(s);
 			localOutputStream.flush();
@@ -161,6 +180,8 @@ class ClientHandler implements Runnable{
 	}
 
 	private void writeIndex(int playerIndex){
+		//System.out.println("writeIndex");
+
 		try {
 			outputStream.writeInt(playerIndex);
 		} catch (IOException e) {
@@ -169,6 +190,8 @@ class ClientHandler implements Runnable{
 	}
 
 	private boolean checkStartControls(String input){
+		//System.out.println("checkStartControls");
+
 		if(input.equals("SPACE")){
 			Server.BTGV.currentState = BrickTagGame.PLAYINGSTATE;
 			sendVariablesToClient();
@@ -178,6 +201,8 @@ class ClientHandler implements Runnable{
 	}
 
 	private boolean checkPlayingControls(String input){
+		//System.out.println("checkPlayingControls");
+
 		if(input.equals("DEBUG")){
 			Server.BTGV.toggleShowGrid();
 		}
@@ -189,6 +214,7 @@ class ClientHandler implements Runnable{
 	}
 
 	private void movePlayer(String input){
+		//System.out.println("movePlayer");
 
 		PlayerVariables newLocation;
 
@@ -269,31 +295,60 @@ class ClientHandler implements Runnable{
 			}
 		}
 
-		//MOVE WEST
-		if(input.equals("A")){
-			translateMoveHelper(-5f,0f,0f,0f);
+		//Move West / East
+		if(input.equals("A")){ moveWest(xMin); }
+		if(input.equals("D")){ moveEast(xMax); }
 
-			if(this.PV.getX() < ((xMin)* 64) + 96 || (this.PV.getX() < 32)){
-				this.PV.setVariableX((xMin + 1)* 64 + 32);
-			}
-		}
+		//Place West / East
+		if(input.equals("Q")){ placeWest(xMin, playerX, playerY); }
+		if(input.equals("E")){ placeEast(xMax, playerX, playerY); }
 
-		//MOVE EAST
-		if(input.equals("D")){
-			translateMoveHelper(5f,0f,0f,0f);
-
-			if(this.PV.getX() > ((xMax)* 64) - 32){
-				this.PV.setVariableX((xMax)* 64 - 32);
-			}
-		}
+		//Combination of movement & placement
+		if(input.equals("AE")){ moveWest(xMin); placeEast(xMax, playerX, playerY); }
+		if(input.equals("AQ")){ moveWest(xMin); placeWest(xMin, playerX, playerY); }
+		if(input.equals("DE")){ moveEast(xMax); placeEast(xMax, playerX, playerY); }
+		if(input.equals("DQ")){ moveEast(xMax); placeWest(xMin, playerX, playerY); }
 
 		if(input.equals("") && this.PV.getVelocity().getY()==0){
 			this.PV.setVelocity(0,0);
 		}
 	}
 
+
+	//Movement & Placement
+	private void moveEast(int xMax){
+		translateMoveHelper(5f,0f,0f,0f);
+		if(this.PV.getX() > ((xMax)* 64) - 32){
+			this.PV.setVariableX((xMax)* 64 - 32);
+		}
+	}
+
+	private void moveWest(int xMin){
+		translateMoveHelper(-5f,0f,0f,0f);
+		if(this.PV.getX() < ((xMin)* 64) + 96 || (this.PV.getX() < 32)){
+			this.PV.setVariableX((xMin + 1)* 64 + 32);
+		}
+	}
+
+	private void placeEast(int xMax, int playerX, int playerY){
+		if (xMax != (Server.BTGV.WorldTileWidth)) {
+			if (Server.BTGV.tileGrid[playerX + 1][playerY].designation == 0) {
+				Server.BTGV.tileGrid[playerX + 1][playerY].designation = 1;
+			}
+		}
+	}
+
+	private void placeWest(int xMin, int playerX, int playerY){
+		if (xMin != -1) {
+			if (Server.BTGV.tileGrid[playerX - 1][playerY].designation == 0) {
+				Server.BTGV.tileGrid[playerX - 1][playerY].designation = 1;
+			}
+		}
+	}
+
 	//Adds velocity to position
 	private void update(){
+		//System.out.println("update");
 		float tempVX = this.PV.getVX();
 		float tempVY = this.PV.getVY();
 		translateMoveHelper(tempVX, tempVY, 0f, 0f);
@@ -301,6 +356,8 @@ class ClientHandler implements Runnable{
 
 	//Adds given value to pre-existing value - pretty much translate();
 	private void translateMoveHelper(float x, float y, float vx, float vy){
+		//System.out.println("translateMoveHelper");
+
 		PlayerVariables newLocation;
 
 		float tempX = this.PV.getX();
@@ -317,6 +374,8 @@ class ClientHandler implements Runnable{
 	}
 
 	public void receiveGameState(){
+		//System.out.println("receiveGameState");
+
 		try {
 			Server.BTGV = (BrickTagGameVariables) this.objectInputStream.readObject();
 			sendVariablesToClient();
