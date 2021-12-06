@@ -81,7 +81,6 @@ class PlayingState extends BasicGameState {
 	}
 
 	public static void setupLevel(BrickTagGameVariables btgV, String path) {
-//		BrickTagGameVariables btgV = btg.variables;
 		try {
 			File f = new File(path);
 			Scanner scan = new Scanner(f);
@@ -114,7 +113,6 @@ class PlayingState extends BasicGameState {
 			e.printStackTrace();
 		}
 	}
-
 
 	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics g) {
@@ -158,8 +156,6 @@ class PlayingState extends BasicGameState {
 
 	 */
 
-
-
 		// draw others
 		PlayerVariables PV = btg.allPlayers.get(this.playerIndex).getVariables();
 		for (VisibleObject objectToRender : PV.objectsToRender) {
@@ -167,17 +163,35 @@ class PlayingState extends BasicGameState {
 				g.drawImage(ResourceManager.getImage(BrickTagGame.Block_RSC), objectToRender.x, objectToRender.y);
 			}else if(objectToRender.objectType == 'p'){
 				Player tempPlayerVariables = btg.allPlayers.get(objectToRender.playersIndexOnScreen);
+				if(objectToRender.playersIndexOnScreen != this.playerIndex){
+					getScreenCoords(objectToRender.playersIndexOnScreen,btg);
+				}
 				btg.allPlayers.get(objectToRender.playersIndexOnScreen).setPosition(tempPlayerVariables.getScreenX(), tempPlayerVariables.getScreenY());
 				btg.allPlayers.get(objectToRender.playersIndexOnScreen).render(g);
 			}
 		}
+	}
 
-//		btg.allPlayers.get(this.playerIndex).render(g);
+	private void getScreenCoords(int index,BrickTagGame btg){
+		Player mainPlayer = btg.allPlayers.get(this.playerIndex);
+		Player currPlayer = btg.allPlayers.get(index);
 
-		// draw players
-//		for(int i = 0; i<btg.allPlayers.size(); i++){
-//			btg.allPlayers.get(i).render(g);
-//		}
+		//Lets figure out what the world coordinates are on screen
+		float worldLeft = mainPlayer.getWorldX() - btg.variables.ScreenWidth/2;
+		float worldTop = mainPlayer.getWorldY() - btg.variables.ScreenHeight/2;
+
+		if(worldLeft<0){
+			worldLeft=0;
+		}
+
+		if(worldTop<0){
+			worldTop=0;
+		}
+
+		float newX = currPlayer.getWorldX() - worldLeft;
+		float newY = currPlayer.getWorldY() - worldTop;
+
+		currPlayer.setScreenPosition(newX,newY);
 	}
 
 	@Override
@@ -206,20 +220,11 @@ class PlayingState extends BasicGameState {
 			kc.command = "";
 		}
 
-//		if(btgV.PV != null) {
-//			//System.out.println("Client Coords: " + btgV.PV.getX() + " " + btgV.PV.getY());
-//			btg.player.setPosition(btgV.PV.getX(), btgV.PV.getY());
-//		}
-
 		sendKeyboardCommands(kc,btg);
 		btg.setVariablesFromClient();
 
 		// change the player coordinates to screen coordinates
-
-
-		// this is fine since a new game state will be sent on the next update
 		setPlayerPositions(btg, btgV);
-//		btg.player.setPosition(btgV.PV.x_SC, btgV.PV.y_SC);
 
 		if(btg.variables.currentState!=BrickTagGame.PLAYINGSTATE){ btg.enterState(btg.variables.currentState); }
 	}
@@ -293,7 +298,6 @@ class PlayingState extends BasicGameState {
 					// should be a block
 					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'b'));
 				}
-				// other players?
 				// other objects?
 			}
 		}

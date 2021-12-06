@@ -65,5 +65,13 @@ class Player extends Entity {
 	public float getScreenX() {
 		return screenX;
 	}
+
+	public float getWorldX() {
+		return worldX;
+	}
+
+	public float getWorldY() {
+		return worldY;
+	}
 }
 

@@ -16,8 +16,8 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 	public static final int GAMEOVERSTATE = 2;
 
 	public static final String Block_RSC = "resource/red_outlet_tile_64px.png";
-//	public static final String PLAYER_RSC = "resource/player.png";
-	public static final String PLAYER_RSC = "resource/red_outlet_tile_64px.png";
+	public static final String PLAYER_RSC = "resource/player.png";
+//	public static final String PLAYER_RSC = "resource/red_outlet_tile_64px.png";
 
 	BrickTagGameVariables variables;
 	Client client;

@@ -1,4 +1,3 @@
-import jig.ResourceManager;
 import jig.Vector;
 
 import java.io.Serializable;
