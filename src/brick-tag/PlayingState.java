@@ -193,10 +193,14 @@ class PlayingState extends BasicGameState {
 
 		if(worldLeft<0){
 			worldLeft=0;
+		} else if(worldLeft > btg.variables.WorldWidth - btg.variables.ScreenWidth) {
+			worldLeft = btg.variables.WorldWidth - btg.variables.ScreenWidth;
 		}
 
 		if(worldTop<0){
 			worldTop=0;
+		} else if(worldTop > btg.variables.WorldHeight - btg.variables.ScreenHeight) {
+			worldTop = btg.variables.WorldHeight - btg.variables.ScreenHeight;
 		}
 
 		float newX = currPlayer.getWorldX() - worldLeft;
@@ -309,7 +313,17 @@ class PlayingState extends BasicGameState {
 		int leftTile = (int) (left/64);
 		int topTile = (int) (top/64);
 		int rightTile = leftTile + btgV.ScreenTileWidth;
+
+		// needed for the tile check later
+		if(rightTile == btgV.WorldTileWidth) {
+			rightTile = btgV.WorldTileWidth - 1;
+		}
 		int bottomTile = topTile + btgV.ScreenTileHeight;
+
+		// needed for the tile check later
+		if(bottomTile == btgV.WorldTileHeight) {
+			bottomTile = btgV.WorldTileHeight - 1;
+		}
 
 		//System.out.println("calculateObjects: leftTile, rightTile is (" + leftTile + "," + rightTile + ")");
 		//System.out.println("calculateObjects: topTile, bottomTile is (" + topTile + "," + bottomTile + ")");
@@ -317,8 +331,8 @@ class PlayingState extends BasicGameState {
 		PV.objectsToRender.clear();
 
 
-		for(int i = leftTile; i < rightTile; i++) {
-			for(int j = topTile; j < bottomTile; j++) {
+		for(int i = leftTile; i <= rightTile; i++) {
+			for(int j = topTile; j <= bottomTile; j++) {
 				if(btgV.tileGrid[i][j].designation == 1) {
 					// should be a block
 					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'b'));
