@@ -103,7 +103,10 @@ class PlayingState extends BasicGameState {
 					} else if(data.charAt(i) == '2') {
 						// tiles that are occupied by a player placed block
 						btgV.tileGrid[i][j] = new Tile(i, j, 2, false);
-					} else {
+					} else if(data.charAt(i) == '3') {
+						// tiles that are occupied by a player placed block
+						btgV.tileGrid[i][j] = new Tile(i, j, 3, false);
+					}else {
 						// something has gone wrong
 						System.out.println("Unknown character encountered in level file.");
 					}
@@ -165,7 +168,13 @@ class PlayingState extends BasicGameState {
 		for (VisibleObject objectToRender : PV.objectsToRender) {
 			if(objectToRender.objectType == 'b') {
 				g.drawImage(ResourceManager.getImage(BrickTagGame.Block_RSC), objectToRender.x, objectToRender.y);
-			}else if(objectToRender.objectType == 'p'){
+			}else if(objectToRender.objectType == 'x'){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.RED_GLASS_RSC), objectToRender.x, objectToRender.y);
+			}else if(objectToRender.objectType == 'y'){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.BLUE_GLASS_RSC), objectToRender.x, objectToRender.y);
+			}
+
+			else if(objectToRender.objectType == 'p'){
 				Player tempPlayerVariables = btg.allPlayers.get(objectToRender.playersIndexOnScreen);
 				if(objectToRender.playersIndexOnScreen != this.playerIndex){
 					getScreenCoords(objectToRender.playersIndexOnScreen,btg);
@@ -330,6 +339,15 @@ class PlayingState extends BasicGameState {
 					// should be a block
 					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'b'));
 				}
+				if(btgV.tileGrid[i][j].designation == 2) {
+					// should be a block
+					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'x'));
+				}
+				if(btgV.tileGrid[i][j].designation == 3) {
+					// should be a block
+					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'y'));
+				}
+
 				// other objects?
 			}
 		}
