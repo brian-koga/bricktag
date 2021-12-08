@@ -74,17 +74,10 @@ class PlayingState extends BasicGameState {
 	}
 
 	static void sendKeyboardCommands(KeyboardCommand kc,BrickTagGame btg) {
-		//System.out.println("sendKeyboardCommands");
-
 		try {
-			//System.out.println("reset");
 			btg.client.objectOutputStream.reset();
-			//System.out.println("write");
 			btg.client.objectOutputStream.writeObject(kc);
-			//System.out.println("flush");
 			btg.client.objectOutputStream.flush();
-			//System.out.println("done");
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

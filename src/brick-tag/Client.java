@@ -69,8 +69,12 @@ public class Client {
 	public void checkIfNeedToGetNewGameState(){
 		try {
 			String message = inputStream.readUTF();
-			if(message.equals("CHANGE")){
+			if(message.equals("NEW_MAP")){
 				receiveGameState();
+			} else if (message.equals("CHANGE")) {
+				Tile[][] tempMap = this.brickTagGameVariables.tileGrid;
+				receiveGameState();
+				this.brickTagGameVariables.tileGrid = tempMap;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
