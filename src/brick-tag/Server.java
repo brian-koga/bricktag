@@ -55,6 +55,7 @@ class ClientHandler implements Runnable{
 	ObjectOutputStream objectOutputStream;
 	PlayerVariables PV;
 	final int playerIndex;
+	Tile[][] tileMap;
 
 	ClientHandler(Socket socket, DataInputStream inputStream, DataOutputStream outputStream,ObjectOutputStream objectOutputStream,ObjectInputStream objectInputStream,BrickTagGameVariables btg, int i) throws IOException {
 		this.socket = socket;
@@ -63,12 +64,12 @@ class ClientHandler implements Runnable{
 		this.objectOutputStream = objectOutputStream;
 		this.objectInputStream = objectInputStream;
 		this.playerIndex = i;
+		setTileGrid();
+		this.tileMap = Server.BTGV.tileGrid;
 	}
 
 	@Override
 	public void run(){
-		//System.out.println("run");
-
 		this.writeIndex(this.playerIndex);
 		Server.BTGV.playerList.add(new PlayerVariables(240, 352, 0, 0));
 		while (true){
@@ -80,19 +81,12 @@ class ClientHandler implements Runnable{
 	}
 
 	private boolean clientHandlerLoop() {
-		//System.out.println("clientHandlerLoop");
-
-		//System.out.println("START");
 		KeyboardCommand kc = receiveKeyboardCommand();
-		//System.out.println("FINISH -----------");
-
 		if(kc==null){
 			//Acts as a continue
 			return false;
 		}
 		String received = kc.command;
-		//System.out.println("String Recieved: " + received);
-
 
 		boolean didSendMessage = false;
 
@@ -101,7 +95,6 @@ class ClientHandler implements Runnable{
 			System.out.println("NEW GAME STATE");
 			return false;
 		}else if(received.equals("PV")){
-			System.out.println("SET PV");
 			PlayerVariables newPV = receivePlayerVariables();
 			Server.BTGV.playerList.set(this.playerIndex,newPV);
 		}else if(received.equals("logout")){
@@ -122,19 +115,15 @@ class ClientHandler implements Runnable{
 	}
 
 	private KeyboardCommand receiveKeyboardCommand(){
-		//System.out.println("recieveKeyboardCommand");
-
 		try {
 			return (KeyboardCommand) this.objectInputStream.readObject();
 		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 			return null;
 		}
 	}
 
 	private PlayerVariables receivePlayerVariables(){
-		//System.out.println("recievePlayerVariables");
-
 		try {
 			return (PlayerVariables) this.objectInputStream.readObject();
 
@@ -145,8 +134,6 @@ class ClientHandler implements Runnable{
 	}
 
 	private void logoutClient(){
-		//System.out.println("logoutClient");
-
 		try {
 			Server.numberOfActivePlayers--;
 			Server.playerList.remove(this);
@@ -156,23 +143,23 @@ class ClientHandler implements Runnable{
 		}
 	}
 
-	public void sendVariablesToClient(){
-		//System.out.println("sendVariablesToClient");
-
+	public void sendVariablesToClient(String message){
 		try {
-			writeToClient("CHANGE", this.outputStream);
+			if(message.equals("CHANGE")){
+				this.tileMap = Server.BTGV.tileGrid;
+				Server.BTGV.tileGrid = null;
+			}
+			writeToClient(message, this.outputStream);
 			this.objectOutputStream.reset();
 			this.objectOutputStream.writeObject(Server.BTGV);
 			this.objectOutputStream.flush();
+			Server.BTGV.tileGrid = this.tileMap;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	private void writeToClient(String s,DataOutputStream localOutputStream){
-		//System.out.println("writeToClient");
-
 		try {
 			localOutputStream.writeUTF(s);
 			localOutputStream.flush();
@@ -180,8 +167,6 @@ class ClientHandler implements Runnable{
 	}
 
 	private void writeIndex(int playerIndex){
-		//System.out.println("writeIndex");
-
 		try {
 			outputStream.writeInt(playerIndex);
 		} catch (IOException e) {
@@ -190,34 +175,28 @@ class ClientHandler implements Runnable{
 	}
 
 	private boolean checkStartControls(String input){
-		//System.out.println("checkStartControls");
-
 		if(input.equals("SPACE")){
 			Server.BTGV.currentState = BrickTagGame.PLAYINGSTATE;
-			sendVariablesToClient();
+			sendVariablesToClient("CHANGE");
 			return true;
 		}
 		return false;
 	}
 
 	private boolean checkPlayingControls(String input){
-		//System.out.println("checkPlayingControls");
-
 		if(input.equals("DEBUG")){
 			Server.BTGV.toggleShowGrid();
 		}
 
-		this.movePlayer(input);
-		sendVariablesToClient();
+		String message = this.movePlayer(input);
+		sendVariablesToClient(message);
 
 		return true;
 	}
 
-	private void movePlayer(String input){
-		//System.out.println("movePlayer");
-
+	private String movePlayer(String input){
 		PlayerVariables newLocation;
-
+		String message = "CHANGE";
 		//Leave at top
 		if(this.PV == null){
 			System.out.println("position currently null - this is expected - setting to default");
@@ -300,18 +279,39 @@ class ClientHandler implements Runnable{
 		if(input.equals("D")){ moveEast(xMax); }
 
 		//Place West / East
-		if(input.equals("Q")){ placeWest(xMin, playerX, playerY); }
-		if(input.equals("E")){ placeEast(xMax, playerX, playerY); }
+		if(input.equals("Q")){
+			placeWest(xMin, playerX, playerY);
+			message = "NEW_MAP";
+		}
+		if(input.equals("E")){
+			placeEast(xMax, playerX, playerY);
+			message = "NEW_MAP";
+		}
 
 		//Combination of movement & placement
-		if(input.equals("AE")){ moveWest(xMin); placeEast(xMax, playerX, playerY); }
-		if(input.equals("AQ")){ moveWest(xMin); placeWest(xMin, playerX, playerY); }
-		if(input.equals("DE")){ moveEast(xMax); placeEast(xMax, playerX, playerY); }
-		if(input.equals("DQ")){ moveEast(xMax); placeWest(xMin, playerX, playerY); }
+		if(input.equals("AE")){
+			moveWest(xMin);
+			placeEast(xMax, playerX, playerY);
+			message = "NEW_MAP";
+		}
+		if(input.equals("AQ")){
+			moveWest(xMin);
+			placeWest(xMin, playerX, playerY);
+			message = "NEW_MAP";
+		}
+		if(input.equals("DE")){ moveEast(xMax);
+			placeEast(xMax, playerX, playerY);
+			message = "NEW_MAP";
+		}
+		if(input.equals("DQ")){ moveEast(xMax);
+			placeWest(xMin, playerX, playerY);
+			message = "NEW_MAP";
+		}
 
 		if(input.equals("") && this.PV.getVelocity().getY()==0){
 			this.PV.setVelocity(0,0);
 		}
+		return message;
 	}
 
 
@@ -378,9 +378,25 @@ class ClientHandler implements Runnable{
 
 		try {
 			Server.BTGV = (BrickTagGameVariables) this.objectInputStream.readObject();
-			sendVariablesToClient();
+			sendVariablesToClient("NEW_MAP");
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void setTileGrid() {
+		String path = getMapFile(Server.BTGV.level);
+		PlayingState.setupLevel(Server.BTGV,path);
+	}
+
+	private String getMapFile(int levelNumber){
+		if(levelNumber == 1) {
+			return "Brick-Tag/src/brick-tag/resource/Level1.txt";
+		} else if(levelNumber == 2) {
+			return  "Brick-Tag/src/brick-tag/resource/Level2.txt";
+		}
+		else{
+			return null;
 		}
 	}
 }
