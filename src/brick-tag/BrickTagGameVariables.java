@@ -32,6 +32,8 @@ public class BrickTagGameVariables implements Serializable {
 	float gravityValue;
 	float jumpValue;
 
+	int updateCount;
+
 	ArrayList<PlayerVariables> playerList;
 
 	public BrickTagGameVariables(int height,int width) {
@@ -64,6 +66,7 @@ public class BrickTagGameVariables implements Serializable {
 		this.showGrid = false;
 		this.playerList = new ArrayList<>(4);
 		setTileGrid();
+		this.updateCount = 0;
 	}
 
 	public void setPv(PlayerVariables pv,int index) {
@@ -73,6 +76,9 @@ public class BrickTagGameVariables implements Serializable {
 	public void setLevel(int level) {this.level = level;}
 
 	public void setCurrentState(int currentState) {this.currentState = currentState;}
+
+	public void incrementUpdateCount() {this.updateCount++;}
+	public int getUpdateCount() {return this.updateCount;}
 
 	public void toggleShowGrid() {this.showGrid = !this.showGrid;}
 

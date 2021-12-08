@@ -16,6 +16,9 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 	public static final int GAMEOVERSTATE = 2;
 
 	public static final String Block_RSC = "resource/red_outlet_tile_64px.png";
+	public static final String RED_GLASS_RSC = "resource/red_glass.png";
+	public static final String BLUE_GLASS_RSC = "resource/blue_glass.png";
+
 	public static final String PLAYER_RSC = "resource/player.png";
 //	public static final String PLAYER_RSC = "resource/red_outlet_tile_64px.png";
 
@@ -51,6 +54,8 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 
 		// preload all the resources to avoid warnings & minimize latency...
 		ResourceManager.loadImage(Block_RSC);
+		ResourceManager.loadImage(RED_GLASS_RSC);
+		ResourceManager.loadImage(BLUE_GLASS_RSC);
 		ResourceManager.loadImage(PLAYER_RSC);
 
 		//creates player, position here is kinda irrelevant as its changed instantly.
