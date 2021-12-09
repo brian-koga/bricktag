@@ -23,7 +23,7 @@ class PlayingState extends BasicGameState {
 
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
-			throws SlickException {
+		throws SlickException {
 	}
 
 	@Override
@@ -83,7 +83,7 @@ class PlayingState extends BasicGameState {
 		}
 	}
 
-	public static void setupLevel(BrickTagGameVariables btgV, String path) {
+	public static Tile[][] setupLevel(BrickTagGameVariables btgV, String path) {
 		try {
 			File f = new File(path);
 			Scanner scan = new Scanner(f);
@@ -118,6 +118,8 @@ class PlayingState extends BasicGameState {
 			System.out.println("An error occurred.");
 			e.printStackTrace();
 		}
+		//TODO Change this to whatever temp variable you set
+		return btgV.tileGrid;
 	}
 
 	@Override
@@ -256,6 +258,8 @@ class PlayingState extends BasicGameState {
 
 		// change the player coordinates to screen coordinates
 		setPlayerPositions(btg, btgV);
+
+		System.out.println(btgV.placedTiles);
 
 		if(btg.variables.currentState!=BrickTagGame.PLAYINGSTATE){ btg.enterState(btg.variables.currentState); }
 	}
