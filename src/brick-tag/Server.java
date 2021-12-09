@@ -219,8 +219,11 @@ class ClientHandler implements Runnable{
 		//get player position in tile grid
 		int playerX = (int)Math.floor(this.PV.getX() / 64);
 		int playerY = (int)Math.floor(this.PV.getY() / 64);
+		if(playerY<0){
+			playerY=0;
+		}
 
-		System.out.println(this.playerIndex + "MOVE: " + Server.BTGV.tileGrid);
+//		System.out.println(this.playerIndex + "MOVE: " + Server.BTGV.tileGrid);
 
 		Tile[][] tempMap;
 		//MAKE SURE that the tilegrid isn't null from another thread at this moment
@@ -259,7 +262,7 @@ class ClientHandler implements Runnable{
 
 		//Roof Check
 		if(this.PV.isAirborne()) {
-			if (this.PV.getY() < ((yMin) * 64) + 96) {
+			if (this.PV.getY() < ((yMin) * 64) + 96 && playerY>0) {
 				if((tempMap[playerX][playerY - 1].designation == 2) ||
 				   (tempMap[playerX][playerY - 1].designation == 3)){
 
