@@ -35,6 +35,7 @@ public class BrickTagGameVariables implements Serializable {
 	int updateCount;
 
 	ArrayList<PlayerVariables> playerList;
+	ArrayList<Integer> scoreList;
 
 	public BrickTagGameVariables(int height,int width) {
 		ScreenHeight = (float) height;
@@ -65,6 +66,7 @@ public class BrickTagGameVariables implements Serializable {
 		this.level = 1;
 		this.showGrid = false;
 		this.playerList = new ArrayList<>(4);
+		this.scoreList = new ArrayList<>(4);
 		setTileGrid();
 		this.updateCount = 0;
 	}
