@@ -26,6 +26,7 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 	Client client;
 	Player player;
 	ArrayList<Player> allPlayers;
+	Tile[][] tileGrid;
 
 	public BrickTagGame(String name, int width, int height) {
 		super(name);
