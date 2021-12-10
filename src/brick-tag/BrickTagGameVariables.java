@@ -1,5 +1,6 @@
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Vector;
 
 public class BrickTagGameVariables implements Serializable {
 	public final float ScreenWidth;
@@ -35,7 +36,7 @@ public class BrickTagGameVariables implements Serializable {
 	int updateCount;
 
 	ArrayList<PlayerVariables> playerList;
-	ArrayList<Tile> placedTiles;
+	Vector<Tile> placedTiles;
 
 	public BrickTagGameVariables(int height,int width) {
 		ScreenHeight = (float) height;
@@ -68,7 +69,7 @@ public class BrickTagGameVariables implements Serializable {
 		this.playerList = new ArrayList<>(4);
 		//setTileGrid();
 		this.updateCount = 0;
-		this.placedTiles = new ArrayList<>();
+		this.placedTiles = new Vector<>();
 	}
 
 	public void setPv(PlayerVariables pv,int index) {
