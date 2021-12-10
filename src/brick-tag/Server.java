@@ -227,20 +227,12 @@ class ClientHandler implements Runnable{
 		int playerSouth = (int)Math.floor((this.PV.getY() + 0) / 64);
 		int playerWest = (int)Math.floor((this.PV.getX() - 31) / 64);
 		if(playerY<0){ playerY=0; }
+		if(playerNorth<0){ playerNorth = 0;}
+		if(playerSouth<0){ playerSouth = 0;}
 
-//		System.out.println(this.playerIndex + "MOVE: " + Server.BTGV.tileGrid);
+		System.out.println(playerSouth);
 
 		Tile[][] tempMap = Server.tileGrid;
-		//MAKE SURE that the tilegrid isn't null from another thread at this moment
-//		while(tempMap==null) {
-//			if(Server.BTGV.tileGrid == null){
-//				tempMap = this.tileMap;
-//			}else{
-//				tempMap = Server.BTGV.tileGrid;
-//			}
-//		}
-
-
 
 		//East
 		if(playerX == (Server.BTGV.WorldTileWidth - 1)){
