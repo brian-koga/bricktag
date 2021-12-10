@@ -14,7 +14,7 @@ public class Server {
 	static Vector<ClientHandler> playerList = new Vector<>();
 	static int numberOfActivePlayers = 0;
 	static BrickTagGameVariables BTGV = new BrickTagGameVariables(720,1280);
-	volatile static Tile[][] tileGrid;
+	static Tile[][] tileGrid;
 
 	public static void main(String[] args) throws IOException {
 		//Start a new server listening on port 5000

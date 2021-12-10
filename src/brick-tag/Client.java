@@ -74,9 +74,9 @@ public class Client {
 				receiveGameState();
 			} else if (message.equals("CHANGE")) {
 //				System.out.println(this.brickTagGameVariables.tileGrid);
-				Tile[][] tempMap = this.brickTagGameVariables.tileGrid;
+				//Tile[][] tempMap = this.brickTagGameVariables.tileGrid;
 				receiveGameState();
-				this.brickTagGameVariables.tileGrid = tempMap;
+				//this.brickTagGameVariables.tileGrid = tempMap;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
