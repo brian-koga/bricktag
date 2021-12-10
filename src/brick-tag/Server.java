@@ -56,7 +56,7 @@ class ClientHandler implements Runnable{
 	ObjectInputStream objectInputStream;
 	ObjectOutputStream objectOutputStream;
 	PlayerVariables PV;
-	final int playerIndex;;
+	final int playerIndex;
 	int thisThreadUpdateCount = 0;
 
 	ClientHandler(Socket socket, DataInputStream inputStream, DataOutputStream outputStream,ObjectOutputStream objectOutputStream,ObjectInputStream objectInputStream,BrickTagGameVariables btg, int i) throws IOException {
@@ -221,9 +221,12 @@ class ClientHandler implements Runnable{
 		//get player position in tile grid
 		int playerX = (int)Math.floor(this.PV.getX() / 64);
 		int playerY = (int)Math.floor(this.PV.getY() / 64);
-		if(playerY<0){
-			playerY=0;
-		}
+
+		int playerNorth = (int)Math.floor((this.PV.getY() - 32) / 64);
+		int playerEast = (int)Math.floor((this.PV.getX() + 31) / 64);
+		int playerSouth = (int)Math.floor((this.PV.getY() + 0) / 64);
+		int playerWest = (int)Math.floor((this.PV.getX() - 31) / 64);
+		if(playerY<0){ playerY=0; }
 
 //		System.out.println(this.playerIndex + "MOVE: " + Server.BTGV.tileGrid);
 
@@ -242,28 +245,37 @@ class ClientHandler implements Runnable{
 		//East
 		if(playerX == (Server.BTGV.WorldTileWidth - 1)){
 			xMax = (Server.BTGV.WorldTileWidth);
-		}else if (tempMap[playerX + 1][playerY].designation != 0) {
+		}else if ((tempMap[playerX + 1][playerNorth].designation != 0) || (tempMap[playerX + 1][playerSouth].designation != 0)){
 			xMax = playerX + 1;
-		}else{}
+		}
 
 		//West
 		if(playerX == 0){ xMin = -1; }
-		else if (tempMap[playerX - 1][playerY].designation != 0) {
+		else if ((tempMap[playerX - 1][playerNorth].designation != 0) || (tempMap[playerX - 1][playerSouth].designation != 0)) {
 			xMin = playerX - 1;
-		}else{}
+		}
 
 		//South
-		if( tempMap[playerX][playerY + 1].designation != 0){
+		if( (tempMap[playerEast][playerY + 1].designation != 0) || (tempMap[playerWest][playerY + 1].designation != 0)){
 			yMax = playerY + 1;
 		}else{
 			this.PV.setAirborne(true);
 		}
 
 		//North
-		if(playerY == 0){ yMin = -1; }
-		else if (tempMap[playerX][playerY - 1].designation != 0) {
-			yMin = playerY - 1;
-		}else{}
+		if(	this.PV.getVY() < 0){
+			if (playerY == 0) {
+				yMin = -1;
+			} else if ((tempMap[playerEast][playerY - 1].designation != 0) || (tempMap[playerWest][playerY - 1].designation != 0)) {
+				yMin = playerY - 1;
+			}
+		}else {
+			if (playerY == 0) {
+				yMin = -1;
+			} else if ((tempMap[playerX][playerY - 1].designation != 0)) {
+				yMin = playerY - 1;
+			}
+		}
 
 		//Roof Check
 		if(this.PV.isAirborne()) {
