@@ -73,10 +73,10 @@ public class Client {
 			if(message.equals("NEW_MAP")){
 				receiveGameState();
 			} else if (message.equals("CHANGE")) {
-				System.out.println(this.brickTagGameVariables.tileGrid);
-				Tile[][] tempMap = this.brickTagGameVariables.tileGrid;
+//				System.out.println(this.brickTagGameVariables.tileGrid);
+				//Tile[][] tempMap = this.brickTagGameVariables.tileGrid;
 				receiveGameState();
-				this.brickTagGameVariables.tileGrid = tempMap;
+				//this.brickTagGameVariables.tileGrid = tempMap;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

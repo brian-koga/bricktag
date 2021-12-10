@@ -4,17 +4,16 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class PlayerVariables implements Serializable {
-
 	private Vector velocity;
-	private int countdown;
 	private float x, y, vx, vy;
 	private boolean airborne;
-	private int playerX;
-	private int playerY;
 	float x_SC, y_SC;
+	private boolean flag;
+	int score;
+	int tempScore;
+	private int numberOfBricks;
 
 	ArrayList<VisibleObject> objectsToRender = new ArrayList<>();
-
 
 	PlayerVariables(final float x, final float y, final float vx, final float vy){
 		this.x=x;
@@ -22,11 +21,18 @@ public class PlayerVariables implements Serializable {
 		this.vx=vx;
 		this.vy=vy;
 		this.velocity = new Vector(vx, vy);
-		this.countdown = 0;
+		this.flag = false;
+		this.tempScore = 0;
+		this.score = 0;
+		this.numberOfBricks = 15;
 	}
 
-	public void setVelocity(final Vector v) {
-		velocity = v;
+	public void toggleFlag(){
+		this.flag = !this.flag;
+	}
+
+	public boolean hasFlag(){
+		return this.flag;
 	}
 
 	public void setVelocity(float x, float y) {
@@ -35,14 +41,6 @@ public class PlayerVariables implements Serializable {
 
 	public Vector getVelocity() {
 		return velocity;
-	}
-
-	public int getCountdown() {
-		return countdown;
-	}
-
-	public void setCountdown(int countdown) {
-		this.countdown = countdown;
 	}
 
 	public float getX() {return x;}
@@ -69,21 +67,34 @@ public class PlayerVariables implements Serializable {
 		this.airborne = airborne;
 	}
 
-	public int getPlayerX() {
-		setPlayerX();
-		return this.playerX;
+	public int getScore() {
+		return score;
 	}
 
-	public int getPlayerY() {
-		setPlayerY();
-		return this.playerY;
+	public void addScore(int score) {
+		this.tempScore += score;
+		if(tempScore>=100){
+			this.score += 1;
+			this.tempScore -= 100;
+		}
 	}
 
-	private void setPlayerY() {
-		this.y = (int)Math.floor(this.getY() / 64);
+	public int getNumberOfBricks() {
+		return numberOfBricks;
 	}
 
-	public void setPlayerX() {
-		this.x = (int)Math.floor(this.getX() / 64);
+	public void addBrick(){
+		this.numberOfBricks+=1;
+	}
+
+	public void useBrick(){
+		this.numberOfBricks-=1;
+	}
+
+	public void translateHelper(float x, float y ,float vx ,float vy){
+		this.x += x;
+		this.y += y;
+		this.vx += vx;
+		this.vy += vy;
 	}
 }
