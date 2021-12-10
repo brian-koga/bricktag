@@ -24,7 +24,7 @@ public class BrickTagGameVariables implements Serializable {
 	int level;
 
 	// holds the world, each is a tile object
-	Tile[][] tileGrid;
+	//Tile[][] tileGrid;
 	int currentState;
 	boolean showGrid;
 
@@ -35,6 +35,7 @@ public class BrickTagGameVariables implements Serializable {
 	int updateCount;
 
 	ArrayList<PlayerVariables> playerList;
+	ArrayList<Tile> placedTiles;
 
 	public BrickTagGameVariables(int height,int width) {
 		ScreenHeight = (float) height;
@@ -52,7 +53,7 @@ public class BrickTagGameVariables implements Serializable {
 		WorldHeight = ScreenHeight*2;
 
 
-		tileGrid = new Tile[WorldTileWidth][WorldTileHeight];
+		//tileGrid = new Tile[WorldTileWidth][WorldTileHeight];
 
 		// adjust these values to change jumping behavior
 		// .4 & -13.0 work quite nice
@@ -65,8 +66,9 @@ public class BrickTagGameVariables implements Serializable {
 		this.level = 1;
 		this.showGrid = false;
 		this.playerList = new ArrayList<>(4);
-		setTileGrid();
+		//setTileGrid();
 		this.updateCount = 0;
+		this.placedTiles = new ArrayList<>();
 	}
 
 	public void setPv(PlayerVariables pv,int index) {
@@ -82,10 +84,13 @@ public class BrickTagGameVariables implements Serializable {
 
 	public void toggleShowGrid() {this.showGrid = !this.showGrid;}
 
+	/*
 	public void setTileGrid() {
 		String path = getMapFile(this.level);
-		PlayingState.setupLevel(this,path);
+		tileGrid = PlayingState.setupLevel(this,path);
 	}
+
+	 */
 
 	private String getMapFile(int levelNumber){
 		if(levelNumber == 1) {
