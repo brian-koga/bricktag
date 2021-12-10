@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class PlayerVariables implements Serializable {
-
 	private Vector velocity;
 	private int countdown;
 	private float x, y, vx, vy;
@@ -12,9 +11,11 @@ public class PlayerVariables implements Serializable {
 	private int playerX;
 	private int playerY;
 	float x_SC, y_SC;
+	private boolean flag;
+	int score;
+	int tempScore;
 
 	ArrayList<VisibleObject> objectsToRender = new ArrayList<>();
-
 
 	PlayerVariables(final float x, final float y, final float vx, final float vy){
 		this.x=x;
@@ -23,6 +24,17 @@ public class PlayerVariables implements Serializable {
 		this.vy=vy;
 		this.velocity = new Vector(vx, vy);
 		this.countdown = 0;
+		this.flag = false;
+		this.tempScore = 0;
+		this.score = 0;
+	}
+
+	public void toggleFlag(){
+		this.flag = !this.flag;
+	}
+
+	public boolean hasFlag(){
+		return this.flag;
 	}
 
 	public void setVelocity(final Vector v) {
@@ -86,4 +98,18 @@ public class PlayerVariables implements Serializable {
 	public void setPlayerX() {
 		this.x = (int)Math.floor(this.getX() / 64);
 	}
+
+	public int getScore() {
+		return score;
+	}
+
+	public void addScore(int score) {
+		this.tempScore += score;
+		if(tempScore>=100){
+			this.score += 1;
+			this.tempScore -= 100;
+		}
+	}
+
+
 }

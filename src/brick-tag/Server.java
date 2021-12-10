@@ -73,6 +73,7 @@ class ClientHandler implements Runnable{
 	public void run(){
 		this.writeIndex(this.playerIndex);
 		Server.BTGV.playerList.add(new PlayerVariables(240, 352, 0, 0));
+		Server.BTGV.scoreList.add(0);
 		while (true){
 			if (clientHandlerLoop()){
 				break;
@@ -104,7 +105,13 @@ class ClientHandler implements Runnable{
 		}else if(Server.BTGV.currentState==BrickTagGame.PLAYINGSTATE) {
 			this.PV = Server.BTGV.playerList.get(playerIndex);
 			didSendMessage = checkPlayingControls(received);
+			setScore();
 			Server.BTGV.playerList.set(this.playerIndex, this.PV);
+			int whoWon = checkScores();
+			if(whoWon>=0){
+				System.out.println("_________");
+				//TODO Go to Gameover State
+			}
 		}else if(Server.BTGV.currentState==BrickTagGame.STARTUPSTATE) {
 			didSendMessage = checkStartControls(received);
 		}
@@ -347,7 +354,6 @@ class ClientHandler implements Runnable{
 		return message;
 	}
 
-
 	//Movement & Placement
 	private void moveEast(int xMax){
 		translateMoveHelper(5f,0f,0f,0f);
@@ -416,12 +422,20 @@ class ClientHandler implements Runnable{
 		float tempVX = this.PV.getVX();
 		float tempVY = this.PV.getVY();
 		boolean airborne = this.PV.isAirborne();
+		boolean flag = this.PV.hasFlag();
+		int score = this.PV.getScore();
+		int tempScore = this.PV.tempScore;
 		this.PV = null;
 
 		newLocation = new PlayerVariables(tempX + (x), tempY + (y),tempVX + (vx), tempVY  + (vy));
-		Server.BTGV.setPv(newLocation,this.playerIndex);
 		this.PV = newLocation;
 		this.PV.setAirborne(airborne);
+		if(flag){
+			this.PV.toggleFlag();
+		}
+		this.PV.tempScore = tempScore;
+		this.PV.score = score;
+		Server.BTGV.setPv(this.PV,this.playerIndex);
 	}
 
 	public void receiveGameState(){
@@ -449,5 +463,23 @@ class ClientHandler implements Runnable{
 		else{
 			return null;
 		}
+	}
+
+	private void setScore(){
+		if(this.PV.hasFlag()){
+			this.PV.addScore(1);
+			Server.BTGV.scoreList.set(this.playerIndex,this.PV.getScore());
+		}
+	}
+
+	private int checkScores(){
+		for(int i = 0; i < Server.BTGV.scoreList.size();i++){
+			//Currently, the score is set at 25 but that can be played with
+			if(Server.BTGV.scoreList.get(i)>25){
+				System.out.println("GAME OVER!!!! PLAYER "+i+" WINS!!!!!!");
+				return i;
+			}
+		}
+		return -1;
 	}
 }

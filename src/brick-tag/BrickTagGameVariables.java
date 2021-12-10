@@ -36,6 +36,7 @@ public class BrickTagGameVariables implements Serializable {
 	int updateCount;
 
 	ArrayList<PlayerVariables> playerList;
+	ArrayList<Integer> scoreList;
 	Vector<Tile> placedTiles;
 
 	public BrickTagGameVariables(int height,int width) {
@@ -67,7 +68,7 @@ public class BrickTagGameVariables implements Serializable {
 		this.level = 1;
 		this.showGrid = false;
 		this.playerList = new ArrayList<>(4);
-		//setTileGrid();
+		this.scoreList = new ArrayList<>(4);
 		this.updateCount = 0;
 		this.placedTiles = new Vector<>();
 	}
