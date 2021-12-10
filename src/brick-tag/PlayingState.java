@@ -188,6 +188,8 @@ class PlayingState extends BasicGameState {
 				btg.allPlayers.get(objectToRender.playersIndexOnScreen).render(g);
 			}
 		}
+
+		g.drawString( "Bricks: " + PV.getNumberOfBricks(),15,700);
 	}
 
 	private void getScreenCoords(int index,BrickTagGame btg){
