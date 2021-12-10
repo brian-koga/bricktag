@@ -6,7 +6,9 @@ import org.newdawn.slick.state.StateBasedGame;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Vector;
 
 
 /**
@@ -36,15 +38,16 @@ class PlayingState extends BasicGameState {
 
 		// setup level
 		levelNumber = btgV.level;
+		btg.tileGrid = new Tile[btgV.WorldTileWidth][btgV.WorldTileHeight];
 
 		if(levelNumber == 1) {
-			setupLevel(btgV, "Brick-Tag/src/brick-tag/resource/Level1.txt");
+			btg.tileGrid = setupLevel(btgV, "Brick-Tag/src/brick-tag/resource/Level1.txt");
 		} else if(levelNumber == 2) {
-			setupLevel(btgV, "Brick-Tag/src/brick-tag/resource/Level2.txt");
+			btg.tileGrid = setupLevel(btgV, "Brick-Tag/src/brick-tag/resource/Level2.txt");
 		}
 
 		playerIndex = btg.player.getIndex();
-		btg.player.setTileGrid(btgV.tileGrid);
+		//btg.player.setTileGrid(btgV.tileGrid);
 
 		sendNewPlayerVariables(btg);
 		btg.setVariablesFromClient();
@@ -83,7 +86,8 @@ class PlayingState extends BasicGameState {
 		}
 	}
 
-	public static void setupLevel(BrickTagGameVariables btgV, String path) {
+	public static Tile[][] setupLevel(BrickTagGameVariables btgV, String path) {
+		Tile[][] tileGrid = new Tile[btgV.WorldTileWidth][btgV.WorldTileHeight];
 		try {
 			File f = new File(path);
 			Scanner scan = new Scanner(f);
@@ -93,19 +97,19 @@ class PlayingState extends BasicGameState {
 				for(int i = 0; i < data.length(); i++) {
 					if(data.charAt(i) == '-') {
 						// something else, can't occupy
-						btgV.tileGrid[i][j] = new Tile(i, j, -1, false);
+						tileGrid[i][j] = new Tile(i, j, -1, false);
 					} else if(data.charAt(i) == '0') {
 						// signify air tile
-						btgV.tileGrid[i][j] = new Tile(i, j, 0, true);
+						tileGrid[i][j] = new Tile(i, j, 0, true);
 					} else if(data.charAt(i) == '1') {
 						// tiles that are occupied by a world block
-						btgV.tileGrid[i][j] = new Tile(i, j, 1, false);
+						tileGrid[i][j] = new Tile(i, j, 1, false);
 					} else if(data.charAt(i) == '2') {
 						// tiles that are occupied by a player placed block
-						btgV.tileGrid[i][j] = new Tile(i, j, 2, false);
+						tileGrid[i][j] = new Tile(i, j, 2, false);
 					} else if(data.charAt(i) == '3') {
 						// tiles that are occupied by a player placed block
-						btgV.tileGrid[i][j] = new Tile(i, j, 3, false);
+						tileGrid[i][j] = new Tile(i, j, 3, false);
 					}else {
 						// something has gone wrong
 						System.out.println("Unknown character encountered in level file.");
@@ -118,6 +122,7 @@ class PlayingState extends BasicGameState {
 			System.out.println("An error occurred.");
 			e.printStackTrace();
 		}
+		return tileGrid;
 	}
 
 	@Override
@@ -260,7 +265,7 @@ class PlayingState extends BasicGameState {
 		if(btg.variables.currentState!=BrickTagGame.PLAYINGSTATE){ btg.enterState(btg.variables.currentState); }
 	}
 
-	public PlayerVariables calculateObjects(BrickTagGameVariables btgV, PlayerVariables PV) {
+	public PlayerVariables calculateObjects(BrickTagGame btg, BrickTagGameVariables btgV, PlayerVariables PV) {
 		// find where the player is, this will be the center (usually)
 		float centerX = PV.getX();
 		float centerY = PV.getY();
@@ -335,20 +340,36 @@ class PlayingState extends BasicGameState {
 
 		for(int i = leftTile; i <= rightTile; i++) {
 			for(int j = topTile; j <= bottomTile; j++) {
-				if(btgV.tileGrid[i][j].designation == 1) {
+				if(btg.tileGrid[i][j].designation == 1) {
 					// should be a block
 					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'b'));
 				}
-				if(btgV.tileGrid[i][j].designation == 2) {
+				/*
+				if(btg.tileGrid[i][j].designation == 2) {
 					// should be a block
 					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'x'));
 				}
-				if(btgV.tileGrid[i][j].designation == 3) {
+				if(btg.tileGrid[i][j].designation == 3) {
 					// should be a block
 					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'y'));
 				}
 
+				 */
+
 				// other objects?
+			}
+		}
+
+		Vector<Tile> temp = btgV.placedTiles;
+
+		// check the placed tile array
+		for (Tile t: temp) {
+			if(t.x >= leftTile && t.x <= rightTile && t.y >= topTile && t.y <= bottomTile) {
+				if(t.designation == 2) {
+					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 'x'));
+				} else if(t.designation == 3) {
+					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 'y'));
+				}
 			}
 		}
 
@@ -369,7 +390,7 @@ class PlayingState extends BasicGameState {
 	private void setPlayerPositions(BrickTagGame btg, BrickTagGameVariables btgV) {
 		for(int i = 0; i<btgV.playerList.size(); i++){
 			PlayerVariables currPV = btgV.playerList.get(i);
-			currPV = calculateObjects(btgV,currPV);
+			currPV = calculateObjects(btg, btgV,currPV);
 			btgV.playerList.set(i,currPV);
 			btg.allPlayers.get(i).setVariables(currPV);
 			btg.allPlayers.get(i).setScreenPosition();

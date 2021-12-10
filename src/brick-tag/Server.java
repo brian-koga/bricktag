@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.util.Vector;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Predicate;
 
 
 @SuppressWarnings("InfiniteLoopStatement")
@@ -13,6 +14,7 @@ public class Server {
 	static Vector<ClientHandler> playerList = new Vector<>();
 	static int numberOfActivePlayers = 0;
 	static BrickTagGameVariables BTGV = new BrickTagGameVariables(720,1280);
+	static Tile[][] tileGrid;
 
 	public static void main(String[] args) throws IOException {
 		//Start a new server listening on port 5000
@@ -54,8 +56,7 @@ class ClientHandler implements Runnable{
 	ObjectInputStream objectInputStream;
 	ObjectOutputStream objectOutputStream;
 	PlayerVariables PV;
-	final int playerIndex;
-	Tile[][] tileMap;
+	final int playerIndex;;
 	int thisThreadUpdateCount = 0;
 
 	ClientHandler(Socket socket, DataInputStream inputStream, DataOutputStream outputStream,ObjectOutputStream objectOutputStream,ObjectInputStream objectInputStream,BrickTagGameVariables btg, int i) throws IOException {
@@ -65,8 +66,7 @@ class ClientHandler implements Runnable{
 		this.objectOutputStream = objectOutputStream;
 		this.objectInputStream = objectInputStream;
 		this.playerIndex = i;
-		if(Server.BTGV.tileGrid == null) { setTileGrid(); } // prevent new clients from resetting map
-		this.tileMap = Server.BTGV.tileGrid;
+		if(Server.tileGrid == null) { setTileGrid(); } // prevent new clients from resetting map
 	}
 
 	@Override
@@ -154,15 +154,10 @@ class ClientHandler implements Runnable{
 	public void sendVariablesToClient(String message){
 		//System.out.println(playerIndex + "SVTC: " + Server.BTGV.tileGrid);
 		try {
-			if(message.equals("CHANGE")){
-				this.tileMap = Server.BTGV.tileGrid;
-				Server.BTGV.tileGrid = null;
-			}
 			writeToClient(message, this.outputStream);
 			this.objectOutputStream.reset();
 			this.objectOutputStream.writeObject(Server.BTGV);
 			this.objectOutputStream.flush();
-			Server.BTGV.tileGrid = this.tileMap;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -226,17 +221,23 @@ class ClientHandler implements Runnable{
 		//get player position in tile grid
 		int playerX = (int)Math.floor(this.PV.getX() / 64);
 		int playerY = (int)Math.floor(this.PV.getY() / 64);
-
-		System.out.println(this.playerIndex + "MOVE: " + Server.BTGV.tileGrid);
-
-		Tile[][] tempMap;
-		//MAKE SURE that the tilegrid isn't null from another thread at this moment
-		while(true){
-			if(Server.BTGV.tileGrid != null){
-				tempMap = Server.BTGV.tileGrid;
-				break;
-			}
+		if(playerY<0){
+			playerY=0;
 		}
+
+//		System.out.println(this.playerIndex + "MOVE: " + Server.BTGV.tileGrid);
+
+		Tile[][] tempMap = Server.tileGrid;
+		//MAKE SURE that the tilegrid isn't null from another thread at this moment
+//		while(tempMap==null) {
+//			if(Server.BTGV.tileGrid == null){
+//				tempMap = this.tileMap;
+//			}else{
+//				tempMap = Server.BTGV.tileGrid;
+//			}
+//		}
+
+
 
 		//East
 		if(playerX == (Server.BTGV.WorldTileWidth - 1)){
@@ -266,11 +267,16 @@ class ClientHandler implements Runnable{
 
 		//Roof Check
 		if(this.PV.isAirborne()) {
-			if (this.PV.getY() < ((yMin) * 64) + 96) {
+			if (this.PV.getY() < ((yMin) * 64) + 96 && playerY>0) {
 				if((tempMap[playerX][playerY - 1].designation == 2) ||
-				   (tempMap[playerX][playerY - 1].designation == 3)){
+					(tempMap[playerX][playerY - 1].designation == 3)){
 
 					tempMap[playerX][playerY - 1].designation = 0;
+
+					int finalPlayerY = playerY-1;
+					Predicate<Tile> condition = tile -> tile.getX() == playerX && tile.getY() == finalPlayerY;
+
+					Server.BTGV.placedTiles.removeIf(condition);
 					//TODO INCREMENT PLAYER BLOCK COUNT BY 1
 
 					message = "NEW_MAP";
@@ -336,7 +342,7 @@ class ClientHandler implements Runnable{
 			this.PV.setVelocity(0,0);
 		}
 
-		Server.BTGV.tileGrid = tempMap;
+		Server.tileGrid = tempMap;
 
 		//check if an update is made by another client
 		if(Server.BTGV.getUpdateCount() > thisThreadUpdateCount){
@@ -366,8 +372,14 @@ class ClientHandler implements Runnable{
 	private String placeEast(int xMax, int playerX, int playerY, Tile[][] tempMap){
 		if (xMax != (Server.BTGV.WorldTileWidth)) {
 			if (tempMap[playerX + 1][playerY].designation == 0) {
-				if(this.playerIndex == 0) { tempMap[playerX + 1][playerY].designation = 2; }
-				if(this.playerIndex == 1) { tempMap[playerX + 1][playerY].designation = 3; }
+				if(this.playerIndex == 0) {
+					tempMap[playerX + 1][playerY].designation = 2;
+					Server.BTGV.placedTiles.add(new Tile(playerX+1,playerY,2,true));
+				}
+				if(this.playerIndex == 1) {
+					tempMap[playerX + 1][playerY].designation = 3;
+					Server.BTGV.placedTiles.add(new Tile(playerX+1,playerY,3,true));
+				}
 				return "NEW_MAP";
 			}
 		}
@@ -377,8 +389,14 @@ class ClientHandler implements Runnable{
 	private String placeWest(int xMin, int playerX, int playerY, Tile[][] tempMap){
 		if (xMin != -1) {
 			if (tempMap[playerX - 1][playerY].designation == 0) {
-				if(this.playerIndex == 0) { tempMap[playerX - 1][playerY].designation = 2; }
-				if(this.playerIndex == 1) { tempMap[playerX - 1][playerY].designation = 3; }
+				if(this.playerIndex == 0) {
+					tempMap[playerX - 1][playerY].designation = 2;
+					Server.BTGV.placedTiles.add(new Tile(playerX-1,playerY,2,true));
+				}
+				if(this.playerIndex == 1) {
+					tempMap[playerX - 1][playerY].designation = 3;
+					Server.BTGV.placedTiles.add(new Tile(playerX-1,playerY,3,true));
+				}
 				return "NEW_MAP";
 			}
 		}
@@ -433,7 +451,7 @@ class ClientHandler implements Runnable{
 
 	public void setTileGrid() {
 		String path = getMapFile(Server.BTGV.level);
-		PlayingState.setupLevel(Server.BTGV,path);
+		Server.tileGrid = PlayingState.setupLevel(Server.BTGV,path);
 	}
 
 	private String getMapFile(int levelNumber){
