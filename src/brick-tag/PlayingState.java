@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Vector;
 
 
 /**
@@ -359,7 +360,7 @@ class PlayingState extends BasicGameState {
 			}
 		}
 
-		ArrayList<Tile> temp = btgV.placedTiles;
+		Vector<Tile> temp = btgV.placedTiles;
 
 		// check the placed tile array
 		for (Tile t: temp) {
