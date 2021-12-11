@@ -245,6 +245,14 @@ class PlayingState extends BasicGameState {
 			kc.command = "DE";
 		}else if(input.isKeyDown(Input.KEY_D) && input.isKeyDown(Input.KEY_Q)){
 			kc.command = "DQ";
+		}else if(input.isKeyDown(Input.KEY_A) && input.isKeyDown(Input.KEY_W)){
+			kc.command = "AW";
+		}else if(input.isKeyDown(Input.KEY_A) && input.isKeyDown(Input.KEY_S)){
+			kc.command = "AS";
+		}else if(input.isKeyDown(Input.KEY_D) && input.isKeyDown(Input.KEY_W)){
+			kc.command = "DW";
+		}else if(input.isKeyDown(Input.KEY_D) && input.isKeyDown(Input.KEY_S)){
+			kc.command = "DS";
 		}else if(input.isKeyDown(Input.KEY_A)){
 			kc.command = "A";
 		}else if(input.isKeyDown(Input.KEY_D)){
@@ -253,6 +261,10 @@ class PlayingState extends BasicGameState {
 			kc.command = "Q";
 		}else if(input.isKeyDown(Input.KEY_E)){
 			kc.command = "E";
+		}else if(input.isKeyDown(Input.KEY_W)){
+			kc.command = "W";
+		}else if(input.isKeyDown(Input.KEY_S)){
+			kc.command = "S";
 		}else{
 			kc.command = "";
 		}
@@ -370,6 +382,10 @@ class PlayingState extends BasicGameState {
 				if(t.designation == 2) {
 					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 'x'));
 				} else if(t.designation == 3) {
+					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 'y'));
+				}
+				//This is temporary
+				else{
 					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 'y'));
 				}
 			}
