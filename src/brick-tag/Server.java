@@ -15,6 +15,7 @@ public class Server {
 	static int numberOfActivePlayers = 0;
 	static BrickTagGameVariables BTGV = new BrickTagGameVariables(720,1280);
 	static Tile[][] tileGrid;
+	static int flagCountdown=0;
 
 	public static void main(String[] args) throws IOException {
 		//Start a new server listening on port 5000
@@ -104,10 +105,12 @@ class ClientHandler implements Runnable{
 		}else if(Server.BTGV.currentState==BrickTagGame.PLAYINGSTATE) {
 			this.PV = Server.BTGV.playerList.get(playerIndex);
 			didSendMessage = checkPlayingControls(received);
+			setPlayerFlag();
 			setScore();
 			Server.BTGV.playerList.set(this.playerIndex, this.PV);
 			int whoWon = checkScores();
 			if(whoWon>=0){
+				System.out.println("GAME OVER!!!! PLAYER "+whoWon+" WINS!!!!!!");
 				System.out.println("_________");
 				//TODO Go to Gameover State
 			}
@@ -189,6 +192,7 @@ class ClientHandler implements Runnable{
 	private boolean checkPlayingControls(String input){
 		if(input.equals("DEBUG")){
 			Server.BTGV.toggleShowGrid();
+			this.PV.toggleFlag();
 		}
 
 		this.movePlayer(input);
@@ -492,11 +496,33 @@ class ClientHandler implements Runnable{
 	private int checkScores(){
 		for(int i = 0; i < Server.BTGV.scoreList.size();i++){
 			//Currently, the score is set at 25 but that can be played with
-			if(Server.BTGV.scoreList.get(i)>25){
-				System.out.println("GAME OVER!!!! PLAYER "+i+" WINS!!!!!!");
+			if(Server.BTGV.scoreList.get(i)>=25){
 				return i;
 			}
 		}
 		return -1;
+	}
+
+	private void setPlayerFlag(){
+		if(this.PV.hasFlag()) {
+			if (Server.flagCountdown <= 0) {
+				PlayerVariables currPlayer = this.PV;
+				for (int i = 0; i < Server.BTGV.playerList.size(); i++) {
+					if (i != this.playerIndex) {
+						PlayerVariables checkPlayer = Server.BTGV.playerList.get(i);
+						if (checkPlayer.getX() == currPlayer.getX() && checkPlayer.getY() == currPlayer.getY()) {
+							checkPlayer.toggleFlag();
+							currPlayer.toggleFlag();
+							Server.flagCountdown = 50;
+//							System.out.println("Player " + this.playerIndex + " lost the flag to Player " + i);
+							break;
+						}
+					}
+				}
+			}else{
+				Server.flagCountdown-=1;
+//				System.out.println(Server.flagCountdown);
+			}
+		}
 	}
 }
