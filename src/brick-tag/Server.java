@@ -57,7 +57,6 @@ class ClientHandler implements Runnable{
 	ObjectOutputStream objectOutputStream;
 	PlayerVariables PV;
 	final int playerIndex;
-	int thisThreadUpdateCount = 0;
 
 	ClientHandler(Socket socket, DataInputStream inputStream, DataOutputStream outputStream,ObjectOutputStream objectOutputStream,ObjectInputStream objectInputStream,BrickTagGameVariables btg, int i) throws IOException {
 		this.socket = socket;
@@ -151,10 +150,10 @@ class ClientHandler implements Runnable{
 		}
 	}
 
-	public void sendVariablesToClient(String message){
+	public void sendVariablesToClient(){
 		//System.out.println(playerIndex + "SVTC: " + Server.BTGV.tileGrid);
 		try {
-			writeToClient(message, this.outputStream);
+			writeToClient("CHANGE", this.outputStream);
 			this.objectOutputStream.reset();
 			this.objectOutputStream.writeObject(Server.BTGV);
 			this.objectOutputStream.flush();
@@ -181,7 +180,7 @@ class ClientHandler implements Runnable{
 	private boolean checkStartControls(String input){
 		if(input.equals("SPACE")){
 			Server.BTGV.currentState = BrickTagGame.PLAYINGSTATE;
-			sendVariablesToClient("CHANGE");
+			sendVariablesToClient();
 			return true;
 		}
 		return false;
@@ -192,15 +191,14 @@ class ClientHandler implements Runnable{
 			Server.BTGV.toggleShowGrid();
 		}
 
-		String message = this.movePlayer(input);
-		sendVariablesToClient(message);
+		this.movePlayer(input);
+		sendVariablesToClient();
 
 		return true;
 	}
 
-	private String movePlayer(String input){
+	private void movePlayer(String input){
 		PlayerVariables newLocation;
-		String message = "CHANGE";
 		//Leave at top
 		if(this.PV == null){
 			System.out.println("position currently null - this is expected - setting to default");
@@ -280,8 +278,6 @@ class ClientHandler implements Runnable{
 
 					Server.BTGV.placedTiles.removeIf(condition);
 					this.PV.addBrick();
-
-					message = "NEW_MAP";
 				}
 //				System.out.println("Bonk!");
 				this.PV.setVariableY(((yMin + 1) * 64) + 32);
@@ -370,15 +366,6 @@ class ClientHandler implements Runnable{
 		}
 
 		Server.tileGrid = tempMap;
-
-		//check if an update is made by another client
-		if(Server.BTGV.getUpdateCount() > thisThreadUpdateCount){
-			message = "NEW_MAP";
-			thisThreadUpdateCount = Server.BTGV.getUpdateCount();
-		}else if(message.equals("NEW_MAP")){
-			Server.BTGV.incrementUpdateCount();
-		}
-		return message;
 	}
 
 	//Movement & Placement
@@ -469,7 +456,7 @@ class ClientHandler implements Runnable{
 		//System.out.println("receiveGameState");
 		try {
 			Server.BTGV = (BrickTagGameVariables) this.objectInputStream.readObject();
-			sendVariablesToClient("NEW_MAP");
+			sendVariablesToClient();
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
