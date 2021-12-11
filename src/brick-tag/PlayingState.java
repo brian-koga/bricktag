@@ -180,15 +180,47 @@ class PlayingState extends BasicGameState {
 			}
 
 			else if(objectToRender.objectType == 'p'){
-				Player tempPlayerVariables = btg.allPlayers.get(objectToRender.playersIndexOnScreen);
-				if(objectToRender.playersIndexOnScreen != this.playerIndex){
-					getScreenCoords(objectToRender.playersIndexOnScreen,btg);
+				int scale = 0;
+
+				if(objectToRender.playersIndexOnScreen == 0) {
+					if (btgV.p1_orientation.equals("RL")) { scale = 0; }
+					if (btgV.p1_orientation.equals("RR")) { scale = 1; }
 				}
-				btg.allPlayers.get(objectToRender.playersIndexOnScreen).setPosition(tempPlayerVariables.getScreenX(), tempPlayerVariables.getScreenY());
-				btg.allPlayers.get(objectToRender.playersIndexOnScreen).render(g);
+				if(objectToRender.playersIndexOnScreen == 1) {
+					if (btgV.p2_orientation.equals("RL")) { scale = 2; }
+					if (btgV.p2_orientation.equals("RR")) { scale = 3; }
+				}
+				if(objectToRender.playersIndexOnScreen == 2) {
+					if (btgV.p3_orientation.equals("RL")) { scale = 4; }
+					if (btgV.p3_orientation.equals("RR")) { scale = 5; }
+				}
+				if(objectToRender.playersIndexOnScreen == 3) {
+					if (btgV.p4_orientation.equals("RL")) { scale = 6; }
+					if (btgV.p4_orientation.equals("RR")) { scale = 7; }
+				}
+
+				int orientation_index = scale;
+
+
+				Player tempPlayerVariables = btg.allPlayers.get(objectToRender.playersIndexOnScreen);
+				if((objectToRender.playersIndexOnScreen) != this.playerIndex){
+					getScreenCoords((objectToRender.playersIndexOnScreen),btg);
+				}
+
+				//System.out.println("object to render index: " + objectToRender.playersIndexOnScreen);
+				//System.out.println("orientation index: " + orientation_index);
+
+
+
+
+
+
+				btg.allPlayers.get(orientation_index).setPosition(tempPlayerVariables.getScreenX(), tempPlayerVariables.getScreenY());
+				btg.allPlayers.get(orientation_index).render(g);
 			}
 		}
 
+		//System.out.println("All Players: " + btg.allPlayers);
 		g.drawString( "Bricks: " + PV.getNumberOfBricks(),15,700);
 	}
 
@@ -245,6 +277,14 @@ class PlayingState extends BasicGameState {
 			kc.command = "DE";
 		}else if(input.isKeyDown(Input.KEY_D) && input.isKeyDown(Input.KEY_Q)){
 			kc.command = "DQ";
+		}else if(input.isKeyDown(Input.KEY_A) && input.isKeyDown(Input.KEY_W)){
+			kc.command = "AW";
+		}else if(input.isKeyDown(Input.KEY_A) && input.isKeyDown(Input.KEY_S)){
+			kc.command = "AS";
+		}else if(input.isKeyDown(Input.KEY_D) && input.isKeyDown(Input.KEY_W)){
+			kc.command = "DW";
+		}else if(input.isKeyDown(Input.KEY_D) && input.isKeyDown(Input.KEY_S)){
+			kc.command = "DS";
 		}else if(input.isKeyDown(Input.KEY_A)){
 			kc.command = "A";
 		}else if(input.isKeyDown(Input.KEY_D)){
@@ -253,6 +293,10 @@ class PlayingState extends BasicGameState {
 			kc.command = "Q";
 		}else if(input.isKeyDown(Input.KEY_E)){
 			kc.command = "E";
+		}else if(input.isKeyDown(Input.KEY_W)){
+			kc.command = "W";
+		}else if(input.isKeyDown(Input.KEY_S)){
+			kc.command = "S";
 		}else{
 			kc.command = "";
 		}
@@ -372,6 +416,10 @@ class PlayingState extends BasicGameState {
 				} else if(t.designation == 3) {
 					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 'y'));
 				}
+				//This is temporary
+				else{
+					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 'y'));
+				}
 			}
 		}
 
@@ -385,6 +433,9 @@ class PlayingState extends BasicGameState {
 				PV.objectsToRender.add(new VisibleObject(i,'p'));
 			}
 		}
+
+
+
 
 		return PV;
 	}

@@ -33,11 +33,15 @@ public class BrickTagGameVariables implements Serializable {
 	float gravityValue;
 	float jumpValue;
 
-	int updateCount;
-
+	// misc variables
 	ArrayList<PlayerVariables> playerList;
 	ArrayList<Integer> scoreList;
 	Vector<Tile> placedTiles;
+
+	String p1_orientation;
+	String p2_orientation;
+	String p3_orientation;
+	String p4_orientation;
 
 	public BrickTagGameVariables(int height,int width) {
 		ScreenHeight = (float) height;
@@ -46,14 +50,12 @@ public class BrickTagGameVariables implements Serializable {
 		this.ScreenTileWidth = 20;
 		this.ScreenTileHeight = 11;
 
-
 		this.WorldTileWidth = ScreenTileWidth*3;
 		this.WorldTileHeight = ScreenTileHeight*2;
 
 		// do we want this to change based on the level?
 		WorldWidth = ScreenWidth*3;
 		WorldHeight = ScreenHeight*2;
-
 
 		//tileGrid = new Tile[WorldTileWidth][WorldTileHeight];
 
@@ -62,46 +64,35 @@ public class BrickTagGameVariables implements Serializable {
 		gravityValue = .4f;
 		jumpValue = -13.0f;
 
-
 		this.currentState = BrickTagGame.STARTUPSTATE;
 		this.tileSize = 64;
 		this.level = 1;
 		this.showGrid = false;
 		this.playerList = new ArrayList<>(4);
 		this.scoreList = new ArrayList<>(4);
-		this.updateCount = 0;
 		this.placedTiles = new Vector<>();
+
+		//SL = standing left. SL SR RL RR
+		this.p1_orientation = "SL";
+		this.p2_orientation = "SL";
+		this.p3_orientation = "SL";
+		this.p4_orientation = "SL";
 	}
 
 	public void setPv(PlayerVariables pv,int index) {
 		this.playerList.set(index,pv);
 	}
 
+	public void setOrientation(int index, String orientation) {
+		if(index == 0){ this.p1_orientation = orientation; }
+		if(index == 1){ this.p2_orientation = orientation; }
+		if(index == 2){ this.p3_orientation = orientation; }
+		if(index == 3){ this.p4_orientation = orientation; }
+	}
+
 	public void setLevel(int level) {this.level = level;}
 
 	public void setCurrentState(int currentState) {this.currentState = currentState;}
 
-	public void incrementUpdateCount() {this.updateCount++;}
-	public int getUpdateCount() {return this.updateCount;}
-
 	public void toggleShowGrid() {this.showGrid = !this.showGrid;}
-
-	/*
-	public void setTileGrid() {
-		String path = getMapFile(this.level);
-		tileGrid = PlayingState.setupLevel(this,path);
-	}
-
-	 */
-
-	private String getMapFile(int levelNumber){
-		if(levelNumber == 1) {
-			return "Brick-Tag/src/brick-tag/resource/Level1.txt";
-		} else if(levelNumber == 2) {
-			return  "Brick-Tag/src/brick-tag/resource/Level2.txt";
-		}
-		else{
-			return null;
-		}
-	}
 }

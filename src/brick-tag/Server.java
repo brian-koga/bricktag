@@ -57,7 +57,6 @@ class ClientHandler implements Runnable{
 	ObjectOutputStream objectOutputStream;
 	PlayerVariables PV;
 	final int playerIndex;
-	int thisThreadUpdateCount = 0;
 
 	ClientHandler(Socket socket, DataInputStream inputStream, DataOutputStream outputStream,ObjectOutputStream objectOutputStream,ObjectInputStream objectInputStream,BrickTagGameVariables btg, int i) throws IOException {
 		this.socket = socket;
@@ -151,10 +150,10 @@ class ClientHandler implements Runnable{
 		}
 	}
 
-	public void sendVariablesToClient(String message){
+	public void sendVariablesToClient(){
 		//System.out.println(playerIndex + "SVTC: " + Server.BTGV.tileGrid);
 		try {
-			writeToClient(message, this.outputStream);
+			writeToClient("CHANGE", this.outputStream);
 			this.objectOutputStream.reset();
 			this.objectOutputStream.writeObject(Server.BTGV);
 			this.objectOutputStream.flush();
@@ -181,7 +180,7 @@ class ClientHandler implements Runnable{
 	private boolean checkStartControls(String input){
 		if(input.equals("SPACE")){
 			Server.BTGV.currentState = BrickTagGame.PLAYINGSTATE;
-			sendVariablesToClient("CHANGE");
+			sendVariablesToClient();
 			return true;
 		}
 		return false;
@@ -192,15 +191,14 @@ class ClientHandler implements Runnable{
 			Server.BTGV.toggleShowGrid();
 		}
 
-		String message = this.movePlayer(input);
-		sendVariablesToClient(message);
+		this.movePlayer(input);
+		sendVariablesToClient();
 
 		return true;
 	}
 
-	private String movePlayer(String input){
+	private void movePlayer(String input){
 		PlayerVariables newLocation;
-		String message = "CHANGE";
 		//Leave at top
 		if(this.PV == null){
 			System.out.println("position currently null - this is expected - setting to default");
@@ -229,8 +227,6 @@ class ClientHandler implements Runnable{
 		if(playerY<0){ playerY=0; }
 		if(playerNorth<0){ playerNorth = 0;}
 		if(playerSouth<0){ playerSouth = 0;}
-
-		System.out.println(playerSouth);
 
 		Tile[][] tempMap = Server.tileGrid;
 
@@ -272,8 +268,8 @@ class ClientHandler implements Runnable{
 		//Roof Check
 		if(this.PV.isAirborne()) {
 			if (this.PV.getY() < ((yMin) * 64) + 96 && playerY>0) {
-				if((tempMap[playerX][playerY - 1].designation == 2) ||
-					(tempMap[playerX][playerY - 1].designation == 3)){
+				if((tempMap[playerX][playerY - 1].designation > 1) &&
+					(tempMap[playerX][playerY - 1].designation < 6)){
 
 					tempMap[playerX][playerY - 1].designation = 0;
 
@@ -282,8 +278,6 @@ class ClientHandler implements Runnable{
 
 					Server.BTGV.placedTiles.removeIf(condition);
 					this.PV.addBrick();
-
-					message = "NEW_MAP";
 				}
 //				System.out.println("Bonk!");
 				this.PV.setVariableY(((yMin + 1) * 64) + 32);
@@ -318,48 +312,66 @@ class ClientHandler implements Runnable{
 
 		//Place West / East
 		if(input.equals("Q")){
-			message = placeWest(xMin, playerX, playerY, tempMap);
+			placeWest(xMin, playerX, playerY, tempMap);
 		}
 		if(input.equals("E")){
-			message = placeEast(xMax, playerX, playerY, tempMap);
+			placeEast(xMax, playerX, playerY, tempMap);
+		}
+		if(input.equals("W")){
+			placeAbove(yMin,playerX,playerY,tempMap);
+		}
+		if(input.equals("S")){
+			placeBelow(yMax,playerX,playerY,tempMap);
 		}
 
 		//Combination of movement & placement
 		if(input.equals("AE")){
 			moveWest(xMin);
-			message = placeEast(xMax, playerX, playerY, tempMap);
+			placeEast(xMax, playerX, playerY, tempMap);
 		}
 		if(input.equals("AQ")){
 			moveWest(xMin);
-			message = placeWest(xMin, playerX, playerY, tempMap);
+			placeWest(xMin, playerX, playerY, tempMap);
 		}
 		if(input.equals("DE")){
 			moveEast(xMax);
-			message = placeEast(xMax, playerX, playerY, tempMap);
+			placeEast(xMax, playerX, playerY, tempMap);
 		}
 		if(input.equals("DQ")){
 			moveEast(xMax);
-			message = placeWest(xMin, playerX, playerY, tempMap);
+			placeWest(xMin, playerX, playerY, tempMap);
 		}
+
+		//Above and Below Combos
+		if(input.equals("AW")){
+			moveWest(xMin);
+			placeAbove(yMin,playerX,playerY,tempMap);
+		}
+		if(input.equals("AS")){
+			moveWest(xMin);
+			placeBelow(yMax,playerX,playerY,tempMap);
+		}
+		if(input.equals("DW")){
+			moveEast(xMax);
+			placeAbove(yMin,playerX,playerY,tempMap);
+		}
+		if(input.equals("DS")){
+			moveEast(xMax);
+			placeBelow(yMax,playerX,playerY,tempMap);
+		}
+
 
 		if(input.equals("") && this.PV.getVelocity().getY()==0){
 			this.PV.setVelocity(0,0);
 		}
 
 		Server.tileGrid = tempMap;
-
-		//check if an update is made by another client
-		if(Server.BTGV.getUpdateCount() > thisThreadUpdateCount){
-			message = "NEW_MAP";
-			thisThreadUpdateCount = Server.BTGV.getUpdateCount();
-		}else if(message.equals("NEW_MAP")){
-			Server.BTGV.incrementUpdateCount();
-		}
-		return message;
 	}
 
 	//Movement & Placement
 	private void moveEast(int xMax){
+		Server.BTGV.setOrientation(this.playerIndex, "RR");
+
 		translateMoveHelper(5f,0f,0f,0f);
 		if(this.PV.getX() > ((xMax)* 64) - 32){
 			this.PV.setVariableX((xMax)* 64 - 32);
@@ -367,48 +379,68 @@ class ClientHandler implements Runnable{
 	}
 
 	private void moveWest(int xMin){
+		Server.BTGV.setOrientation(this.playerIndex, "RL");
+
 		translateMoveHelper(-5f,0f,0f,0f);
 		if(this.PV.getX() < ((xMin)* 64) + 96 || (this.PV.getX() < 32)){
 			this.PV.setVariableX((xMin + 1)* 64 + 32);
 		}
 	}
 
-	private String placeEast(int xMax, int playerX, int playerY, Tile[][] tempMap){
+	private void placeEast(int xMax, int playerX, int playerY, Tile[][] tempMap){
 		if(this.PV.getNumberOfBricks()>0) {
 			if (xMax != (Server.BTGV.WorldTileWidth)) {
-				if (tempMap[playerX + 1][playerY].designation == 0) {
-					if (this.playerIndex == 0) {
+				placeBlock(playerX +1 ,playerY,tempMap);
+					/*if (this.playerIndex == 0) {
 						tempMap[playerX + 1][playerY].designation = 2;
 						Server.BTGV.placedTiles.add(new Tile(playerX + 1, playerY, 2, true));
 					}else if (this.playerIndex == 1) {
 						tempMap[playerX + 1][playerY].designation = 3;
 						Server.BTGV.placedTiles.add(new Tile(playerX + 1, playerY, 3, true));
 					}
-					this.PV.useBrick();
-					return "NEW_MAP";
-				}
+					this.PV.useBrick();*/
 			}
 		}
-		return "CHANGE";
 	}
 
-	private String placeWest(int xMin, int playerX, int playerY, Tile[][] tempMap){
+	private void placeWest(int xMin, int playerX, int playerY, Tile[][] tempMap){
 		if(this.PV.getNumberOfBricks()>0) {
 			if (xMin != -1) {
-				if (tempMap[playerX - 1][playerY].designation == 0) {
-					if (this.playerIndex == 0) {
+/*					if (this.playerIndex == 0) {
 						tempMap[playerX - 1][playerY].designation = 2;
 						Server.BTGV.placedTiles.add(new Tile(playerX - 1, playerY, 2, true));
 					}else if (this.playerIndex == 1) {
 						tempMap[playerX - 1][playerY].designation = 3;
 						Server.BTGV.placedTiles.add(new Tile(playerX - 1, playerY, 3, true));
-					}
-					this.PV.useBrick();
-					return "NEW_MAP";
-				}
+					}*/
+				placeBlock(playerX - 1, playerY, tempMap);
 			}
 		}
-		return "CHANGE";
+	}
+
+	private void placeAbove(int yMin, int playerX, int playerY, Tile[][] tempMap){
+		if(this.PV.getNumberOfBricks()>0) {
+			if (yMin != -1) {
+				placeBlock(playerX, playerY-1, tempMap);
+			}
+		}
+	}
+
+	private void placeBelow(int yMax, int playerX, int playerY, Tile[][] tempMap){
+		if(this.PV.getNumberOfBricks()>0) {
+			if (yMax != (Server.BTGV.WorldTileHeight)) {
+				placeBlock(playerX, playerY+1, tempMap);
+			}
+		}
+	}
+
+	private void placeBlock(int playerX, int playerY, Tile[][] tempMap) {
+		if (tempMap[playerX][playerY].designation == 0) {
+			int des = this.playerIndex + 2;
+			tempMap[playerX][playerY].designation = des;
+			Server.BTGV.placedTiles.add(new Tile(playerX, playerY, des, true));
+			this.PV.useBrick();
+		}
 	}
 
 	//Adds velocity to position
@@ -428,7 +460,7 @@ class ClientHandler implements Runnable{
 		//System.out.println("receiveGameState");
 		try {
 			Server.BTGV = (BrickTagGameVariables) this.objectInputStream.readObject();
-			sendVariablesToClient("NEW_MAP");
+			sendVariablesToClient();
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
