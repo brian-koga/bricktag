@@ -230,8 +230,6 @@ class ClientHandler implements Runnable{
 		if(playerNorth<0){ playerNorth = 0;}
 		if(playerSouth<0){ playerSouth = 0;}
 
-		System.out.println(playerSouth);
-
 		Tile[][] tempMap = Server.tileGrid;
 
 		//East
@@ -272,8 +270,8 @@ class ClientHandler implements Runnable{
 		//Roof Check
 		if(this.PV.isAirborne()) {
 			if (this.PV.getY() < ((yMin) * 64) + 96 && playerY>0) {
-				if((tempMap[playerX][playerY - 1].designation == 2) ||
-					(tempMap[playerX][playerY - 1].designation == 3)){
+				if((tempMap[playerX][playerY - 1].designation > 1) &&
+					(tempMap[playerX][playerY - 1].designation < 6)){
 
 					tempMap[playerX][playerY - 1].designation = 0;
 
@@ -318,29 +316,54 @@ class ClientHandler implements Runnable{
 
 		//Place West / East
 		if(input.equals("Q")){
-			message = placeWest(xMin, playerX, playerY, tempMap);
+			placeWest(xMin, playerX, playerY, tempMap);
 		}
 		if(input.equals("E")){
-			message = placeEast(xMax, playerX, playerY, tempMap);
+			placeEast(xMax, playerX, playerY, tempMap);
+		}
+		if(input.equals("W")){
+			placeAbove(yMin,playerX,playerY,tempMap);
+		}
+		if(input.equals("S")){
+			placeBelow(yMax,playerX,playerY,tempMap);
 		}
 
 		//Combination of movement & placement
 		if(input.equals("AE")){
 			moveWest(xMin);
-			message = placeEast(xMax, playerX, playerY, tempMap);
+			placeEast(xMax, playerX, playerY, tempMap);
 		}
 		if(input.equals("AQ")){
 			moveWest(xMin);
-			message = placeWest(xMin, playerX, playerY, tempMap);
+			placeWest(xMin, playerX, playerY, tempMap);
 		}
 		if(input.equals("DE")){
 			moveEast(xMax);
-			message = placeEast(xMax, playerX, playerY, tempMap);
+			placeEast(xMax, playerX, playerY, tempMap);
 		}
 		if(input.equals("DQ")){
 			moveEast(xMax);
-			message = placeWest(xMin, playerX, playerY, tempMap);
+			placeWest(xMin, playerX, playerY, tempMap);
 		}
+
+		//Above and Below Combos
+		if(input.equals("AW")){
+			moveWest(xMin);
+			placeAbove(yMin,playerX,playerY,tempMap);
+		}
+		if(input.equals("AS")){
+			moveWest(xMin);
+			placeBelow(yMax,playerX,playerY,tempMap);
+		}
+		if(input.equals("DW")){
+			moveEast(xMax);
+			placeAbove(yMin,playerX,playerY,tempMap);
+		}
+		if(input.equals("DS")){
+			moveEast(xMax);
+			placeBelow(yMax,playerX,playerY,tempMap);
+		}
+
 
 		if(input.equals("") && this.PV.getVelocity().getY()==0){
 			this.PV.setVelocity(0,0);
@@ -373,42 +396,60 @@ class ClientHandler implements Runnable{
 		}
 	}
 
-	private String placeEast(int xMax, int playerX, int playerY, Tile[][] tempMap){
+	private void placeEast(int xMax, int playerX, int playerY, Tile[][] tempMap){
 		if(this.PV.getNumberOfBricks()>0) {
 			if (xMax != (Server.BTGV.WorldTileWidth)) {
-				if (tempMap[playerX + 1][playerY].designation == 0) {
-					if (this.playerIndex == 0) {
+				placeBlock(playerX +1 ,playerY,tempMap);
+					/*if (this.playerIndex == 0) {
 						tempMap[playerX + 1][playerY].designation = 2;
 						Server.BTGV.placedTiles.add(new Tile(playerX + 1, playerY, 2, true));
 					}else if (this.playerIndex == 1) {
 						tempMap[playerX + 1][playerY].designation = 3;
 						Server.BTGV.placedTiles.add(new Tile(playerX + 1, playerY, 3, true));
 					}
-					this.PV.useBrick();
-					return "NEW_MAP";
-				}
+					this.PV.useBrick();*/
 			}
 		}
-		return "CHANGE";
 	}
 
-	private String placeWest(int xMin, int playerX, int playerY, Tile[][] tempMap){
+	private void placeWest(int xMin, int playerX, int playerY, Tile[][] tempMap){
 		if(this.PV.getNumberOfBricks()>0) {
 			if (xMin != -1) {
-				if (tempMap[playerX - 1][playerY].designation == 0) {
-					if (this.playerIndex == 0) {
+/*					if (this.playerIndex == 0) {
 						tempMap[playerX - 1][playerY].designation = 2;
 						Server.BTGV.placedTiles.add(new Tile(playerX - 1, playerY, 2, true));
 					}else if (this.playerIndex == 1) {
 						tempMap[playerX - 1][playerY].designation = 3;
 						Server.BTGV.placedTiles.add(new Tile(playerX - 1, playerY, 3, true));
-					}
-					this.PV.useBrick();
-					return "NEW_MAP";
-				}
+					}*/
+				placeBlock(playerX - 1, playerY, tempMap);
 			}
 		}
-		return "CHANGE";
+	}
+
+	private void placeAbove(int yMin, int playerX, int playerY, Tile[][] tempMap){
+		if(this.PV.getNumberOfBricks()>0) {
+			if (yMin != -1) {
+				placeBlock(playerX, playerY-1, tempMap);
+			}
+		}
+	}
+
+	private void placeBelow(int yMax, int playerX, int playerY, Tile[][] tempMap){
+		if(this.PV.getNumberOfBricks()>0) {
+			if (yMax != (Server.BTGV.WorldTileHeight)) {
+				placeBlock(playerX, playerY+1, tempMap);
+			}
+		}
+	}
+
+	private void placeBlock(int playerX, int playerY, Tile[][] tempMap) {
+		if (tempMap[playerX][playerY].designation == 0) {
+			int des = this.playerIndex + 2;
+			tempMap[playerX][playerY].designation = des;
+			Server.BTGV.placedTiles.add(new Tile(playerX, playerY, des, true));
+			this.PV.useBrick();
+		}
 	}
 
 	//Adds velocity to position
