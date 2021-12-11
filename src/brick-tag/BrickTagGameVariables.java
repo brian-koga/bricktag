@@ -33,9 +33,15 @@ public class BrickTagGameVariables implements Serializable {
 	float gravityValue;
 	float jumpValue;
 
+	// misc variables
 	ArrayList<PlayerVariables> playerList;
 	ArrayList<Integer> scoreList;
 	Vector<Tile> placedTiles;
+
+	String p1_orientation;
+	String p2_orientation;
+	String p3_orientation;
+	String p4_orientation;
 
 	public BrickTagGameVariables(int height,int width) {
 		ScreenHeight = (float) height;
@@ -65,10 +71,23 @@ public class BrickTagGameVariables implements Serializable {
 		this.playerList = new ArrayList<>(4);
 		this.scoreList = new ArrayList<>(4);
 		this.placedTiles = new Vector<>();
+
+		//SL = standing left. SL SR RL RR
+		this.p1_orientation = "SL";
+		this.p2_orientation = "SL";
+		this.p3_orientation = "SL";
+		this.p4_orientation = "SL";
 	}
 
 	public void setPv(PlayerVariables pv,int index) {
 		this.playerList.set(index,pv);
+	}
+
+	public void setOrientation(int index, String orientation) {
+		if(index == 0){ this.p1_orientation = orientation; }
+		if(index == 1){ this.p2_orientation = orientation; }
+		if(index == 2){ this.p3_orientation = orientation; }
+		if(index == 3){ this.p4_orientation = orientation; }
 	}
 
 	public void setLevel(int level) {this.level = level;}

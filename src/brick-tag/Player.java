@@ -2,6 +2,7 @@ import jig.ResourceManager;
 import jig.Entity;
 import jig.Vector;
 import org.lwjgl.Sys;
+import org.newdawn.slick.Animation;
 
 class Player extends Entity {
 	private PlayerVariables variables;
@@ -12,9 +13,28 @@ class Player extends Entity {
 	private float screenX;
 	private float screenY;
 
-	public Player(final float x, final float y, final float vx, final float vy) {
+	private Animation player;
+
+	public Player(final float x, final float y, final float vx, final float vy, int playerid, String orientation) {
 		super(x, y);
-		addImageWithBoundingBox(ResourceManager.getImage(BrickTagGame.PLAYER_RSC));
+
+		if((playerid == 0) && (orientation.equals("RL"))) {
+			player = new Animation(ResourceManager.getSpriteSheet(BrickTagGame.RED_RL_RSC, 64, 64), 0, 0, 5, 0, true, 50, true);
+		}
+		if((playerid == 0) && (orientation.equals("RR"))) {
+			player = new Animation(ResourceManager.getSpriteSheet(BrickTagGame.RED_RR_RSC, 64, 64), 0, 0, 5, 0, true, 50, true);
+		}
+		if((playerid == 1) && (orientation.equals("RL"))) {
+			player = new Animation(ResourceManager.getSpriteSheet(BrickTagGame.GREEN_RL_RSC, 64, 64), 0, 0, 5, 0, true, 50, true);
+		}
+		if((playerid == 1) && (orientation.equals("RR"))) {
+			player = new Animation(ResourceManager.getSpriteSheet(BrickTagGame.GREEN_RR_RSC, 64, 64), 0, 0, 5, 0, true, 50, true);
+		}
+
+		addAnimation(player);
+		player.setLooping(true);
+
+		//addImageWithBoundingBox(ResourceManager.getImage(BrickTagGame.PLAYER_RSC));
 		this.variables = new PlayerVariables(x, y, vx, vy);
 	}
 

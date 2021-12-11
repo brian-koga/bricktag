@@ -370,6 +370,8 @@ class ClientHandler implements Runnable{
 
 	//Movement & Placement
 	private void moveEast(int xMax){
+		Server.BTGV.setOrientation(this.playerIndex, "RR");
+
 		translateMoveHelper(5f,0f,0f,0f);
 		if(this.PV.getX() > ((xMax)* 64) - 32){
 			this.PV.setVariableX((xMax)* 64 - 32);
@@ -377,6 +379,8 @@ class ClientHandler implements Runnable{
 	}
 
 	private void moveWest(int xMin){
+		Server.BTGV.setOrientation(this.playerIndex, "RL");
+
 		translateMoveHelper(-5f,0f,0f,0f);
 		if(this.PV.getX() < ((xMin)* 64) + 96 || (this.PV.getX() < 32)){
 			this.PV.setVariableX((xMin + 1)* 64 + 32);
