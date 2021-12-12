@@ -3,6 +3,7 @@ import org.lwjgl.Sys;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Vector;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -11,8 +12,8 @@ import java.util.function.Predicate;
 
 @SuppressWarnings("InfiniteLoopStatement")
 public class Server {
-	static Vector<ClientHandler> playerList = new Vector<>();
 	static int numberOfActivePlayers = 0;
+	static Vector<Integer> removedPlayers;
 	static BrickTagGameVariables BTGV = new BrickTagGameVariables(720,1280);
 	static Tile[][] tileGrid;
 	static int flagCountdown=0;
@@ -21,6 +22,8 @@ public class Server {
 		//Start a new server listening on port 5000
 		ServerSocket server = new ServerSocket(5000);
 		Socket socket;
+
+		removedPlayers = new Vector<>();
 
 		while(true){
 			try{
@@ -38,9 +41,8 @@ public class Server {
 				ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
 
 				//Assigning a new thread for the current client
-				ClientHandler clientHandler = new ClientHandler(socket,input,output,objectOutputStream,objectInputStream,new BrickTagGameVariables(720,1280),numberOfActivePlayers);
+				ClientHandler clientHandler = new ClientHandler(socket,input,output,objectOutputStream,objectInputStream,new BrickTagGameVariables(720,1280),Server.BTGV.playerList.size());
 				Thread thread = new Thread(clientHandler);
-				playerList.add(clientHandler);
 				thread.start();
 				numberOfActivePlayers++;
 			} catch (IOException e) {
@@ -57,7 +59,7 @@ class ClientHandler implements Runnable{
 	ObjectInputStream objectInputStream;
 	ObjectOutputStream objectOutputStream;
 	PlayerVariables PV;
-	final int playerIndex;
+	int playerIndex;
 
 	ClientHandler(Socket socket, DataInputStream inputStream, DataOutputStream outputStream,ObjectOutputStream objectOutputStream,ObjectInputStream objectInputStream,BrickTagGameVariables btg, int i) throws IOException {
 		this.socket = socket;
@@ -71,11 +73,24 @@ class ClientHandler implements Runnable{
 
 	@Override
 	public void run(){
+		if(Server.removedPlayers.size()>0){
+			this.playerIndex = Server.removedPlayers.remove(0);
+			System.out.println(this.playerIndex);
+			Server.BTGV.playerList.set(this.playerIndex,new PlayerVariables(240, 352, 0, 0));
+			Server.BTGV.scoreList.set(this.playerIndex,0);
+			//TODO Change 1 to 3 (We index at 0)
+		}else if(this.playerIndex>1) {
+			this.writeIndex(this.playerIndex);
+			logoutClient();
+			return;
+		}
+		else {
+			Server.BTGV.playerList.add(new PlayerVariables(240, 352, 0, 0));
+			Server.BTGV.scoreList.add(0);
+		}
 		this.writeIndex(this.playerIndex);
-		Server.BTGV.playerList.add(new PlayerVariables(240, 352, 0, 0));
-		Server.BTGV.scoreList.add(0);
-		while (true){
-			if (clientHandlerLoop()){
+		while (true) {
+			if (clientHandlerLoop()) {
 				break;
 			}
 		}
@@ -100,10 +115,12 @@ class ClientHandler implements Runnable{
 			PlayerVariables newPV = receivePlayerVariables();
 			Server.BTGV.playerList.set(this.playerIndex,newPV);
 		}else if(received.equals("logout")){
-			Server.BTGV.playerList.remove(this.playerIndex);
+			writeToClient("logout",this.outputStream);
+			Server.BTGV.playerList.get(this.playerIndex).isLoggedIn=false;
+			//TODO If player is holding flag while logging out then we need to put flag somewhere
 			return true;
 		}else if(Server.BTGV.currentState==BrickTagGame.PLAYINGSTATE) {
-			this.PV = Server.BTGV.playerList.get(playerIndex);
+			this.PV = Server.BTGV.playerList.get(this.playerIndex);
 			didSendMessage = checkPlayingControls(received);
 			setPlayerFlag();
 			setScore();
@@ -127,8 +144,12 @@ class ClientHandler implements Runnable{
 	private KeyboardCommand receiveKeyboardCommand(){
 		try {
 			return (KeyboardCommand) this.objectInputStream.readObject();
-		} catch (IOException | ClassNotFoundException e) {
-//			e.printStackTrace();
+		}catch(SocketException s){
+			KeyboardCommand kc = new KeyboardCommand();
+			kc.command = "logout";
+			return kc;
+		}catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -145,8 +166,8 @@ class ClientHandler implements Runnable{
 
 	private void logoutClient(){
 		try {
-			Server.numberOfActivePlayers--;
-			Server.playerList.remove(this);
+			System.out.println("LOGGING OUT: "+this.playerIndex);
+			Server.removedPlayers.add(this.playerIndex);
 			this.socket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -169,7 +190,10 @@ class ClientHandler implements Runnable{
 		try {
 			localOutputStream.writeUTF(s);
 			localOutputStream.flush();
-		} catch (IOException ignored) {}
+		} catch (SocketException ignored){
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void writeIndex(int playerIndex){

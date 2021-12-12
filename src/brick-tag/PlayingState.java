@@ -203,6 +203,10 @@ class PlayingState extends BasicGameState {
 
 
 				Player tempPlayerVariables = btg.allPlayers.get(objectToRender.playersIndexOnScreen);
+				if(!tempPlayerVariables.getVariables().isLoggedIn){
+					continue;
+				}
+
 				if((objectToRender.playersIndexOnScreen) != this.playerIndex){
 					getScreenCoords((objectToRender.playersIndexOnScreen),btg);
 				}
@@ -432,10 +436,6 @@ class PlayingState extends BasicGameState {
 				PV.objectsToRender.add(new VisibleObject(i,'p'));
 			}
 		}
-
-
-
-
 		return PV;
 	}
 

@@ -71,6 +71,10 @@ public class Client {
 			String message = inputStream.readUTF();
 			if(message.equals("CHANGE")){
 				receiveGameState();
+			}else if(message.equals("logout")){
+				System.out.println("LOGGING OUT");
+				socket.close();
+				System.exit(0);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
