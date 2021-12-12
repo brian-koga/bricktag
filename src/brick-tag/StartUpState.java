@@ -1,3 +1,4 @@
+import org.lwjgl.Sys;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
@@ -28,10 +29,13 @@ class StartUpState extends BasicGameState {
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
 		container.setSoundOn(false);
-
 		BrickTagGame btg = (BrickTagGame) game;
 		int index = btg.client.receiveIndex();
-		if(index!=-1) {
+		//TODO Change this to 3
+		if(index>1){
+			System.out.println("The lobby is currently full please try again later");
+			System.exit(0);
+		}else if(index!=-1) {
 			btg.player.setIndex(index);
 		}
 	}

@@ -12,6 +12,7 @@ public class PlayerVariables implements Serializable {
 	int score;
 	int tempScore;
 	private int numberOfBricks;
+	boolean isLoggedIn;
 
 	ArrayList<VisibleObject> objectsToRender = new ArrayList<>();
 
@@ -25,6 +26,7 @@ public class PlayerVariables implements Serializable {
 		this.tempScore = 0;
 		this.score = 0;
 		this.numberOfBricks = 15;
+		this.isLoggedIn = true;
 	}
 
 	public void toggleFlag(){
