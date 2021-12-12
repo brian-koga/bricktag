@@ -210,11 +210,6 @@ class PlayingState extends BasicGameState {
 				//System.out.println("object to render index: " + objectToRender.playersIndexOnScreen);
 				//System.out.println("orientation index: " + orientation_index);
 
-
-
-
-
-
 				btg.allPlayers.get(orientation_index).setPosition(tempPlayerVariables.getScreenX(), tempPlayerVariables.getScreenY());
 				btg.allPlayers.get(orientation_index).render(g);
 			}
@@ -222,6 +217,10 @@ class PlayingState extends BasicGameState {
 
 		//System.out.println("All Players: " + btg.allPlayers);
 		g.drawString( "Bricks: " + PV.getNumberOfBricks(),15,700);
+		for(int i=0;i<btgV.playerList.size();i++){
+			int score = btgV.scoreList.get(i);
+			g.drawString("Player " + (i+1) + ": "+score,1150,15*(i+1));
+		}
 	}
 
 	private void getScreenCoords(int index,BrickTagGame btg){
