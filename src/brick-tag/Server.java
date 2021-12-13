@@ -121,6 +121,7 @@ class ClientHandler implements Runnable{
 			writeToClient("logout",this.outputStream);
 			Server.BTGV.playerList.get(this.playerIndex).isLoggedIn=false;
 			//TODO If player is holding flag while logging out then we need to put flag somewhere
+			setFlagPosition();
 			return true;
 		}else if(Server.BTGV.currentState==BrickTagGame.PLAYINGSTATE) {
 			this.PV = Server.BTGV.playerList.get(this.playerIndex);
@@ -267,14 +268,14 @@ class ClientHandler implements Runnable{
 			xMax = (Server.BTGV.WorldTileWidth);
 			// can be not 0 if its greater than 20
 		}else if ((tempMap[playerX + 1][playerNorth].designation != 0 && tempMap[playerX + 1][playerNorth].designation <= 20)
-				|| (tempMap[playerX + 1][playerSouth].designation != 0 && tempMap[playerX + 1][playerNorth].designation <= 20)){
+			|| (tempMap[playerX + 1][playerSouth].designation != 0 && tempMap[playerX + 1][playerNorth].designation <= 20)){
 			xMax = playerX + 1;
 		}
 
 		//West
 		if(playerX == 0){ xMin = -1; }
 		else if ((tempMap[playerX - 1][playerNorth].designation != 0 && tempMap[playerX - 1][playerNorth].designation <= 20)
-				|| (tempMap[playerX - 1][playerSouth].designation != 0 && tempMap[playerX - 1][playerSouth].designation <= 20)) {
+			|| (tempMap[playerX - 1][playerSouth].designation != 0 && tempMap[playerX - 1][playerSouth].designation <= 20)) {
 			xMin = playerX - 1;
 		}
 
@@ -290,7 +291,7 @@ class ClientHandler implements Runnable{
 			if (playerY == 0) {
 				yMin = -1;
 			} else if ((tempMap[playerEast][playerY - 1].designation != 0 && tempMap[playerEast][playerY - 1].designation <= 20)
-					|| (tempMap[playerWest][playerY - 1].designation != 0 && tempMap[playerWest][playerY - 1].designation <= 0)) {
+				|| (tempMap[playerWest][playerY - 1].designation != 0 && tempMap[playerWest][playerY - 1].designation <= 0)) {
 				yMin = playerY - 1;
 			}
 		}else {
@@ -303,19 +304,7 @@ class ClientHandler implements Runnable{
 
 		// check current tile
 		if(tempMap[playerX][playerY].designation > 20) {
-			int powerUpType = tempMap[playerX][playerY].designation;
-
-			//tempMap[playerX][playerY].designation = 0;
-
-			int finalPlayerY = playerY;
-
-			Predicate<Tile> condition = tile -> tile.getX() == playerX && tile.getY() == finalPlayerY;
-			//Server.BTGV.powerUpTiles.removeIf(condition);
-
-			// the designation of power up tiles start after 20, so send that minus 20 to get the
-			// correct power up int for the PlayerVariables
-			this.PV.givePowerUp(powerUpType - 20);
-			System.out.println("Power up " + powerUpType + " given.");
+			checkIfGotPowerUp(playerX, playerY, tempMap[playerX][playerY],tempMap);
 		}
 
 		//Roof Check
@@ -332,23 +321,9 @@ class ClientHandler implements Runnable{
 
 					Server.BTGV.placedTiles.removeIf(condition);
 					this.PV.addBrick();
-				// checks if this is a power up block
-				} else if((tempMap[playerX][playerY - 1].designation > 20) &&
-						(tempMap[playerX][playerY - 1].designation < 30)) {
-
-					int powerUpType = tempMap[playerX][playerY - 1].designation;
-
-					//tempMap[playerX][playerY - 1].designation = 0;
-
-					int finalPlayerY = playerY-1;
-
-					Predicate<Tile> condition = tile -> tile.getX() == playerX && tile.getY() == finalPlayerY;
-					//Server.BTGV.powerUpTiles.removeIf(condition);
-
-					// the designation of power up tiles start after 20, so send that minus 20 to get the
-					// correct power up int for the PlayerVariables
-					this.PV.givePowerUp(powerUpType - 20);
-					System.out.println("Power up " + powerUpType + " given.");
+					// checks if this is a power up block
+				} else if((tempMap[playerX][playerY - 1].designation > 20)){
+					checkIfGotPowerUp(playerX, playerY - 1, tempMap[playerX][playerY - 1],tempMap);
 				}
 //				System.out.println("Bonk!");
 				this.PV.setVariableY(((yMin + 1) * 64) + 32);
@@ -358,36 +333,12 @@ class ClientHandler implements Runnable{
 
 		//Ground Check
 		if(tempMap[playerEast][playerY + 1].designation > 20) {
-			int powerUpType = tempMap[playerEast][playerY + 1].designation;
-
-			//tempMap[playerEast][playerY + 1].designation = 0;
-			int finalPlayerY = playerY+1;
-
-			Predicate<Tile> condition = tile -> tile.getX() == playerEast && tile.getY() == finalPlayerY;
-			//Server.BTGV.powerUpTiles.removeIf(condition);
-
-			// the designation of power up tiles start after 20, so send that minus 20 to get the
-			// correct power up int for the PlayerVariables
-			this.PV.givePowerUp(powerUpType - 20);
-			System.out.println("Power up " + powerUpType + " given.");
+			checkIfGotPowerUp(playerEast, playerY + 1, tempMap[playerEast][playerY + 1],tempMap);
 
 		} else if(tempMap[playerWest][playerY + 1].designation > 20) {
 			// is a power up
-			int powerUpType = tempMap[playerWest][playerY + 1].designation;
-
-			//tempMap[playerWest][playerY + 1].designation = 0;
-
-			int finalPlayerY = playerY+1;
-
-			Predicate<Tile> condition = tile -> tile.getX() == playerWest && tile.getY() == finalPlayerY;
-			//Server.BTGV.powerUpTiles.removeIf(condition);
-
-			// the designation of power up tiles start after 20, so send that minus 20 to get the
-			// correct power up int for the PlayerVariables
-			this.PV.givePowerUp(powerUpType - 20);
-			System.out.println("Power up " + powerUpType + " given.");
-
-		// regular ground check
+			checkIfGotPowerUp(playerWest, playerY + 1, tempMap[playerWest][playerY + 1],tempMap);
+			// regular ground check
 		} else if(this.PV.isAirborne()) {
 			if (this.PV.getY() > ((yMax) * 64) - 32) {
 //				System.out.println("Landed!");
@@ -477,6 +428,28 @@ class ClientHandler implements Runnable{
 		}
 
 		Server.tileGrid = tempMap;
+	}
+
+	private void checkIfGotPowerUp(int playerX, int playerY, Tile tile1,Tile[][] tempMap) {
+		int powerUpType = tile1.designation;
+
+		//If we want to remove the comments and take out this section in the if statement
+//		tempMap[playerX][playerY].designation = 0;
+//		Predicate<Tile> condition = tile -> tile.getX() == playerX && tile.getY() == playerY;
+//		Server.BTGV.powerUpTiles.removeIf(condition);
+
+		//99 is the flag and technically not a power up
+		if(powerUpType == 99){
+			tempMap[playerX][playerY].designation = 0;
+			Predicate<Tile> condition = tile -> tile.getX() == playerX && tile.getY() == playerY;
+			Server.BTGV.powerUpTiles.removeIf(condition);
+			this.PV.toggleFlag();
+		}else {
+			// the designation of power up tiles start after 20, so send that minus 20 to get the
+			// correct power up int for the PlayerVariables
+			this.PV.givePowerUp(powerUpType - 20);
+			System.out.println("Power up " + powerUpType + " given.");
+		}
 	}
 
 	//Movement & Placement
@@ -580,6 +553,7 @@ class ClientHandler implements Runnable{
 	public void setTileGrid() {
 		String path = getMapFile(Server.BTGV.level);
 		Server.tileGrid = PlayingState.setupLevel(Server.BTGV,path);
+		setFlagPosition();
 	}
 
 	private String getMapFile(int levelNumber){
@@ -643,5 +617,10 @@ class ClientHandler implements Runnable{
 //				System.out.println(Server.flagCountdown);
 			}
 		}
+	}
+
+	private void setFlagPosition(){
+		Server.BTGV.powerUpTiles.add(new Tile(Server.BTGV.WorldTileWidth/2,Server.BTGV.WorldTileHeight/2,99,true));
+		Server.tileGrid[Server.BTGV.WorldTileWidth/2][Server.BTGV.WorldTileHeight/2].designation = 99;
 	}
 }
