@@ -5,9 +5,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Vector;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
+import java.math.*;
 
 
 @SuppressWarnings("InfiniteLoopStatement")
@@ -120,8 +119,9 @@ class ClientHandler implements Runnable{
 		}else if(received.equals("logout")){
 			writeToClient("logout",this.outputStream);
 			Server.BTGV.playerList.get(this.playerIndex).isLoggedIn=false;
-			//TODO If player is holding flag while logging out then we need to put flag somewhere
-			setFlagPosition();
+			if(Server.BTGV.playerList.get(this.playerIndex).hasFlag()) {
+				setFlagPosition();
+			}
 			return true;
 		}else if(Server.BTGV.currentState==BrickTagGame.PLAYINGSTATE) {
 			this.PV = Server.BTGV.playerList.get(this.playerIndex);
@@ -334,7 +334,6 @@ class ClientHandler implements Runnable{
 		//Ground Check
 		if(tempMap[playerEast][playerY + 1].designation > 20) {
 			checkIfGotPowerUp(playerEast, playerY + 1, tempMap[playerEast][playerY + 1],tempMap);
-
 		} else if(tempMap[playerWest][playerY + 1].designation > 20) {
 			// is a power up
 			checkIfGotPowerUp(playerWest, playerY + 1, tempMap[playerWest][playerY + 1],tempMap);
@@ -603,7 +602,10 @@ class ClientHandler implements Runnable{
 				for (int i = 0; i < Server.BTGV.playerList.size(); i++) {
 					if (i != this.playerIndex) {
 						PlayerVariables checkPlayer = Server.BTGV.playerList.get(i);
-						if (checkPlayer.getX() == currPlayer.getX() && checkPlayer.getY() == currPlayer.getY()) {
+						if(!checkPlayer.isLoggedIn){
+							return;
+						}
+						if (Math.floor(checkPlayer.getX()/64) == Math.floor(currPlayer.getX()/64) && Math.floor(checkPlayer.getY()/64) == Math.floor(currPlayer.getY()/64)) {
 							checkPlayer.toggleFlag();
 							currPlayer.toggleFlag();
 							Server.flagCountdown = 50;
@@ -612,6 +614,7 @@ class ClientHandler implements Runnable{
 						}
 					}
 				}
+				System.out.println("\n");
 			}else{
 				Server.flagCountdown-=1;
 //				System.out.println(Server.flagCountdown);
