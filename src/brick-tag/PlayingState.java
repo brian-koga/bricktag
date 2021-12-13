@@ -177,6 +177,9 @@ class PlayingState extends BasicGameState {
 				g.drawImage(ResourceManager.getImage(BrickTagGame.RED_GLASS_RSC), objectToRender.x, objectToRender.y);
 			}else if(objectToRender.objectType == 'y'){
 				g.drawImage(ResourceManager.getImage(BrickTagGame.BLUE_GLASS_RSC), objectToRender.x, objectToRender.y);
+			} else if(objectToRender.objectType == 's') {
+				// ******change this first argument to the speed power up brick*******
+				g.drawImage(ResourceManager.getImage(BrickTagGame.BLUE_GLASS_RSC), objectToRender.x, objectToRender.y);
 			}
 
 			else if(objectToRender.objectType == 'p'){
@@ -422,6 +425,17 @@ class PlayingState extends BasicGameState {
 				//This is temporary
 				else{
 					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 'y'));
+				}
+			}
+		}
+
+		temp = btgV.powerUpTiles;
+
+		// check the power up tile array
+		for (Tile t: temp) {
+			if(t.x >= leftTile && t.x <= rightTile && t.y >= topTile && t.y <= bottomTile) {
+				if(t.designation == 21) {
+					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 's'));
 				}
 			}
 		}

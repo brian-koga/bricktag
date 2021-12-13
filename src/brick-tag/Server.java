@@ -25,6 +25,7 @@ public class Server {
 
 		removedPlayers = new Vector<>();
 
+
 		while(true){
 			try{
 				//accepts a new client
@@ -69,6 +70,9 @@ class ClientHandler implements Runnable{
 		this.objectInputStream = objectInputStream;
 		this.playerIndex = i;
 		if(Server.tileGrid == null) { setTileGrid(); } // prevent new clients from resetting map
+		for (Tile temp : Server.BTGV.powerUpTiles) {
+			Server.tileGrid[temp.x][temp.y] = temp;
+		}
 	}
 
 	@Override
@@ -124,6 +128,7 @@ class ClientHandler implements Runnable{
 			didSendMessage = checkPlayingControls(received);
 			setPlayerFlag();
 			setScore();
+			checkPowerUp();
 			Server.BTGV.playerList.set(this.playerIndex, this.PV);
 			int whoWon = checkScores();
 			if(whoWon>=0){
@@ -261,13 +266,16 @@ class ClientHandler implements Runnable{
 		//East
 		if(playerX == (Server.BTGV.WorldTileWidth - 1)){
 			xMax = (Server.BTGV.WorldTileWidth);
-		}else if ((tempMap[playerX + 1][playerNorth].designation != 0) || (tempMap[playerX + 1][playerSouth].designation != 0)){
+			// can be not 0 if its greater than 20
+		}else if ((tempMap[playerX + 1][playerNorth].designation != 0 && tempMap[playerX + 1][playerNorth].designation <= 20)
+				|| (tempMap[playerX + 1][playerSouth].designation != 0 && tempMap[playerX + 1][playerNorth].designation <= 20)){
 			xMax = playerX + 1;
 		}
 
 		//West
 		if(playerX == 0){ xMin = -1; }
-		else if ((tempMap[playerX - 1][playerNorth].designation != 0) || (tempMap[playerX - 1][playerSouth].designation != 0)) {
+		else if ((tempMap[playerX - 1][playerNorth].designation != 0 && tempMap[playerX - 1][playerNorth].designation <= 20)
+				|| (tempMap[playerX - 1][playerSouth].designation != 0 && tempMap[playerX - 1][playerSouth].designation <= 20)) {
 			xMin = playerX - 1;
 		}
 
@@ -282,7 +290,8 @@ class ClientHandler implements Runnable{
 		if(	this.PV.getVY() < 0){
 			if (playerY == 0) {
 				yMin = -1;
-			} else if ((tempMap[playerEast][playerY - 1].designation != 0) || (tempMap[playerWest][playerY - 1].designation != 0)) {
+			} else if ((tempMap[playerEast][playerY - 1].designation != 0 && tempMap[playerEast][playerY - 1].designation <= 20)
+					|| (tempMap[playerWest][playerY - 1].designation != 0 && tempMap[playerWest][playerY - 1].designation <= 0)) {
 				yMin = playerY - 1;
 			}
 		}else {
@@ -293,9 +302,27 @@ class ClientHandler implements Runnable{
 			}
 		}
 
+		// check current tile
+		if(tempMap[playerX][playerY].designation > 20) {
+			int powerUpType = tempMap[playerX][playerY].designation;
+
+			//tempMap[playerX][playerY].designation = 0;
+
+			int finalPlayerY = playerY;
+
+			Predicate<Tile> condition = tile -> tile.getX() == playerX && tile.getY() == finalPlayerY;
+			//Server.BTGV.powerUpTiles.removeIf(condition);
+
+			// the designation of power up tiles start after 20, so send that minus 20 to get the
+			// correct power up int for the PlayerVariables
+			this.PV.givePowerUp(powerUpType - 20);
+			System.out.println("Power up " + powerUpType + " given.");
+		}
+
 		//Roof Check
 		if(this.PV.isAirborne()) {
 			if (this.PV.getY() < ((yMin) * 64) + 96 && playerY>0) {
+				// checks if this is a player placed block
 				if((tempMap[playerX][playerY - 1].designation > 1) &&
 					(tempMap[playerX][playerY - 1].designation < 6)){
 
@@ -306,6 +333,23 @@ class ClientHandler implements Runnable{
 
 					Server.BTGV.placedTiles.removeIf(condition);
 					this.PV.addBrick();
+				// checks if this is a power up block
+				} else if((tempMap[playerX][playerY - 1].designation > 20) &&
+						(tempMap[playerX][playerY - 1].designation < 30)) {
+
+					int powerUpType = tempMap[playerX][playerY - 1].designation;
+
+					//tempMap[playerX][playerY - 1].designation = 0;
+
+					int finalPlayerY = playerY-1;
+
+					Predicate<Tile> condition = tile -> tile.getX() == playerX && tile.getY() == finalPlayerY;
+					//Server.BTGV.powerUpTiles.removeIf(condition);
+
+					// the designation of power up tiles start after 20, so send that minus 20 to get the
+					// correct power up int for the PlayerVariables
+					this.PV.givePowerUp(powerUpType - 20);
+					System.out.println("Power up " + powerUpType + " given.");
 				}
 //				System.out.println("Bonk!");
 				this.PV.setVariableY(((yMin + 1) * 64) + 32);
@@ -314,13 +358,45 @@ class ClientHandler implements Runnable{
 		}
 
 		//Ground Check
-		if(this.PV.isAirborne()) {
+		if(tempMap[playerEast][playerY + 1].designation > 20) {
+			int powerUpType = tempMap[playerEast][playerY + 1].designation;
+
+			//tempMap[playerEast][playerY + 1].designation = 0;
+			int finalPlayerY = playerY+1;
+
+			Predicate<Tile> condition = tile -> tile.getX() == playerEast && tile.getY() == finalPlayerY;
+			//Server.BTGV.powerUpTiles.removeIf(condition);
+
+			// the designation of power up tiles start after 20, so send that minus 20 to get the
+			// correct power up int for the PlayerVariables
+			this.PV.givePowerUp(powerUpType - 20);
+			System.out.println("Power up " + powerUpType + " given.");
+
+		} else if(tempMap[playerWest][playerY + 1].designation > 20) {
+			// is a power up
+			int powerUpType = tempMap[playerWest][playerY + 1].designation;
+
+			//tempMap[playerWest][playerY + 1].designation = 0;
+
+			int finalPlayerY = playerY+1;
+
+			Predicate<Tile> condition = tile -> tile.getX() == playerWest && tile.getY() == finalPlayerY;
+			//Server.BTGV.powerUpTiles.removeIf(condition);
+
+			// the designation of power up tiles start after 20, so send that minus 20 to get the
+			// correct power up int for the PlayerVariables
+			this.PV.givePowerUp(powerUpType - 20);
+			System.out.println("Power up " + powerUpType + " given.");
+
+		// regular ground check
+		} else if(this.PV.isAirborne()) {
 			if (this.PV.getY() > ((yMax) * 64) - 32) {
 //				System.out.println("Landed!");
 				this.PV.setVariableY(((yMax) * 64) - 32);
 				this.PV.resetVelocity();
 				this.PV.setAirborne(false);
 			}
+			// check if the tile below is a power up
 		}
 
 		//Gravity
@@ -514,6 +590,18 @@ class ClientHandler implements Runnable{
 		if(this.PV.hasFlag()){
 			this.PV.addScore(1);
 			Server.BTGV.scoreList.set(this.playerIndex,this.PV.getScore());
+		}
+	}
+
+	private void checkPowerUp() {
+		if(this.PV.powerUp > 0) {
+			this.PV.powerUpCountdown--;
+		}
+		if(this.PV.powerUpCountdown == 0) {
+			// lose power up
+			System.out.println("Power up " + this.PV.powerUp + " taken.");
+			this.PV.powerUp = 0;
+			this.PV.powerUpCountdown = -1;
 		}
 	}
 
