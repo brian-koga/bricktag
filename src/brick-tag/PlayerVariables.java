@@ -1,4 +1,5 @@
 import jig.Vector;
+import org.lwjgl.Sys;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,6 +13,13 @@ public class PlayerVariables implements Serializable {
 	int score;
 	int tempScore;
 	private int numberOfBricks;
+	boolean isLoggedIn;
+
+	// holds what power-up a player hase
+	// 0 : none
+	// 1 : speed
+	int powerUp = 0;
+	int powerUpCountdown = 0;
 
 	ArrayList<VisibleObject> objectsToRender = new ArrayList<>();
 
@@ -25,6 +33,7 @@ public class PlayerVariables implements Serializable {
 		this.tempScore = 0;
 		this.score = 0;
 		this.numberOfBricks = 15;
+		this.isLoggedIn = true;
 	}
 
 	public void toggleFlag(){
@@ -92,9 +101,20 @@ public class PlayerVariables implements Serializable {
 	}
 
 	public void translateHelper(float x, float y ,float vx ,float vy){
-		this.x += x;
-		this.y += y;
+		// if they have the speed power up, they move 1.5 times faster and jump 1.25 time higher
+		if(this.powerUp == 1) {
+			this.x += 1.5*x;
+			this.y += 1.25*y;
+		} else {
+			this.x += x;
+			this.y += y;
+		}
 		this.vx += vx;
 		this.vy += vy;
+	}
+
+	public void givePowerUp(int powerUpType) {
+		this.powerUp = powerUpType;
+		this.powerUpCountdown = 500;
 	}
 }

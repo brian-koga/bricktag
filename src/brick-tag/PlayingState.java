@@ -177,6 +177,9 @@ class PlayingState extends BasicGameState {
 				g.drawImage(ResourceManager.getImage(BrickTagGame.RED_GLASS_RSC), objectToRender.x, objectToRender.y);
 			}else if(objectToRender.objectType == 'y'){
 				g.drawImage(ResourceManager.getImage(BrickTagGame.BLUE_GLASS_RSC), objectToRender.x, objectToRender.y);
+			} else if(objectToRender.objectType == 's') {
+				// ******change this first argument to the speed power up brick*******
+				g.drawImage(ResourceManager.getImage(BrickTagGame.BLUE_GLASS_RSC), objectToRender.x, objectToRender.y);
 			}
 
 			else if(objectToRender.objectType == 'p'){
@@ -203,17 +206,16 @@ class PlayingState extends BasicGameState {
 
 
 				Player tempPlayerVariables = btg.allPlayers.get(objectToRender.playersIndexOnScreen);
+				if(!tempPlayerVariables.getVariables().isLoggedIn){
+					continue;
+				}
+
 				if((objectToRender.playersIndexOnScreen) != this.playerIndex){
 					getScreenCoords((objectToRender.playersIndexOnScreen),btg);
 				}
 
 				//System.out.println("object to render index: " + objectToRender.playersIndexOnScreen);
 				//System.out.println("orientation index: " + orientation_index);
-
-
-
-
-
 
 				btg.allPlayers.get(orientation_index).setPosition(tempPlayerVariables.getScreenX(), tempPlayerVariables.getScreenY());
 				btg.allPlayers.get(orientation_index).render(g);
@@ -222,6 +224,10 @@ class PlayingState extends BasicGameState {
 
 		//System.out.println("All Players: " + btg.allPlayers);
 		g.drawString( "Bricks: " + PV.getNumberOfBricks(),15,700);
+		for(int i=0;i<btgV.playerList.size();i++){
+			int score = btgV.scoreList.get(i);
+			g.drawString("Player " + (i+1) + ": "+score,1150,15*(i+1));
+		}
 	}
 
 	private void getScreenCoords(int index,BrickTagGame btg){
@@ -423,6 +429,17 @@ class PlayingState extends BasicGameState {
 			}
 		}
 
+		temp = btgV.powerUpTiles;
+
+		// check the power up tile array
+		for (Tile t: temp) {
+			if(t.x >= leftTile && t.x <= rightTile && t.y >= topTile && t.y <= bottomTile) {
+				if(t.designation == 21) {
+					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 's'));
+				}
+			}
+		}
+
 		// change the player screen coordinates
 		PV.x_SC = PV.getX() - xDiff;
 		PV.y_SC = PV.getY() - yDiff;
@@ -433,10 +450,6 @@ class PlayingState extends BasicGameState {
 				PV.objectsToRender.add(new VisibleObject(i,'p'));
 			}
 		}
-
-
-
-
 		return PV;
 	}
 
