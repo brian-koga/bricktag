@@ -16,16 +16,32 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 	public static final int GAMEOVERSTATE = 2;
 
 	public static final String Block_RSC = "resource/red_outlet_tile_64px.png";
-	public static final String RED_GLASS_RSC = "resource/red_glass.png";
-	public static final String BLUE_GLASS_RSC = "resource/blue_glass.png";
-
 	public static final String PLAYER_RSC = "resource/player.png";
-//	public static final String PLAYER_RSC = "resource/red_outlet_tile_64px.png";
 
-	public static final String RED_RL_RSC = "resource/red_person_left.png";
-	public static final String RED_RR_RSC = "resource/red_person_right.png";
-	public static final String GREEN_RL_RSC = "resource/green_person_left.png";
-	public static final String GREEN_RR_RSC = "resource/green_person_right.png";
+	public static final String BLUE_GLASS_RSC = "resource/BLUE/blue_glass.png";
+	public static final String BLUE_RL_RSC = "resource/BLUE/blue_running_left.png";
+	public static final String BLUE_RR_RSC = "resource/BLUE/blue_running_right.png";
+	public static final String BLUE_SL_RSC = "resource/BLUE/blue_standing_left.png";
+	public static final String BLUE_SR_RSC = "resource/BLUE/blue_standing_right.png";
+
+	public static final String GREEN_GLASS_RSC = "resource/GREEN/green_glass.png";
+	public static final String GREEN_RL_RSC = "resource/GREEN/green_running_left.png";
+	public static final String GREEN_RR_RSC = "resource/GREEN/green_running_right.png";
+	public static final String GREEN_SL_RSC = "resource/GREEN/green_standing_left.png";
+	public static final String GREEN_SR_RSC = "resource/GREEN/green_standing_right.png";
+
+	public static final String RED_GLASS_RSC = "resource/RED/red_glass.png";
+	public static final String RED_RL_RSC = "resource/RED/red_running_left.png";
+	public static final String RED_RR_RSC = "resource/RED/red_running_right.png";
+	public static final String RED_SL_RSC = "resource/RED/red_standing_left.png";
+	public static final String RED_SR_RSC = "resource/RED/red_standing_right.png";
+
+	public static final String YELLOW_GLASS_RSC = "resource/YELLOW/yellow_glass.png";
+	public static final String YELLOW_RL_RSC = "resource/YELLOW/yellow_running_left.png";
+	public static final String YELLOW_RR_RSC = "resource/YELLOW/yellow_running_right.png";
+	public static final String YELLOW_SL_RSC = "resource/YELLOW/yellow_standing_left.png";
+	public static final String YELLOW_SR_RSC = "resource/YELLOW/yellow_standing_right.png";
+
 
 
 	BrickTagGameVariables variables;
@@ -46,10 +62,12 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 		this.variables = this.client.brickTagGameVariables;
 		for(int i = 0;i<this.client.brickTagGameVariables.playerList.size();i++){
 			PlayerVariables newPV = this.client.brickTagGameVariables.playerList.get(i);
-			if(i > ((this.allPlayers.size() / 2) - 1)){
+			if(i > ((this.allPlayers.size() / 4) - 1)){
 				//System.out.println("PLAYER!" + i);
 				this.allPlayers.add(new Player(0,0,0,0, i, "RL"));
 				this.allPlayers.add(new Player(0,0,0,0, i, "RR"));
+				this.allPlayers.add(new Player(0,0,0,0, i, "SL"));
+				this.allPlayers.add(new Player(0,0,0,0, i, "SR"));
 			}
 			this.allPlayers.get(i).setVariables(newPV);
 		}
@@ -63,14 +81,31 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 
 		// preload all the resources to avoid warnings & minimize latency...
 		ResourceManager.loadImage(Block_RSC);
-		ResourceManager.loadImage(RED_GLASS_RSC);
-		ResourceManager.loadImage(BLUE_GLASS_RSC);
 		ResourceManager.loadImage(PLAYER_RSC);
 
-		ResourceManager.loadImage(RED_RL_RSC);
-		ResourceManager.loadImage(RED_RR_RSC);
+		ResourceManager.loadImage(BLUE_GLASS_RSC);
+		ResourceManager.loadImage(BLUE_RL_RSC);
+		ResourceManager.loadImage(BLUE_RR_RSC);
+		ResourceManager.loadImage(BLUE_SL_RSC);
+		ResourceManager.loadImage(BLUE_SR_RSC);
+
+		ResourceManager.loadImage(GREEN_GLASS_RSC);
 		ResourceManager.loadImage(GREEN_RL_RSC);
 		ResourceManager.loadImage(GREEN_RR_RSC);
+		ResourceManager.loadImage(GREEN_SL_RSC);
+		ResourceManager.loadImage(GREEN_SR_RSC);
+
+		ResourceManager.loadImage(RED_GLASS_RSC);
+		ResourceManager.loadImage(RED_RL_RSC);
+		ResourceManager.loadImage(RED_RR_RSC);
+		ResourceManager.loadImage(RED_SL_RSC);
+		ResourceManager.loadImage(RED_SR_RSC);
+
+		ResourceManager.loadImage(YELLOW_GLASS_RSC);
+		ResourceManager.loadImage(YELLOW_RL_RSC);
+		ResourceManager.loadImage(YELLOW_RR_RSC);
+		ResourceManager.loadImage(YELLOW_SL_RSC);
+		ResourceManager.loadImage(YELLOW_SR_RSC);
 
 		//creates player, position here is kinda irrelevant as its changed instantly.
 		player = new Player(240, 352, 0, 0, 1, "RL");

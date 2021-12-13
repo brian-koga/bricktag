@@ -97,6 +97,14 @@ public class BrickTagGameVariables implements Serializable {
 		if(index == 3){ this.p4_orientation = orientation; }
 	}
 
+	public String getOrientation(int index) {
+		if(index == 0){ return this.p1_orientation; }
+		if(index == 1){ return this.p2_orientation; }
+		if(index == 2){ return this.p3_orientation; }
+		if(index == 3){ return this.p4_orientation; }
+		return "";
+	}
+
 	public void setLevel(int level) {this.level = level;}
 
 	public void setCurrentState(int currentState) {this.currentState = currentState;}

@@ -82,8 +82,7 @@ class ClientHandler implements Runnable{
 			System.out.println(this.playerIndex);
 			Server.BTGV.playerList.set(this.playerIndex,new PlayerVariables(240, 352, 0, 0));
 			Server.BTGV.scoreList.set(this.playerIndex,0);
-			//TODO Change 1 to 3 (We index at 0)
-		}else if(this.playerIndex>1) {
+		}else if(this.playerIndex>3) {
 			this.writeIndex(this.playerIndex);
 			logoutClient();
 			return;
@@ -466,6 +465,14 @@ class ClientHandler implements Runnable{
 
 
 		if(input.equals("") && this.PV.getVelocity().getY()==0){
+			String orientation = Server.BTGV.getOrientation(this.playerIndex);
+			if(orientation.equals("RR")){
+				Server.BTGV.setOrientation(this.playerIndex, "SR");
+			}
+			if(orientation.equals("RL")){
+				Server.BTGV.setOrientation(this.playerIndex, "SL");
+			}
+
 			this.PV.setVelocity(0,0);
 		}
 

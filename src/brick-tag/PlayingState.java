@@ -173,11 +173,15 @@ class PlayingState extends BasicGameState {
 		for (VisibleObject objectToRender : PV.objectsToRender) {
 			if(objectToRender.objectType == 'b') {
 				g.drawImage(ResourceManager.getImage(BrickTagGame.Block_RSC), objectToRender.x, objectToRender.y);
-			}else if(objectToRender.objectType == 'x'){
-				g.drawImage(ResourceManager.getImage(BrickTagGame.RED_GLASS_RSC), objectToRender.x, objectToRender.y);
-			}else if(objectToRender.objectType == 'y'){
+			}else if(objectToRender.objectType == 'w'){
 				g.drawImage(ResourceManager.getImage(BrickTagGame.BLUE_GLASS_RSC), objectToRender.x, objectToRender.y);
-			} else if(objectToRender.objectType == 's') {
+			}else if(objectToRender.objectType == 'x'){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.GREEN_GLASS_RSC), objectToRender.x, objectToRender.y);
+			}else if(objectToRender.objectType == 'y'){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.RED_GLASS_RSC), objectToRender.x, objectToRender.y);
+			}else if(objectToRender.objectType == 'z'){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.YELLOW_GLASS_RSC), objectToRender.x, objectToRender.y);
+			}else if(objectToRender.objectType == 's') {
 				// ******change this first argument to the speed power up brick*******
 				g.drawImage(ResourceManager.getImage(BrickTagGame.BLUE_GLASS_RSC), objectToRender.x, objectToRender.y);
 			}
@@ -188,18 +192,26 @@ class PlayingState extends BasicGameState {
 				if(objectToRender.playersIndexOnScreen == 0) {
 					if (btgV.p1_orientation.equals("RL")) { scale = 0; }
 					if (btgV.p1_orientation.equals("RR")) { scale = 1; }
+					if (btgV.p1_orientation.equals("SL")) { scale = 2; }
+					if (btgV.p1_orientation.equals("SR")) { scale = 3; }
 				}
 				if(objectToRender.playersIndexOnScreen == 1) {
-					if (btgV.p2_orientation.equals("RL")) { scale = 2; }
-					if (btgV.p2_orientation.equals("RR")) { scale = 3; }
+					if (btgV.p2_orientation.equals("RL")) { scale = 4; }
+					if (btgV.p2_orientation.equals("RR")) { scale = 5; }
+					if (btgV.p2_orientation.equals("SL")) { scale = 6; }
+					if (btgV.p2_orientation.equals("SR")) { scale = 7; }
 				}
 				if(objectToRender.playersIndexOnScreen == 2) {
-					if (btgV.p3_orientation.equals("RL")) { scale = 4; }
-					if (btgV.p3_orientation.equals("RR")) { scale = 5; }
+					if (btgV.p3_orientation.equals("RL")) { scale = 8; }
+					if (btgV.p3_orientation.equals("RR")) { scale = 9; }
+					if (btgV.p3_orientation.equals("SL")) { scale = 10; }
+					if (btgV.p3_orientation.equals("SR")) { scale = 11; }
 				}
 				if(objectToRender.playersIndexOnScreen == 3) {
-					if (btgV.p4_orientation.equals("RL")) { scale = 6; }
-					if (btgV.p4_orientation.equals("RR")) { scale = 7; }
+					if (btgV.p4_orientation.equals("RL")) { scale = 12; }
+					if (btgV.p4_orientation.equals("RR")) { scale = 13; }
+					if (btgV.p4_orientation.equals("SL")) { scale = 14; }
+					if (btgV.p4_orientation.equals("SR")) { scale = 15; }
 				}
 
 				int orientation_index = scale;
@@ -418,13 +430,17 @@ class PlayingState extends BasicGameState {
 		for (Tile t: temp) {
 			if(t.x >= leftTile && t.x <= rightTile && t.y >= topTile && t.y <= bottomTile) {
 				if(t.designation == 2) {
-					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 'x'));
+					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 'w'));
 				} else if(t.designation == 3) {
+					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 'x'));
+				} else if(t.designation == 4) {
 					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 'y'));
+				} else if(t.designation == 5) {
+					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 'z'));
 				}
 				//This is temporary
 				else{
-					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 'y'));
+					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 'w'));
 				}
 			}
 		}
