@@ -18,22 +18,30 @@ class Player extends Entity {
 	public Player(final float x, final float y, final float vx, final float vy, int playerid, String orientation) {
 		super(x, y);
 
-		if((playerid == 0) && (orientation.equals("RL"))) {
-			player = new Animation(ResourceManager.getSpriteSheet(BrickTagGame.RED_RL_RSC, 64, 64), 0, 0, 5, 0, true, 50, true);
-		}
-		if((playerid == 0) && (orientation.equals("RR"))) {
-			player = new Animation(ResourceManager.getSpriteSheet(BrickTagGame.RED_RR_RSC, 64, 64), 0, 0, 5, 0, true, 50, true);
-		}
-		if((playerid == 1) && (orientation.equals("RL"))) {
-			player = new Animation(ResourceManager.getSpriteSheet(BrickTagGame.GREEN_RL_RSC, 64, 64), 0, 0, 5, 0, true, 50, true);
-		}
-		if((playerid == 1) && (orientation.equals("RR"))) {
-			player = new Animation(ResourceManager.getSpriteSheet(BrickTagGame.GREEN_RR_RSC, 64, 64), 0, 0, 5, 0, true, 50, true);
-		}
+		if((playerid == 0) && (orientation.equals("RL"))) { player = new Animation(ResourceManager.getSpriteSheet(BrickTagGame.BLUE_RL_RSC, 64, 64), 0, 0, 5, 0, true, 50, true); }
+		if((playerid == 0) && (orientation.equals("RR"))) { player = new Animation(ResourceManager.getSpriteSheet(BrickTagGame.BLUE_RR_RSC, 64, 64), 0, 0, 5, 0, true, 50, true); }
+		if((playerid == 0) && (orientation.equals("SL"))) { addImageWithBoundingBox(ResourceManager.getImage(BrickTagGame.BLUE_SL_RSC)); }
+		if((playerid == 0) && (orientation.equals("SR"))) { addImageWithBoundingBox(ResourceManager.getImage(BrickTagGame.BLUE_SR_RSC)); }
 
-		addAnimation(player);
-		player.setLooping(true);
+		if((playerid == 1) && (orientation.equals("RL"))) { player = new Animation(ResourceManager.getSpriteSheet(BrickTagGame.GREEN_RL_RSC, 64, 64), 0, 0, 5, 0, true, 50, true); }
+		if((playerid == 1) && (orientation.equals("RR"))) { player = new Animation(ResourceManager.getSpriteSheet(BrickTagGame.GREEN_RR_RSC, 64, 64), 0, 0, 5, 0, true, 50, true); }
+		if((playerid == 1) && (orientation.equals("SL"))) { addImageWithBoundingBox(ResourceManager.getImage(BrickTagGame.GREEN_SL_RSC)); }
+		if((playerid == 1) && (orientation.equals("SR"))) { addImageWithBoundingBox(ResourceManager.getImage(BrickTagGame.GREEN_SR_RSC)); }
 
+		if((playerid == 2) && (orientation.equals("RL"))) { player = new Animation(ResourceManager.getSpriteSheet(BrickTagGame.RED_RL_RSC, 64, 64), 0, 0, 5, 0, true, 50, true); }
+		if((playerid == 2) && (orientation.equals("RR"))) { player = new Animation(ResourceManager.getSpriteSheet(BrickTagGame.RED_RR_RSC, 64, 64), 0, 0, 5, 0, true, 50, true); }
+		if((playerid == 2) && (orientation.equals("SL"))) { addImageWithBoundingBox(ResourceManager.getImage(BrickTagGame.RED_SL_RSC)); }
+		if((playerid == 2) && (orientation.equals("SR"))) { addImageWithBoundingBox(ResourceManager.getImage(BrickTagGame.RED_SR_RSC)); }
+
+		if((playerid == 3) && (orientation.equals("RL"))) { player = new Animation(ResourceManager.getSpriteSheet(BrickTagGame.YELLOW_RL_RSC, 64, 64), 0, 0, 5, 0, true, 50, true); }
+		if((playerid == 3) && (orientation.equals("RR"))) { player = new Animation(ResourceManager.getSpriteSheet(BrickTagGame.YELLOW_RR_RSC, 64, 64), 0, 0, 5, 0, true, 50, true); }
+		if((playerid == 3) && (orientation.equals("SL"))) { addImageWithBoundingBox(ResourceManager.getImage(BrickTagGame.YELLOW_SL_RSC)); }
+		if((playerid == 3) && (orientation.equals("SR"))) { addImageWithBoundingBox(ResourceManager.getImage(BrickTagGame.YELLOW_SR_RSC)); }
+
+		if(orientation.equals("RL") || orientation.equals("RR")) {
+			addAnimation(player);
+			player.setLooping(true);
+		}
 		//addImageWithBoundingBox(ResourceManager.getImage(BrickTagGame.PLAYER_RSC));
 		this.variables = new PlayerVariables(x, y, vx, vy);
 	}

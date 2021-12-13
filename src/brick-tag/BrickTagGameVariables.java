@@ -37,6 +37,7 @@ public class BrickTagGameVariables implements Serializable {
 	ArrayList<PlayerVariables> playerList;
 	ArrayList<Integer> scoreList;
 	Vector<Tile> placedTiles;
+	Vector<Tile> powerUpTiles;
 
 	String p1_orientation;
 	String p2_orientation;
@@ -71,6 +72,12 @@ public class BrickTagGameVariables implements Serializable {
 		this.playerList = new ArrayList<>(4);
 		this.scoreList = new ArrayList<>(4);
 		this.placedTiles = new Vector<>();
+		this.powerUpTiles = new Vector<>();
+
+		// populate powerUpTiles
+		this.powerUpTiles.add(new Tile(9, 12, 21, true));
+		this.powerUpTiles.add(new Tile(54, 1, 21, true));
+		this.powerUpTiles.add(new Tile(55, 19, 21, true));
 
 		//SL = standing left. SL SR RL RR
 		this.p1_orientation = "SL";
@@ -88,6 +95,14 @@ public class BrickTagGameVariables implements Serializable {
 		if(index == 1){ this.p2_orientation = orientation; }
 		if(index == 2){ this.p3_orientation = orientation; }
 		if(index == 3){ this.p4_orientation = orientation; }
+	}
+
+	public String getOrientation(int index) {
+		if(index == 0){ return this.p1_orientation; }
+		if(index == 1){ return this.p2_orientation; }
+		if(index == 2){ return this.p3_orientation; }
+		if(index == 3){ return this.p4_orientation; }
+		return "";
 	}
 
 	public void setLevel(int level) {this.level = level;}
