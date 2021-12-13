@@ -182,8 +182,10 @@ class PlayingState extends BasicGameState {
 			}else if(objectToRender.objectType == 'z'){
 				g.drawImage(ResourceManager.getImage(BrickTagGame.YELLOW_GLASS_RSC), objectToRender.x, objectToRender.y);
 			}else if(objectToRender.objectType == 's') {
-				// ******change this first argument to the speed power up brick*******
+				//TODO ******change this first argument to the speed power up brick*******
 				g.drawImage(ResourceManager.getImage(BrickTagGame.BLUE_GLASS_RSC), objectToRender.x, objectToRender.y);
+			}else if(objectToRender.objectType == 'f'){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.FLAG_RSC),objectToRender.x,objectToRender.y);
 			}
 
 			else if(objectToRender.objectType == 'p'){
@@ -452,6 +454,8 @@ class PlayingState extends BasicGameState {
 			if(t.x >= leftTile && t.x <= rightTile && t.y >= topTile && t.y <= bottomTile) {
 				if(t.designation == 21) {
 					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 's'));
+				}else if(t.designation == 99){
+					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff,'f'));
 				}
 			}
 		}
