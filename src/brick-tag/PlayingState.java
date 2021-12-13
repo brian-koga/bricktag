@@ -240,7 +240,16 @@ class PlayingState extends BasicGameState {
 		g.drawString( "Bricks: " + PV.getNumberOfBricks(),15,700);
 		for(int i=0;i<btgV.playerList.size();i++){
 			int score = btgV.scoreList.get(i);
-			g.drawString("Player " + (i+1) + ": "+score,1150,15*(i+1));
+
+			int flagHolder = btgV.getFlagHolder();
+			if(flagHolder >= 0){ g.drawImage(ResourceManager.getImage(BrickTagGame.FLAG_MINI_RSC), 1180, 20 * (flagHolder)); }
+
+			if(i>=0){ g.drawImage(ResourceManager.getImage(BrickTagGame.BLUE_MINI_RSC), 1200, 20 * (i+1)); }
+			if(i>=1){ g.drawImage(ResourceManager.getImage(BrickTagGame.GREEN_MINI_RSC), 1200, 20 * (i+1)); }
+			if(i>=2){ g.drawImage(ResourceManager.getImage(BrickTagGame.RED_MINI_RSC), 1200, 20 * (i+1)); }
+			if(i>=3){ g.drawImage(ResourceManager.getImage(BrickTagGame.YELLOW_MINI_RSC), 1200, 20 * (i+1)); }
+
+			g.drawString(""+score,1225,20*(i+1));
 		}
 	}
 
