@@ -44,6 +44,8 @@ public class BrickTagGameVariables implements Serializable {
 	String p3_orientation;
 	String p4_orientation;
 
+	int flagHolder = -1;
+
 	public BrickTagGameVariables(int height,int width) {
 		ScreenHeight = (float) height;
 		ScreenWidth = (float) width;
@@ -108,6 +110,9 @@ public class BrickTagGameVariables implements Serializable {
 	public void setLevel(int level) {this.level = level;}
 
 	public void setCurrentState(int currentState) {this.currentState = currentState;}
+
+	public void setFlagHolder(int index) {this.flagHolder = index + 1;}
+	public int getFlagHolder() {return this.flagHolder;}
 
 	public void toggleShowGrid() {this.showGrid = !this.showGrid;}
 }

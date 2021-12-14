@@ -243,6 +243,9 @@ class ClientHandler implements Runnable{
 
 		update();
 
+		//send current flag bearer to BTGV as an int for rendering the mini flag next to mini heads
+		if(this.PV.hasFlag()){ Server.BTGV.setFlagHolder(this.playerIndex); }
+
 		// "infinite" value
 		int xMax = 99;
 		int yMax = 99;
