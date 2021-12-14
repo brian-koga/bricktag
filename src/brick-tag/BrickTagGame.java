@@ -121,6 +121,14 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 
 		//creates player, position here is kinda irrelevant as its changed instantly.
 		player = new Player(240, 352, 0, 0, 1, "RL");
+
+		int index = this.client.receiveIndex();
+		if(index>3){
+			System.out.println("The lobby is currently full please try again later");
+			System.exit(0);
+		}else if(index!=-1) {
+			this.player.setIndex(index);
+		}
 	}
 
 	public static void main(String[] args){
