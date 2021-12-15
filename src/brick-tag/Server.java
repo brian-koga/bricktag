@@ -69,6 +69,7 @@ class ClientHandler implements Runnable{
 		this.objectInputStream = objectInputStream;
 		this.playerIndex = i;
 		if(Server.tileGrid == null) { setTileGrid(); } // prevent new clients from resetting map
+		// add the power ups to the tileGrid
 		for (Tile temp : Server.BTGV.powerUpTiles) {
 			Server.tileGrid[temp.x][temp.y] = temp;
 		}
@@ -239,12 +240,17 @@ class ClientHandler implements Runnable{
 			if(Server.BTGV.playerList.get(i).hasFlag()){
 				Server.BTGV.playerList.get(i).toggleFlag();
 			}
+			Server.BTGV.flagHolder = -1;
 		}
 		for(int i : Server.removedPlayers){
 			Server.BTGV.playerList.get(i).isLoggedIn = false;
 		}
 		setTileGrid();
-		//TODO Reset power ups
+
+		// add the power ups to the tileGrid
+		for (Tile temp : Server.BTGV.powerUpTiles) {
+			Server.tileGrid[temp.x][temp.y] = temp;
+		}
 	}
 
 	private boolean checkPlayingControls(String input){
