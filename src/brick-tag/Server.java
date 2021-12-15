@@ -92,6 +92,7 @@ class ClientHandler implements Runnable{
 			Server.BTGV.scoreList.add(0);
 		}
 		this.writeIndex(this.playerIndex);
+		sendVariablesToClient();
 		while (true) {
 			if (clientHandlerLoop()) {
 				break;
@@ -211,7 +212,10 @@ class ClientHandler implements Runnable{
 	}
 
 	private boolean checkStartEndControls(String input){
-		System.out.println(input);
+		if(this.playerIndex<Server.BTGV.playerList.size()-1){
+			sendVariablesToClient();
+			return true;
+		}
 		if(input.equals("SPACE") && Server.BTGV.currentState == BrickTagGame.STARTUPSTATE){
 			Server.BTGV.currentState = BrickTagGame.PLAYINGSTATE;
 			sendVariablesToClient();
