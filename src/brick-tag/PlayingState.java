@@ -110,6 +110,15 @@ class PlayingState extends BasicGameState {
 					} else if(data.charAt(i) == '3') {
 						// tiles that are occupied by a player placed block
 						tileGrid[i][j] = new Tile(i, j, 3, false);
+					} else if(data.charAt(i) == '7') {
+						//metal block
+						tileGrid[i][j] = new Tile(i, j, 7, false);
+					} else if(data.charAt(i) == '8') {
+						//ground1 block
+						tileGrid[i][j] = new Tile(i, j, 8, false);
+					} else if(data.charAt(i) == '9') {
+						//ground2 block
+						tileGrid[i][j] = new Tile(i, j, 9, false);
 					}else {
 						// something has gone wrong
 						System.out.println("Unknown character encountered in level file.");
@@ -135,6 +144,7 @@ class PlayingState extends BasicGameState {
 		g.drawString("Level: " + btgV.level, 10, 30);
 
 		// draw grid
+		/*
 		if(btgV.showGrid) {
 			float x = 0;
 			float y = 0;
@@ -148,23 +158,29 @@ class PlayingState extends BasicGameState {
 				g.drawLine(0, y, btgV.ScreenWidth, y);
 				y += btgV.tileSize;
 			}
-		}
+		}*/
+
+
+
+
 
 		// draw background
+		float backgroundX = getBackgroundCoords(btg, 0);
+		float backgroundY = getBackgroundCoords(btg, 1);
 
-		// draw blocks
-		//temporary, not an efficient way to do this, should only create them once
-	/*
-		for(int i = 0; i < btgV.ScreenTileWidth; i++) {
-			for(int j = 0; j < btgV.ScreenTileHeight; j++) {
-				if(btgV.tileGrid[i][j].designation == 1) {
-					// should be a block
-					g.drawImage(ResourceManager.getImage(BrickTagGame.Block_RSC), i*btgV.tileSize, j*btgV.tileSize);
-				}
-			}
+		if(btgV.showGrid) {
+			g.drawImage(ResourceManager.getImage(BrickTagGame.NIGHT_1_RSC), 0 - (backgroundX / 5), -220 - (backgroundY / 5));
+			g.drawImage(ResourceManager.getImage(BrickTagGame.NIGHT_2_RSC), 0 - (backgroundX / 4), -220 - (backgroundY / 4));
+			g.drawImage(ResourceManager.getImage(BrickTagGame.NIGHT_3_RSC), 0 - (backgroundX / 3), -220 - (backgroundY / 3));
+			g.drawImage(ResourceManager.getImage(BrickTagGame.NIGHT_4_RSC), 0 - (backgroundX / 2), -220 - (backgroundY / 2));
+			g.drawImage(ResourceManager.getImage(BrickTagGame.NIGHT_5_RSC), 0 - (backgroundX / 1), -220 - (backgroundY / 1));
+		}else {
+			g.drawImage(ResourceManager.getImage(BrickTagGame.DAY_1_RSC), 0 - (backgroundX / 5), -220 - (backgroundY / 5));
+			g.drawImage(ResourceManager.getImage(BrickTagGame.DAY_2_RSC), 0 - (backgroundX / 4), -220 - (backgroundY / 4));
+			g.drawImage(ResourceManager.getImage(BrickTagGame.DAY_3_RSC), 0 - (backgroundX / 3), -220 - (backgroundY / 3));
+			g.drawImage(ResourceManager.getImage(BrickTagGame.DAY_4_RSC), 0 - (backgroundX / 2), -220 - (backgroundY / 2));
+			g.drawImage(ResourceManager.getImage(BrickTagGame.DAY_5_RSC), 0 - (backgroundX / 1), -220 - (backgroundY / 1));
 		}
-
-	 */
 
 		// draw others
 		PlayerVariables PV = btg.allPlayers.get(this.playerIndex).getVariables();
@@ -183,6 +199,12 @@ class PlayingState extends BasicGameState {
 				g.drawImage(ResourceManager.getImage(BrickTagGame.BOOTS_RSC), objectToRender.x, objectToRender.y);
 			}else if(objectToRender.objectType == 'f'){
 				g.drawImage(ResourceManager.getImage(BrickTagGame.FLAG_RSC),objectToRender.x,objectToRender.y);
+			}else if(objectToRender.objectType == 'm'){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.METAL_RSC),objectToRender.x,objectToRender.y);
+			}else if(objectToRender.objectType == 'g'){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.GROUND1_RSC),objectToRender.x,objectToRender.y);
+			}else if(objectToRender.objectType == 'h'){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.GROUND2_RSC),objectToRender.x,objectToRender.y);
 			}
 
 			else if(objectToRender.objectType == 'p'){
@@ -301,6 +323,30 @@ class PlayingState extends BasicGameState {
 		float newY = currPlayer.getWorldY() - worldTop;
 
 		currPlayer.setScreenPosition(newX,newY);
+	}
+
+	private float getBackgroundCoords(BrickTagGame btg, int xy){
+		Player mainPlayer = btg.allPlayers.get(this.playerIndex);
+
+		//Lets figure out what the world coordinates are on screen
+		float worldLeft = mainPlayer.getWorldX() - btg.variables.ScreenWidth/2;
+		float worldTop = mainPlayer.getWorldY() - btg.variables.ScreenHeight/2;
+
+		if(worldLeft<0){
+			worldLeft=0;
+		} else if(worldLeft > btg.variables.WorldWidth - btg.variables.ScreenWidth) {
+			worldLeft = btg.variables.WorldWidth - btg.variables.ScreenWidth;
+		}
+
+		if(worldTop<0){
+			worldTop=0;
+		} else if(worldTop > btg.variables.WorldHeight - btg.variables.ScreenHeight) {
+			worldTop = btg.variables.WorldHeight - btg.variables.ScreenHeight;
+		}
+
+		if(xy == 0){ return worldLeft; }
+		if(xy == 1){ return worldTop; }
+		return -99999;
 	}
 
 	@Override
@@ -442,6 +488,12 @@ class PlayingState extends BasicGameState {
 				if(btg.tileGrid[i][j].designation == 1) {
 					// should be a block
 					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'b'));
+				}else if(btg.tileGrid[i][j].designation == 9) {
+					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'm'));
+				}else if(btg.tileGrid[i][j].designation == 8) {
+					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'g'));
+				}else if(btg.tileGrid[i][j].designation == 7) {
+					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'h'));
 				}
 				/*
 				if(btg.tileGrid[i][j].designation == 2) {

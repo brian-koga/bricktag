@@ -23,6 +23,22 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 	public static final String BOOTS_RSC = "resource/boots.png";
 	public static final String BOOTS_MINI_RSC = "resource/boots_mini.png";
 
+	public static final String METAL_RSC = "resource/metal.png";
+	public static final String GROUND1_RSC = "resource/ground1.png";
+	public static final String GROUND2_RSC = "resource/ground2.png";
+
+
+	public static final String NIGHT_1_RSC = "resource/BG_Night/BG_1.png";
+	public static final String NIGHT_2_RSC = "resource/BG_Night/BG_2.png";
+	public static final String NIGHT_3_RSC = "resource/BG_Night/BG_3.png";
+	public static final String NIGHT_4_RSC = "resource/BG_Night/BG_4.png";
+	public static final String NIGHT_5_RSC = "resource/BG_Night/BG_5.png";
+	public static final String DAY_1_RSC = "resource/BG_Day/BG_1.png";
+	public static final String DAY_2_RSC = "resource/BG_Day/BG_2.png";
+	public static final String DAY_3_RSC = "resource/BG_Day/BG_3.png";
+	public static final String DAY_4_RSC = "resource/BG_Day/BG_4.png";
+	public static final String DAY_5_RSC = "resource/BG_Day/BG_5.png";
+
 	public static final String BLUE_GLASS_RSC = "resource/BLUE/blue_glass.png";
 	public static final String BLUE_RL_RSC = "resource/BLUE/blue_running_left.png";
 	public static final String BLUE_RR_RSC = "resource/BLUE/blue_running_right.png";
@@ -96,6 +112,21 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 
 		ResourceManager.loadImage(BOOTS_RSC);
 		ResourceManager.loadImage(BOOTS_MINI_RSC);
+
+		ResourceManager.loadImage(METAL_RSC);
+		ResourceManager.loadImage(GROUND1_RSC);
+		ResourceManager.loadImage(GROUND2_RSC);
+
+		ResourceManager.loadImage(NIGHT_1_RSC);
+		ResourceManager.loadImage(NIGHT_2_RSC);
+		ResourceManager.loadImage(NIGHT_3_RSC);
+		ResourceManager.loadImage(NIGHT_4_RSC);
+		ResourceManager.loadImage(NIGHT_5_RSC);
+		ResourceManager.loadImage(DAY_1_RSC);
+		ResourceManager.loadImage(DAY_2_RSC);
+		ResourceManager.loadImage(DAY_3_RSC);
+		ResourceManager.loadImage(DAY_4_RSC);
+		ResourceManager.loadImage(DAY_5_RSC);
 
 		ResourceManager.loadImage(BLUE_GLASS_RSC);
 		ResourceManager.loadImage(BLUE_RL_RSC);
