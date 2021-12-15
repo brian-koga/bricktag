@@ -256,7 +256,7 @@ class ClientHandler implements Runnable{
 	private boolean checkPlayingControls(String input){
 		if(input.equals("DEBUG")){
 			Server.BTGV.toggleShowGrid();
-			this.PV.toggleFlag();
+			//this.PV.toggleFlag();
 		}
 
 		this.movePlayer(input);
