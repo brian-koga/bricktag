@@ -132,9 +132,7 @@ class PlayingState extends BasicGameState {
 		BrickTagGameVariables btgV = btg.variables;
 		g.setColor(Color.white);
 
-		//g.drawString("Lives: " + btg.lives, 10, 30);
-		//g.drawString("Score: " + btg.score, 110, 10);
-		g.drawString("Level: " + btgV.level, 110, 30);
+		g.drawString("Level: " + btgV.level, 10, 30);
 
 		// draw grid
 		if(btgV.showGrid) {
@@ -182,8 +180,7 @@ class PlayingState extends BasicGameState {
 			}else if(objectToRender.objectType == 'z'){
 				g.drawImage(ResourceManager.getImage(BrickTagGame.YELLOW_GLASS_RSC), objectToRender.x, objectToRender.y);
 			}else if(objectToRender.objectType == 's') {
-				//TODO ******change this first argument to the speed power up brick*******
-				g.drawImage(ResourceManager.getImage(BrickTagGame.BLUE_GLASS_RSC), objectToRender.x, objectToRender.y);
+				g.drawImage(ResourceManager.getImage(BrickTagGame.BOOTS_RSC), objectToRender.x, objectToRender.y);
 			}else if(objectToRender.objectType == 'f'){
 				g.drawImage(ResourceManager.getImage(BrickTagGame.FLAG_RSC),objectToRender.x,objectToRender.y);
 			}
@@ -237,19 +234,46 @@ class PlayingState extends BasicGameState {
 		}
 
 		//System.out.println("All Players: " + btg.allPlayers);
+
+
 		g.drawString( "Bricks: " + PV.getNumberOfBricks(),15,700);
 		for(int i=0;i<btgV.playerList.size();i++){
 			int score = btgV.scoreList.get(i);
+			int power = btgV.playerList.get(i).powerUp;
+
 
 			int flagHolder = btgV.getFlagHolder();
 			if(flagHolder >= 0){ g.drawImage(ResourceManager.getImage(BrickTagGame.FLAG_MINI_RSC), 1180, 20 * (flagHolder)); }
 
-			if(i>=0){ g.drawImage(ResourceManager.getImage(BrickTagGame.BLUE_MINI_RSC), 1200, 20 * (i+1)); }
-			if(i>=1){ g.drawImage(ResourceManager.getImage(BrickTagGame.GREEN_MINI_RSC), 1200, 20 * (i+1)); }
-			if(i>=2){ g.drawImage(ResourceManager.getImage(BrickTagGame.RED_MINI_RSC), 1200, 20 * (i+1)); }
-			if(i>=3){ g.drawImage(ResourceManager.getImage(BrickTagGame.YELLOW_MINI_RSC), 1200, 20 * (i+1)); }
+			// this is so that the power up icon is drawn directly left of the head, unless that player has the flag
+			// in which case it is drawn directly left of the flag
+			int powerIconXLocation = 1180;
+			if(flagHolder == i+1) {
+				powerIconXLocation -= 20;
+			}
+
+			if(i>=0){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.BLUE_MINI_RSC), 1200, 20 * (i+1));
+			}
+			if(i>=1){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.GREEN_MINI_RSC), 1200, 20 * (i+1));
+			}
+			if(i>=2){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.RED_MINI_RSC), 1200, 20 * (i+1));
+			}
+			if(i>=3){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.YELLOW_MINI_RSC), 1200, 20 * (i+1));
+			}
 
 			g.drawString(""+score,1225,20*(i+1));
+
+			// draw power up
+			if(power != 0) {
+				if(power == 1) {
+					// speed
+					g.drawImage(ResourceManager.getImage(BrickTagGame.BOOTS_MINI_RSC), powerIconXLocation, 20 * (i+1));
+				}
+			}
 		}
 	}
 
