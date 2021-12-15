@@ -30,13 +30,13 @@ class StartUpState extends BasicGameState {
 	public void enter(GameContainer container, StateBasedGame game) {
 		container.setSoundOn(false);
 		BrickTagGame btg = (BrickTagGame) game;
-		int index = btg.client.receiveIndex();
-		if(index>3){
-			System.out.println("The lobby is currently full please try again later");
-			System.exit(0);
-		}else if(index!=-1) {
-			btg.player.setIndex(index);
-		}
+//		int index = btg.client.receiveIndex();
+//		if(index>3){
+//			System.out.println("The lobby is currently full please try again later");
+//			System.exit(0);
+//		}else if(index!=-1) {
+//			btg.player.setIndex(index);
+//		}
 	}
 
 	@Override

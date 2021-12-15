@@ -20,6 +20,9 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 	public static final String FLAG_RSC = "resource/flag.png";
 	public static final String FLAG_MINI_RSC = "resource/flag_mini.png";
 
+	public static final String BOOTS_RSC = "resource/boots.png";
+	public static final String BOOTS_MINI_RSC = "resource/boots_mini.png";
+
 	public static final String BLUE_GLASS_RSC = "resource/BLUE/blue_glass.png";
 	public static final String BLUE_RL_RSC = "resource/BLUE/blue_running_left.png";
 	public static final String BLUE_RR_RSC = "resource/BLUE/blue_running_right.png";
@@ -91,6 +94,9 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 		ResourceManager.loadImage(FLAG_RSC);
 		ResourceManager.loadImage(FLAG_MINI_RSC);
 
+		ResourceManager.loadImage(BOOTS_RSC);
+		ResourceManager.loadImage(BOOTS_MINI_RSC);
+
 		ResourceManager.loadImage(BLUE_GLASS_RSC);
 		ResourceManager.loadImage(BLUE_RL_RSC);
 		ResourceManager.loadImage(BLUE_RR_RSC);
@@ -121,6 +127,14 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 
 		//creates player, position here is kinda irrelevant as its changed instantly.
 		player = new Player(240, 352, 0, 0, 1, "RL");
+
+		int index = this.client.receiveIndex();
+		if(index>3){
+			System.out.println("The lobby is currently full please try again later");
+			System.exit(0);
+		}else if(index!=-1) {
+			this.player.setIndex(index);
+		}
 	}
 
 	public static void main(String[] args){

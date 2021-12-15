@@ -69,6 +69,7 @@ class ClientHandler implements Runnable{
 		this.objectInputStream = objectInputStream;
 		this.playerIndex = i;
 		if(Server.tileGrid == null) { setTileGrid(); } // prevent new clients from resetting map
+		// add the power ups to the tileGrid
 		for (Tile temp : Server.BTGV.powerUpTiles) {
 			Server.tileGrid[temp.x][temp.y] = temp;
 		}
@@ -132,12 +133,12 @@ class ClientHandler implements Runnable{
 			Server.BTGV.playerList.set(this.playerIndex, this.PV);
 			int whoWon = checkScores();
 			if(whoWon>=0){
-				System.out.println("GAME OVER!!!! PLAYER "+whoWon+" WINS!!!!!!");
-				System.out.println("_________");
-				//TODO Go to Gameover State
+				Server.BTGV.currentState = BrickTagGame.GAMEOVERSTATE;
+				sendVariablesToClient();
+				didSendMessage=true;
 			}
-		}else if(Server.BTGV.currentState==BrickTagGame.STARTUPSTATE) {
-			didSendMessage = checkStartControls(received);
+		}else if(Server.BTGV.currentState==BrickTagGame.STARTUPSTATE || Server.BTGV.currentState==BrickTagGame.GAMEOVERSTATE) {
+			didSendMessage = checkStartEndControls(received);
 		}
 
 		if(!didSendMessage) {
@@ -209,13 +210,47 @@ class ClientHandler implements Runnable{
 		}
 	}
 
-	private boolean checkStartControls(String input){
-		if(input.equals("SPACE")){
+	private boolean checkStartEndControls(String input){
+		System.out.println(input);
+		if(input.equals("SPACE") && Server.BTGV.currentState == BrickTagGame.STARTUPSTATE){
 			Server.BTGV.currentState = BrickTagGame.PLAYINGSTATE;
+			sendVariablesToClient();
+			return true;
+		}else if(Server.BTGV.currentState == BrickTagGame.GAMEOVERSTATE){
+			if(input.equals("GO_START")) {
+				resetGame();
+			}
+			sendVariablesToClient();
+			return true;
+		}else if(input.equals("END")){
 			sendVariablesToClient();
 			return true;
 		}
 		return false;
+	}
+
+	private void resetGame() {
+		Server.BTGV.currentState = BrickTagGame.STARTUPSTATE;
+		Server.BTGV.placedTiles = new Vector<>();
+		for(int i = 0; i<Server.BTGV.playerList.size();i++){
+			Server.BTGV.playerList.set(i,Server.BTGV.playerList.set(this.playerIndex,new PlayerVariables(240, 352, 0, 0)));
+			Server.BTGV.scoreList.set(i,0);
+			Server.BTGV.playerList.get(i).score=0;
+			Server.BTGV.playerList.get(i).tempScore=0;
+			if(Server.BTGV.playerList.get(i).hasFlag()){
+				Server.BTGV.playerList.get(i).toggleFlag();
+			}
+			Server.BTGV.flagHolder = -1;
+		}
+		for(int i : Server.removedPlayers){
+			Server.BTGV.playerList.get(i).isLoggedIn = false;
+		}
+		setTileGrid();
+
+		// add the power ups to the tileGrid
+		for (Tile temp : Server.BTGV.powerUpTiles) {
+			Server.tileGrid[temp.x][temp.y] = temp;
+		}
 	}
 
 	private boolean checkPlayingControls(String input){

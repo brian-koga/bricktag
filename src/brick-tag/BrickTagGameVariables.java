@@ -77,9 +77,7 @@ public class BrickTagGameVariables implements Serializable {
 		this.powerUpTiles = new Vector<>();
 
 		// populate powerUpTiles
-		this.powerUpTiles.add(new Tile(9, 12, 21, true));
-		this.powerUpTiles.add(new Tile(54, 1, 21, true));
-		this.powerUpTiles.add(new Tile(55, 19, 21, true));
+		setPowerUpTiles();
 
 		//SL = standing left. SL SR RL RR
 		this.p1_orientation = "SL";
@@ -113,6 +111,12 @@ public class BrickTagGameVariables implements Serializable {
 
 	public void setFlagHolder(int index) {this.flagHolder = index + 1;}
 	public int getFlagHolder() {return this.flagHolder;}
+
+	public void setPowerUpTiles() {
+		this.powerUpTiles.add(new Tile(9, 12, 21, true));
+		this.powerUpTiles.add(new Tile(54, 1, 21, true));
+		this.powerUpTiles.add(new Tile(55, 19, 21, true));
+	}
 
 	public void toggleShowGrid() {this.showGrid = !this.showGrid;}
 }
