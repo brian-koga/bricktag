@@ -1,3 +1,31 @@
 Colton Berry
 Joshua Sedig
 Brian Koga
+
+
+Brick Tag
+
+The game is a capture the flag/king of the hill multiplayer game. The game can support up to four players.
+
+The goal is to hold onto the flag as long as possible
+
+After one player scores 25 points that player wins
+
+You may place blocks to hinder your opponents from stealing the flag from you
+
+Each players starts with 25 bricks and can gain more bricks by breaking bricks
+
+With out the pickaxe power up the only way to break a brick is to jump underneath the brick similar to Mario
+
+Controls
+W - Place block above
+S - Place block below
+Q - Place block to the left
+E - Place block to the right
+A - Move to the left
+D - Move to the right
+SPACE BAR - Jump
+
+Power-ups
+Speed Power Up (Boot icon) - Speeds up the player for a limited amount of time
+Pickaxe (Pickaxe icon) - Lets you press L_SHIFT or F to break blocks directly to your left or right respectively
