@@ -173,13 +173,13 @@ class PlayingState extends BasicGameState {
 			g.drawImage(ResourceManager.getImage(BrickTagGame.NIGHT_2_RSC), 0 - (backgroundX / 4), -220 - (backgroundY / 4));
 			g.drawImage(ResourceManager.getImage(BrickTagGame.NIGHT_3_RSC), 0 - (backgroundX / 3), -220 - (backgroundY / 3));
 			g.drawImage(ResourceManager.getImage(BrickTagGame.NIGHT_4_RSC), 0 - (backgroundX / 2), -220 - (backgroundY / 2));
-			g.drawImage(ResourceManager.getImage(BrickTagGame.NIGHT_5_RSC), 0 - (backgroundX / 1), -220 - (backgroundY / 1));
+			g.drawImage(ResourceManager.getImage(BrickTagGame.NIGHT_5_RSC), 0 - (backgroundX), -220 - (backgroundY));
 		}else {
 			g.drawImage(ResourceManager.getImage(BrickTagGame.DAY_1_RSC), 0 - (backgroundX / 5), -220 - (backgroundY / 5));
 			g.drawImage(ResourceManager.getImage(BrickTagGame.DAY_2_RSC), 0 - (backgroundX / 4), -220 - (backgroundY / 4));
 			g.drawImage(ResourceManager.getImage(BrickTagGame.DAY_3_RSC), 0 - (backgroundX / 3), -220 - (backgroundY / 3));
 			g.drawImage(ResourceManager.getImage(BrickTagGame.DAY_4_RSC), 0 - (backgroundX / 2), -220 - (backgroundY / 2));
-			g.drawImage(ResourceManager.getImage(BrickTagGame.DAY_5_RSC), 0 - (backgroundX / 1), -220 - (backgroundY / 1));
+			g.drawImage(ResourceManager.getImage(BrickTagGame.DAY_5_RSC), 0 - (backgroundX), -220 - (backgroundY));
 		}
 
 		// draw others
@@ -197,6 +197,8 @@ class PlayingState extends BasicGameState {
 				g.drawImage(ResourceManager.getImage(BrickTagGame.YELLOW_GLASS_RSC), objectToRender.x, objectToRender.y);
 			}else if(objectToRender.objectType == 's') {
 				g.drawImage(ResourceManager.getImage(BrickTagGame.BOOTS_RSC), objectToRender.x, objectToRender.y);
+			}else if(objectToRender.objectType == 'a') {
+				g.drawImage(ResourceManager.getImage(BrickTagGame.PIC_RSC), objectToRender.x, objectToRender.y);
 			}else if(objectToRender.objectType == 'f'){
 				g.drawImage(ResourceManager.getImage(BrickTagGame.FLAG_RSC),objectToRender.x,objectToRender.y);
 			}else if(objectToRender.objectType == 'm'){
@@ -294,6 +296,9 @@ class PlayingState extends BasicGameState {
 				if(power == 1) {
 					// speed
 					g.drawImage(ResourceManager.getImage(BrickTagGame.BOOTS_MINI_RSC), powerIconXLocation, 20 * (i+1));
+				}else if(power == 2){
+					//TODO Once mini pic is made uncomment out
+//					g.drawImage(ResourceManager.getImage(BrickTagGame.PIC_MINI_RSC),powerIconXLocation,20*(i+1));
 				}
 			}
 		}
@@ -384,6 +389,14 @@ class PlayingState extends BasicGameState {
 			kc.command = "DW";
 		}else if(input.isKeyDown(Input.KEY_D) && input.isKeyDown(Input.KEY_S)){
 			kc.command = "DS";
+		}else if(input.isKeyDown(Input.KEY_F) && input.isKeyDown(Input.KEY_A)){
+			kc.command = "ARIGHT";
+		}else if(input.isKeyDown(Input.KEY_LSHIFT) && input.isKeyDown(Input.KEY_A)){
+			kc.command = "ALEFT";
+		}else if(input.isKeyDown(Input.KEY_F) && input.isKeyDown(Input.KEY_D)){
+			kc.command = "DRIGHT";
+		}else if(input.isKeyDown(Input.KEY_LSHIFT) && input.isKeyDown(Input.KEY_D)){
+			kc.command = "DLEFT";
 		}else if(input.isKeyDown(Input.KEY_A)){
 			kc.command = "A";
 		}else if(input.isKeyDown(Input.KEY_D)){
@@ -396,6 +409,12 @@ class PlayingState extends BasicGameState {
 			kc.command = "W";
 		}else if(input.isKeyDown(Input.KEY_S)){
 			kc.command = "S";
+		}else if(input.isKeyDown(Input.KEY_F)){
+			//Leave the space there its there for a reason
+			kc.command = "_RIGHT";
+		}else if(input.isKeyDown(Input.KEY_LSHIFT)){
+			//Leave the space there its there for a reason
+			kc.command = "_LEFT";
 		}else{
 			kc.command = "";
 		}
@@ -539,6 +558,8 @@ class PlayingState extends BasicGameState {
 			if(t.x >= leftTile && t.x <= rightTile && t.y >= topTile && t.y <= bottomTile) {
 				if(t.designation == 21) {
 					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 's'));
+				}else if(t.designation == 22) {
+					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 'a'));
 				}else if(t.designation == 99){
 					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff,'f'));
 				}
