@@ -1,3 +1,4 @@
+import jig.ResourceManager;
 import org.lwjgl.Sys;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -30,21 +31,30 @@ class StartUpState extends BasicGameState {
 	public void enter(GameContainer container, StateBasedGame game) {
 		container.setSoundOn(false);
 		BrickTagGame btg = (BrickTagGame) game;
-//		int index = btg.client.receiveIndex();
-//		if(index>3){
-//			System.out.println("The lobby is currently full please try again later");
-//			System.exit(0);
-//		}else if(index!=-1) {
-//			btg.player.setIndex(index);
-//		}
 	}
 
 	@Override
 	public void render(GameContainer container, StateBasedGame game,Graphics g) throws SlickException {
 		BrickTagGame btg = (BrickTagGame) game;
 		BrickTagGameVariables btgV = btg.variables;
+		g.drawImage(ResourceManager.getImage(BrickTagGame.STARTUP_SCREEN_RSC),0,0);
 
-		g.drawString("< Start >", btgV.ScreenWidth/2 -30, btgV.ScreenHeight/2 -20);
+		for(int i=0;i<btg.allPlayers.size()/4;i++) {
+//			System.out.println(i);
+			if (i >= 0 && btgV.playerList.get(0).isLoggedIn) {
+				g.drawImage(ResourceManager.getImage(BrickTagGame.BLUE_MINI_RSC), 505, 580);
+			}
+			if (i >= 1 && btgV.playerList.get(0).isLoggedIn) {
+				g.drawImage(ResourceManager.getImage(BrickTagGame.GREEN_MINI_RSC), 525, 580);
+			}
+			if (i >= 2 && btgV.playerList.get(0).isLoggedIn) {
+				g.drawImage(ResourceManager.getImage(BrickTagGame.RED_MINI_RSC), 545, 580);
+			}
+			if (i >= 3 && btgV.playerList.get(0).isLoggedIn) {
+				g.drawImage(ResourceManager.getImage(BrickTagGame.YELLOW_MINI_RSC), 565, 580);
+			}
+		}
+//		System.out.println();
 	}
 
 	@Override
@@ -57,7 +67,7 @@ class StartUpState extends BasicGameState {
 
 		if(input.isKeyPressed(Input.KEY_SPACE)) {
 			kc.command = "SPACE";
-		} else {
+		}else {
 			kc.command = "";
 		}
 

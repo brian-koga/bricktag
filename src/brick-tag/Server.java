@@ -92,6 +92,7 @@ class ClientHandler implements Runnable{
 			Server.BTGV.scoreList.add(0);
 		}
 		this.writeIndex(this.playerIndex);
+		sendVariablesToClient();
 		while (true) {
 			if (clientHandlerLoop()) {
 				break;
@@ -211,7 +212,10 @@ class ClientHandler implements Runnable{
 	}
 
 	private boolean checkStartEndControls(String input){
-		System.out.println(input);
+		if(this.playerIndex<Server.BTGV.playerList.size()-1){
+			sendVariablesToClient();
+			return true;
+		}
 		if(input.equals("SPACE") && Server.BTGV.currentState == BrickTagGame.STARTUPSTATE){
 			Server.BTGV.currentState = BrickTagGame.PLAYINGSTATE;
 			sendVariablesToClient();
@@ -349,18 +353,9 @@ class ClientHandler implements Runnable{
 		if(this.PV.isAirborne()) {
 			if (this.PV.getY() < ((yMin) * 64) + 96 && playerY>0) {
 				// checks if this is a player placed block
-				if((tempMap[playerX][playerY - 1].designation > 1) &&
-					(tempMap[playerX][playerY - 1].designation < 6)){
-
-					tempMap[playerX][playerY - 1].designation = 0;
-
-					int finalPlayerY = playerY-1;
-					Predicate<Tile> condition = tile -> tile.getX() == playerX && tile.getY() == finalPlayerY;
-
-					Server.BTGV.placedTiles.removeIf(condition);
-					this.PV.addBrick();
-					// checks if this is a power up block
-				} else if((tempMap[playerX][playerY - 1].designation > 20)){
+				breakBlock(playerY-1,tempMap,playerX);
+				// checks if this is a power up block
+				if((tempMap[playerX][playerY - 1].designation > 20)){
 					checkIfGotPowerUp(playerX, playerY - 1, tempMap[playerX][playerY - 1],tempMap);
 				}
 //				System.out.println("Bonk!");
@@ -451,6 +446,25 @@ class ClientHandler implements Runnable{
 			placeBelow(yMax,playerX,playerY,tempMap);
 		}
 
+		if(input.equals("ALEFT") || input.equals("ARIGHT")){
+			moveWest(xMin);
+		}
+		if(input.equals("DLEFT") || input.equals("DRIGHT")){
+			moveEast(xMax);
+		}
+
+		if(this.PV.powerUp==2) {
+			if(input.length()>2){
+				input = input.substring(1);
+			}
+			if (input.equals("LEFT")) {
+				breakBlock(playerY, tempMap, playerX - 1);
+			}
+			if (input.equals("RIGHT")) {
+				breakBlock(playerY, tempMap, playerX+1);
+			}
+		}
+
 
 		if(input.equals("") && this.PV.getVelocity().getY()==0){
 			String orientation = Server.BTGV.getOrientation(this.playerIndex);
@@ -465,6 +479,15 @@ class ClientHandler implements Runnable{
 		}
 
 		Server.tileGrid = tempMap;
+	}
+
+	private void breakBlock(int playerY, Tile[][] tempMap, int i) {
+		if ((tempMap[i][playerY].designation > 1) && (tempMap[i][playerY].designation < 6)) {
+			tempMap[i][playerY].designation = 0;
+			Predicate<Tile> condition = tile -> tile.getX() == (i) && tile.getY() == playerY;
+			Server.BTGV.placedTiles.removeIf(condition);
+			this.PV.addBrick();
+		}
 	}
 
 	private void checkIfGotPowerUp(int playerX, int playerY, Tile tile1,Tile[][] tempMap) {
@@ -598,8 +621,7 @@ class ClientHandler implements Runnable{
 			return "Brick-Tag/src/brick-tag/resource/Level1.txt";
 		} else if(levelNumber == 2) {
 			return  "Brick-Tag/src/brick-tag/resource/Level2.txt";
-		}
-		else{
+		} else{
 			return null;
 		}
 	}

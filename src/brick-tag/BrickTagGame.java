@@ -15,6 +15,8 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 	public static final int PLAYINGSTATE = 1;
 	public static final int GAMEOVERSTATE = 2;
 
+	public static final String STARTUP_SCREEN_RSC = "resource/StartScreen.png";
+
 	public static final String Block_RSC = "resource/red_outlet_tile_64px.png";
 	public static final String PLAYER_RSC = "resource/player.png";
 	public static final String FLAG_RSC = "resource/flag.png";
@@ -22,6 +24,9 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 
 	public static final String BOOTS_RSC = "resource/boots.png";
 	public static final String BOOTS_MINI_RSC = "resource/boots_mini.png";
+	public static final String PIC_RSC = "resource/pickaxe.png";
+	//TODO Once mini pic is made uncomment out
+//	public static final String PIC_MINI_RSC = "resource/pickaxe_mini.png";
 
 	public static final String METAL_RSC = "resource/metal.png";
 	public static final String GROUND1_RSC = "resource/ground1.png";
@@ -105,6 +110,7 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 		addState(new PlayingState());
 
 		// preload all the resources to avoid warnings & minimize latency...
+		ResourceManager.loadImage(STARTUP_SCREEN_RSC);
 		ResourceManager.loadImage(Block_RSC);
 		ResourceManager.loadImage(PLAYER_RSC);
 		ResourceManager.loadImage(FLAG_RSC);
@@ -112,6 +118,9 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 
 		ResourceManager.loadImage(BOOTS_RSC);
 		ResourceManager.loadImage(BOOTS_MINI_RSC);
+		ResourceManager.loadImage(PIC_RSC);
+		//TODO Once mini pic is made uncomment out
+//		ResourceManager.loadImage(PIC_MINI_RSC);
 
 		ResourceManager.loadImage(METAL_RSC);
 		ResourceManager.loadImage(GROUND1_RSC);

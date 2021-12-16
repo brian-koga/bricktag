@@ -116,6 +116,9 @@ public class BrickTagGameVariables implements Serializable {
 		this.powerUpTiles.add(new Tile(9, 12, 21, true));
 		this.powerUpTiles.add(new Tile(54, 1, 21, true));
 		this.powerUpTiles.add(new Tile(55, 19, 21, true));
+		this.powerUpTiles.add(new Tile(25,16,22,true));
+		this.powerUpTiles.add(new Tile(49,11,22,true));
+		this.powerUpTiles.add(new Tile(14,1,22,true));
 	}
 
 	public void toggleShowGrid() {this.showGrid = !this.showGrid;}
