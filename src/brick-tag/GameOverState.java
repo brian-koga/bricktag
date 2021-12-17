@@ -20,7 +20,6 @@ class GameOverState extends BasicGameState {
 
 	private int whoWon;
 	private int countdown;
-	private String[] players;
 
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
@@ -33,8 +32,6 @@ class GameOverState extends BasicGameState {
 		BrickTagGameVariables btgV = btg.variables;
 		this.whoWon = btgV.scoreList.indexOf(25);
 		this.countdown = 10000;
-		players = new String[]{"Blue", "Green", "Red", "Yellow"};
-		System.out.println("GAME OVER");
 	}
 	
 	@Override
@@ -44,8 +41,24 @@ class GameOverState extends BasicGameState {
 		BrickTagGame btg = (BrickTagGame) game;
 		BrickTagGameVariables btgV = btg.variables;
 
-		g.drawString(players[whoWon] +" Player Wins", btgV.ScreenWidth/2 -30, btgV.ScreenHeight/2 -20);
+//		g.drawString(players[whoWon] +" Player Wins", btgV.ScreenWidth/2 -30, btgV.ScreenHeight/2 -20);
+		g.drawImage(ResourceManager.getImage(BrickTagGame.GAMEOVER_SCREEN_RSC),0,0);
+		String winner = getWinnerImage();
+		g.drawImage(ResourceManager.getImage(winner).getScaledCopy(2),750,485);
 
+	}
+
+	public String getWinnerImage(){
+		if(whoWon == 0){
+			return BrickTagGame.BLUE_MINI_RSC;
+		}else if(whoWon == 1){
+			return BrickTagGame.GREEN_MINI_RSC;
+		}else if(whoWon==2){
+			return BrickTagGame.RED_MINI_RSC;
+		}else if(whoWon==3){
+			return BrickTagGame.YELLOW_MINI_RSC;
+		}
+		return "";
 	}
 
 	@Override
