@@ -88,12 +88,20 @@ public class PlayerVariables implements Serializable {
 		}
 	}
 
+	public void powerUpScore() {
+		this.score+=2;
+	}
+
 	public int getNumberOfBricks() {
 		return numberOfBricks;
 	}
 
 	public void addBrick(){
 		this.numberOfBricks+=1;
+	}
+
+	public void powerUpBrick(){
+		this.numberOfBricks+=5;
 	}
 
 	public void useBrick(){

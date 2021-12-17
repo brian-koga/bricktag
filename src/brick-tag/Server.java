@@ -1,12 +1,9 @@
-import org.lwjgl.Sys;
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Vector;
 import java.util.function.Predicate;
-import java.math.*;
 
 
 @SuppressWarnings("InfiniteLoopStatement")
@@ -16,6 +13,7 @@ public class Server {
 	static BrickTagGameVariables BTGV = new BrickTagGameVariables(720,1280);
 	static Tile[][] tileGrid;
 	static int flagCountdown=0;
+	static int powerUpCountdown=1000;
 
 	public static void main(String[] args) throws IOException {
 		//Start a new server listening on port 5000
@@ -41,7 +39,7 @@ public class Server {
 				ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
 
 				//Assigning a new thread for the current client
-				ClientHandler clientHandler = new ClientHandler(socket,input,output,objectOutputStream,objectInputStream,new BrickTagGameVariables(720,1280),Server.BTGV.playerList.size());
+				ClientHandler clientHandler = new ClientHandler(socket,input,output,objectOutputStream,objectInputStream,Server.BTGV.playerList.size());
 				Thread thread = new Thread(clientHandler);
 				thread.start();
 				numberOfActivePlayers++;
@@ -61,7 +59,7 @@ class ClientHandler implements Runnable{
 	PlayerVariables PV;
 	int playerIndex;
 
-	ClientHandler(Socket socket, DataInputStream inputStream, DataOutputStream outputStream,ObjectOutputStream objectOutputStream,ObjectInputStream objectInputStream,BrickTagGameVariables btg, int i) throws IOException {
+	ClientHandler(Socket socket, DataInputStream inputStream, DataOutputStream outputStream,ObjectOutputStream objectOutputStream,ObjectInputStream objectInputStream, int i) throws IOException {
 		this.socket = socket;
 		this.inputStream = inputStream;
 		this.outputStream = outputStream;
@@ -70,16 +68,13 @@ class ClientHandler implements Runnable{
 		this.playerIndex = i;
 		if(Server.tileGrid == null) { setTileGrid(); } // prevent new clients from resetting map
 		// add the power ups to the tileGrid
-		for (Tile temp : Server.BTGV.powerUpTiles) {
-			Server.tileGrid[temp.x][temp.y] = temp;
-		}
+		setPowerUps();
 	}
 
 	@Override
 	public void run(){
 		if(Server.removedPlayers.size()>0){
 			this.playerIndex = Server.removedPlayers.remove(0);
-			System.out.println(this.playerIndex);
 			Server.BTGV.playerList.set(this.playerIndex,new PlayerVariables(240, 352, 0, 0));
 			Server.BTGV.scoreList.set(this.playerIndex,0);
 		}else if(this.playerIndex>3) {
@@ -131,6 +126,7 @@ class ClientHandler implements Runnable{
 			setPlayerFlag();
 			setScore();
 			checkPowerUp();
+			setNewPowerUp();
 			Server.BTGV.playerList.set(this.playerIndex, this.PV);
 			int whoWon = checkScores();
 			if(whoWon>=0){
@@ -138,6 +134,7 @@ class ClientHandler implements Runnable{
 				sendVariablesToClient();
 				didSendMessage=true;
 			}
+			Server.powerUpCountdown--;
 		}else if(Server.BTGV.currentState==BrickTagGame.STARTUPSTATE || Server.BTGV.currentState==BrickTagGame.GAMEOVERSTATE) {
 			didSendMessage = checkStartEndControls(received);
 		}
@@ -182,7 +179,6 @@ class ClientHandler implements Runnable{
 	}
 
 	public void sendVariablesToClient(){
-		//System.out.println(playerIndex + "SVTC: " + Server.BTGV.tileGrid);
 		try {
 			writeToClient("CHANGE", this.outputStream);
 			this.objectOutputStream.reset();
@@ -250,11 +246,9 @@ class ClientHandler implements Runnable{
 			Server.BTGV.playerList.get(i).isLoggedIn = false;
 		}
 		setTileGrid();
-
+		Server.powerUpCountdown=1000;
 		// add the power ups to the tileGrid
-		for (Tile temp : Server.BTGV.powerUpTiles) {
-			Server.tileGrid[temp.x][temp.y] = temp;
-		}
+		setPowerUps();
 	}
 
 	private boolean checkPlayingControls(String input){
@@ -492,23 +486,26 @@ class ClientHandler implements Runnable{
 
 	private void checkIfGotPowerUp(int playerX, int playerY, Tile tile1,Tile[][] tempMap) {
 		int powerUpType = tile1.designation;
-
-		//If we want to remove the comments and take out this section in the if statement
-//		tempMap[playerX][playerY].designation = 0;
-//		Predicate<Tile> condition = tile -> tile.getX() == playerX && tile.getY() == playerY;
-//		Server.BTGV.powerUpTiles.removeIf(condition);
-
 		//99 is the flag and technically not a power up
-		if(powerUpType == 99){
+		if (powerUpType == 99) {
 			tempMap[playerX][playerY].designation = 0;
 			Predicate<Tile> condition = tile -> tile.getX() == playerX && tile.getY() == playerY;
 			Server.BTGV.powerUpTiles.removeIf(condition);
 			this.PV.toggleFlag();
+		}else if (powerUpType > 22){
+			tempMap[playerX][playerY].designation = 0;
+			Predicate<Tile> condition = tile -> tile.getX() == playerX && tile.getY() == playerY;
+			Server.BTGV.powerUpTiles.removeIf(condition);
+			if(powerUpType==23) {
+				this.PV.powerUpBrick();
+				Server.BTGV.scoreList.set(this.playerIndex,this.PV.getScore());
+			}else if(powerUpType==24){
+				this.PV.powerUpScore();
+			}
 		}else {
 			// the designation of power up tiles start after 20, so send that minus 20 to get the
 			// correct power up int for the PlayerVariables
 			this.PV.givePowerUp(powerUpType - 20);
-			System.out.println("Power up " + powerUpType + " given.");
 		}
 	}
 
@@ -535,14 +532,6 @@ class ClientHandler implements Runnable{
 		if(this.PV.getNumberOfBricks()>0) {
 			if (xMax != (Server.BTGV.WorldTileWidth)) {
 				placeBlock(playerX +1 ,playerY,tempMap);
-					/*if (this.playerIndex == 0) {
-						tempMap[playerX + 1][playerY].designation = 2;
-						Server.BTGV.placedTiles.add(new Tile(playerX + 1, playerY, 2, true));
-					}else if (this.playerIndex == 1) {
-						tempMap[playerX + 1][playerY].designation = 3;
-						Server.BTGV.placedTiles.add(new Tile(playerX + 1, playerY, 3, true));
-					}
-					this.PV.useBrick();*/
 			}
 		}
 	}
@@ -550,13 +539,6 @@ class ClientHandler implements Runnable{
 	private void placeWest(int xMin, int playerX, int playerY, Tile[][] tempMap){
 		if(this.PV.getNumberOfBricks()>0) {
 			if (xMin != -1) {
-/*					if (this.playerIndex == 0) {
-						tempMap[playerX - 1][playerY].designation = 2;
-						Server.BTGV.placedTiles.add(new Tile(playerX - 1, playerY, 2, true));
-					}else if (this.playerIndex == 1) {
-						tempMap[playerX - 1][playerY].designation = 3;
-						Server.BTGV.placedTiles.add(new Tile(playerX - 1, playerY, 3, true));
-					}*/
 				placeBlock(playerX - 1, playerY, tempMap);
 			}
 		}
@@ -589,7 +571,6 @@ class ClientHandler implements Runnable{
 
 	//Adds velocity to position
 	private void update(){
-		//System.out.println("update");
 		float tempVX = this.PV.getVX();
 		float tempVY = this.PV.getVY();
 		translateMoveHelper(tempVX, tempVY, 0f, 0f);
@@ -601,7 +582,6 @@ class ClientHandler implements Runnable{
 	}
 
 	public void receiveGameState(){
-		//System.out.println("receiveGameState");
 		try {
 			Server.BTGV = (BrickTagGameVariables) this.objectInputStream.readObject();
 			sendVariablesToClient();
@@ -639,7 +619,6 @@ class ClientHandler implements Runnable{
 		}
 		if(this.PV.powerUpCountdown == 0) {
 			// lose power up
-			System.out.println("Power up " + this.PV.powerUp + " taken.");
 			this.PV.powerUp = 0;
 			this.PV.powerUpCountdown = -1;
 		}
@@ -649,6 +628,7 @@ class ClientHandler implements Runnable{
 		for(int i = 0; i < Server.BTGV.scoreList.size();i++){
 			//Currently, the score is set at 25 but that can be played with
 			if(Server.BTGV.scoreList.get(i)>=25){
+				Server.BTGV.scoreList.set(i,25);
 				return i;
 			}
 		}
@@ -669,15 +649,12 @@ class ClientHandler implements Runnable{
 							checkPlayer.toggleFlag();
 							currPlayer.toggleFlag();
 							Server.flagCountdown = 50;
-//							System.out.println("Player " + this.playerIndex + " lost the flag to Player " + i);
 							break;
 						}
 					}
 				}
-				System.out.println("\n");
 			}else{
 				Server.flagCountdown-=1;
-//				System.out.println(Server.flagCountdown);
 			}
 		}
 	}
@@ -685,5 +662,21 @@ class ClientHandler implements Runnable{
 	private void setFlagPosition(){
 		Server.BTGV.powerUpTiles.add(new Tile(Server.BTGV.WorldTileWidth/2,Server.BTGV.WorldTileHeight/2,99,true));
 		Server.tileGrid[Server.BTGV.WorldTileWidth/2][Server.BTGV.WorldTileHeight/2].designation = 99;
+	}
+
+	private void setPowerUps() {
+		for (Tile temp : Server.BTGV.powerUpTiles) {
+			Server.tileGrid[temp.x][temp.y] = temp;
+		}
+	}
+
+	//Sets random power up at "random" points
+	private void setNewPowerUp(){
+		if(Server.powerUpCountdown<0){
+			int[] coords = Server.BTGV.addNewPowerUp();
+			System.out.println(coords[0]);
+			Server.tileGrid[coords[0]][coords[1]].designation=coords[2];
+			Server.powerUpCountdown=1000;
+		}
 	}
 }

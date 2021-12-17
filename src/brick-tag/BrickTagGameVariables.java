@@ -1,6 +1,8 @@
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Vector;
+import java.util.function.Predicate;
 
 public class BrickTagGameVariables implements Serializable {
 	public final float ScreenWidth;
@@ -105,11 +107,8 @@ public class BrickTagGameVariables implements Serializable {
 		return "";
 	}
 
-	public void setLevel(int level) {this.level = level;}
-
-	public void setCurrentState(int currentState) {this.currentState = currentState;}
-
 	public void setFlagHolder(int index) {this.flagHolder = index + 1;}
+
 	public int getFlagHolder() {return this.flagHolder;}
 
 	public void setPowerUpTiles() {
@@ -121,7 +120,20 @@ public class BrickTagGameVariables implements Serializable {
 		this.powerUpTiles.add(new Tile(45, 4, 21, true));
 		this.powerUpTiles.add(new Tile(7, 16, 21, true));
 		this.powerUpTiles.add(new Tile(52, 16, 21, true));
+	}
 
+	public int[] addNewPowerUp(){
+		int[][] allPairs = new int[][] {{54,8},{15,12},{18,3}};
+		int[] allPowerUps = new int[] {23,24};
+		Random rng = new Random();
+		int randomNum = rng.nextInt(allPairs.length);
+		int x = allPairs[randomNum][0];
+		int y = allPairs[randomNum][1];
+		randomNum = rng.nextInt(allPowerUps.length);
+		Predicate<Tile> condition = tile -> tile.getX() == x && tile.getY() == y;
+		this.powerUpTiles.removeIf(condition);
+		this.powerUpTiles.add(new Tile(x,y, allPowerUps[randomNum],true));
+		return new int[] {x,y,allPowerUps[randomNum]};
 	}
 
 	public void toggleShowGrid() {this.showGrid = !this.showGrid;}

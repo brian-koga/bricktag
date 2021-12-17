@@ -1,12 +1,9 @@
 import jig.ResourceManager;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
-import org.newdawn.slick.state.transition.EmptyTransition;
-import org.newdawn.slick.state.transition.HorizontalSplitTransition;
 
 
 /**
@@ -22,8 +19,7 @@ class GameOverState extends BasicGameState {
 	private int countdown;
 
 	@Override
-	public void init(GameContainer container, StateBasedGame game)
-			throws SlickException {
+	public void init(GameContainer container, StateBasedGame game) {
 	}
 	
 	@Override
@@ -35,17 +31,10 @@ class GameOverState extends BasicGameState {
 	}
 	
 	@Override
-	public void render(GameContainer container, StateBasedGame game,
-			Graphics g) throws SlickException {
-
-		BrickTagGame btg = (BrickTagGame) game;
-		BrickTagGameVariables btgV = btg.variables;
-
-//		g.drawString(players[whoWon] +" Player Wins", btgV.ScreenWidth/2 -30, btgV.ScreenHeight/2 -20);
+	public void render(GameContainer container, StateBasedGame game,Graphics g) {
 		g.drawImage(ResourceManager.getImage(BrickTagGame.GAMEOVER_SCREEN_RSC),0,0);
 		String winner = getWinnerImage();
 		g.drawImage(ResourceManager.getImage(winner).getScaledCopy(2),750,485);
-
 	}
 
 	public String getWinnerImage(){
@@ -63,7 +52,7 @@ class GameOverState extends BasicGameState {
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game,
-			int delta) throws SlickException {
+			int delta) {
 		BrickTagGame btg = (BrickTagGame) game;
 
 		KeyboardCommand kc = new KeyboardCommand();
