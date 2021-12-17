@@ -322,7 +322,19 @@ class PlayingState extends BasicGameState {
 				g.drawImage(ResourceManager.getImage(BrickTagGame.YELLOW_MINI_RSC), 1200, 20 * (i+1));
 			}
 
-			g.drawString(""+score,1225,20*(i+1));
+			if(score >= 20){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.BAR5_RSC), 1225,20*(i+1));
+			}else if (score >= 15){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.BAR4_RSC), 1225,20*(i+1));
+			}else if (score >= 10){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.BAR3_RSC), 1225,20*(i+1));
+			}else if (score >= 5){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.BAR2_RSC), 1225,20*(i+1));
+			}else{
+				g.drawImage(ResourceManager.getImage(BrickTagGame.BAR1_RSC), 1225,20*(i+1));
+			}
+
+			//g.drawString(""+score,1225,20*(i+1));
 
 			// draw power up
 			if(power != 0) {

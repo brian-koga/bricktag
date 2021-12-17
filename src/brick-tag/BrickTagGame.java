@@ -39,6 +39,11 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 	public static final String CONCRETE2_RSC = "resource/World_Tiles/concrete2.png";
 	public static final String BOX_RSC = "resource/World_Tiles/box.png";
 
+	public static final String BAR1_RSC = "resource/Bars/bar1.png";
+	public static final String BAR2_RSC = "resource/Bars/bar2.png";
+	public static final String BAR3_RSC = "resource/Bars/bar3.png";
+	public static final String BAR4_RSC = "resource/Bars/bar4.png";
+	public static final String BAR5_RSC = "resource/Bars/bar5.png";
 
 	public static final String NIGHT_1_RSC = "resource/BG_Night/BG_1.png";
 	public static final String NIGHT_2_RSC = "resource/BG_Night/BG_2.png";
@@ -140,6 +145,12 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 
 		ResourceManager.loadImage(GROUND1_RSC);
 		ResourceManager.loadImage(GROUND2_RSC);
+
+		ResourceManager.loadImage(BAR1_RSC);
+		ResourceManager.loadImage(BAR2_RSC);
+		ResourceManager.loadImage(BAR3_RSC);
+		ResourceManager.loadImage(BAR4_RSC);
+		ResourceManager.loadImage(BAR5_RSC);
 
 		ResourceManager.loadImage(NIGHT_1_RSC);
 		ResourceManager.loadImage(NIGHT_2_RSC);
