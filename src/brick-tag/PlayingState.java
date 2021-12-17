@@ -119,6 +119,27 @@ class PlayingState extends BasicGameState {
 					} else if(data.charAt(i) == '9') {
 						//ground2 block
 						tileGrid[i][j] = new Tile(i, j, 9, false);
+					}else if(data.charAt(i) == 'e') {
+						//metal right block
+						tileGrid[i][j] = new Tile(i, j, 10, false);
+					}else if(data.charAt(i) == 'w') {
+						//metal left block
+						tileGrid[i][j] = new Tile(i, j, 11, false);
+					}else if(data.charAt(i) == 'c') {
+						//metal center block
+						tileGrid[i][j] = new Tile(i, j, 12, false);
+					}else if(data.charAt(i) == 'a') {
+						//concrete1 block
+						tileGrid[i][j] = new Tile(i, j, 13, false);
+					}else if(data.charAt(i) == 'b') {
+						//concrete2 block
+						tileGrid[i][j] = new Tile(i, j, 14, false);
+					}else if(data.charAt(i) == 'x') {
+						//box block
+						tileGrid[i][j] = new Tile(i, j, 15, false);
+					}else if(data.charAt(i) == 'q') {
+						//box block
+						tileGrid[i][j] = new Tile(i, j, 16, false);
 					}else {
 						// something has gone wrong
 						System.out.println("Unknown character encountered in level file.");
@@ -205,8 +226,20 @@ class PlayingState extends BasicGameState {
 				g.drawImage(ResourceManager.getImage(BrickTagGame.METAL_RSC),objectToRender.x,objectToRender.y);
 			}else if(objectToRender.objectType == 'g'){
 				g.drawImage(ResourceManager.getImage(BrickTagGame.GROUND1_RSC),objectToRender.x,objectToRender.y);
-			}else if(objectToRender.objectType == 'h'){
-				g.drawImage(ResourceManager.getImage(BrickTagGame.GROUND2_RSC),objectToRender.x,objectToRender.y);
+			}else if(objectToRender.objectType == 'i'){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.METAL_RIGHT_RSC),objectToRender.x,objectToRender.y);
+			}else if(objectToRender.objectType == 'j'){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.METAL_LEFT_RSC),objectToRender.x,objectToRender.y);
+			}else if(objectToRender.objectType == 'k'){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.METAL_CENTER_RSC),objectToRender.x,objectToRender.y);
+			}else if(objectToRender.objectType == 'l'){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.CONCRETE1_RSC),objectToRender.x,objectToRender.y);
+			}else if(objectToRender.objectType == 'n'){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.CONCRETE2_RSC),objectToRender.x,objectToRender.y);
+			}else if(objectToRender.objectType == 'o'){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.BOX_RSC),objectToRender.x,objectToRender.y);
+			}else if(objectToRender.objectType == 'q'){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.METAL_Vertical_RSC),objectToRender.x,objectToRender.y);
 			}
 
 			else if(objectToRender.objectType == 'p'){
@@ -289,7 +322,19 @@ class PlayingState extends BasicGameState {
 				g.drawImage(ResourceManager.getImage(BrickTagGame.YELLOW_MINI_RSC), 1200, 20 * (i+1));
 			}
 
-			g.drawString(""+score,1225,20*(i+1));
+			if(score >= 20){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.BAR5_RSC), 1225,20*(i+1));
+			}else if (score >= 15){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.BAR4_RSC), 1225,20*(i+1));
+			}else if (score >= 10){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.BAR3_RSC), 1225,20*(i+1));
+			}else if (score >= 5){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.BAR2_RSC), 1225,20*(i+1));
+			}else{
+				g.drawImage(ResourceManager.getImage(BrickTagGame.BAR1_RSC), 1225,20*(i+1));
+			}
+
+			//g.drawString(""+score,1225,20*(i+1));
 
 			// draw power up
 			if(power != 0) {
@@ -297,8 +342,7 @@ class PlayingState extends BasicGameState {
 					// speed
 					g.drawImage(ResourceManager.getImage(BrickTagGame.BOOTS_MINI_RSC), powerIconXLocation, 20 * (i+1));
 				}else if(power == 2){
-					//TODO Once mini pic is made uncomment out
-//					g.drawImage(ResourceManager.getImage(BrickTagGame.PIC_MINI_RSC),powerIconXLocation,20*(i+1));
+					g.drawImage(ResourceManager.getImage(BrickTagGame.PIC_MINI_RSC),powerIconXLocation,20*(i+1));
 				}
 			}
 		}
@@ -513,6 +557,20 @@ class PlayingState extends BasicGameState {
 					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'g'));
 				}else if(btg.tileGrid[i][j].designation == 7) {
 					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'h'));
+				}else if(btg.tileGrid[i][j].designation == 10) {
+					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'i'));
+				}else if(btg.tileGrid[i][j].designation == 11) {
+					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'j'));
+				}else if(btg.tileGrid[i][j].designation == 12) {
+					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'k'));
+				}else if(btg.tileGrid[i][j].designation == 13) {
+					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'l'));
+				}else if(btg.tileGrid[i][j].designation == 14) {
+					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'n'));
+				}else if(btg.tileGrid[i][j].designation == 15) {
+					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'o'));
+				}else if(btg.tileGrid[i][j].designation == 16) {
+					PV.objectsToRender.add(new VisibleObject(i*btgV.tileSize - xDiff, j*btgV.tileSize - yDiff, 'q'));
 				}
 				/*
 				if(btg.tileGrid[i][j].designation == 2) {

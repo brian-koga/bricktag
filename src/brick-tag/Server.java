@@ -333,7 +333,7 @@ class ClientHandler implements Runnable{
 			if (playerY == 0) {
 				yMin = -1;
 			} else if ((tempMap[playerEast][playerY - 1].designation != 0 && tempMap[playerEast][playerY - 1].designation <= 20)
-				|| (tempMap[playerWest][playerY - 1].designation != 0 && tempMap[playerWest][playerY - 1].designation <= 0)) {
+				|| (tempMap[playerWest][playerY - 1].designation != 0 && tempMap[playerWest][playerY - 1].designation <= 20)) {
 				yMin = playerY - 1;
 			}
 		}else {

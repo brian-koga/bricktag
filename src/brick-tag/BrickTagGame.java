@@ -18,21 +18,32 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 	public static final String STARTUP_SCREEN_RSC = "resource/StartScreen.png";
 	public static final String GAMEOVER_SCREEN_RSC = "resource/GameOver.png";
 
-	public static final String Block_RSC = "resource/red_outlet_tile_64px.png";
 	public static final String PLAYER_RSC = "resource/player.png";
 	public static final String FLAG_RSC = "resource/flag.png";
 	public static final String FLAG_MINI_RSC = "resource/flag_mini.png";
 
 	public static final String BOOTS_RSC = "resource/boots.png";
 	public static final String BOOTS_MINI_RSC = "resource/boots_mini.png";
-	public static final String PIC_RSC = "resource/pickaxe.png";
-	//TODO Once mini pic is made uncomment out
-//	public static final String PIC_MINI_RSC = "resource/pickaxe_mini.png";
+	public static final String PIC_RSC = "resource/hammer.png";
+	public static final String PIC_MINI_RSC = "resource/hammer_mini.png";
 
-	public static final String METAL_RSC = "resource/metal.png";
-	public static final String GROUND1_RSC = "resource/ground1.png";
-	public static final String GROUND2_RSC = "resource/ground2.png";
+	public static final String Block_RSC = "resource/World_Tiles/red_outlet_tile_64px.png";
+	public static final String METAL_RSC = "resource/World_Tiles/metal.png";
+	public static final String METAL_Vertical_RSC = "resource/World_Tiles/metal_vertical.png";
+	public static final String METAL_LEFT_RSC = "resource/World_Tiles/metal_left.png";
+	public static final String METAL_RIGHT_RSC = "resource/World_Tiles/metal_right.png";
+	public static final String METAL_CENTER_RSC = "resource/World_Tiles/metal_junction.png";
+	public static final String GROUND1_RSC = "resource/World_Tiles/ground1.png";
+	public static final String GROUND2_RSC = "resource/World_Tiles/ground2.png";
+	public static final String CONCRETE1_RSC = "resource/World_Tiles/concrete1.png";
+	public static final String CONCRETE2_RSC = "resource/World_Tiles/concrete2.png";
+	public static final String BOX_RSC = "resource/World_Tiles/box.png";
 
+	public static final String BAR1_RSC = "resource/Bars/bar1.png";
+	public static final String BAR2_RSC = "resource/Bars/bar2.png";
+	public static final String BAR3_RSC = "resource/Bars/bar3.png";
+	public static final String BAR4_RSC = "resource/Bars/bar4.png";
+	public static final String BAR5_RSC = "resource/Bars/bar5.png";
 
 	public static final String NIGHT_1_RSC = "resource/BG_Night/BG_1.png";
 	public static final String NIGHT_2_RSC = "resource/BG_Night/BG_2.png";
@@ -121,12 +132,25 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 		ResourceManager.loadImage(BOOTS_RSC);
 		ResourceManager.loadImage(BOOTS_MINI_RSC);
 		ResourceManager.loadImage(PIC_RSC);
-		//TODO Once mini pic is made uncomment out
-//		ResourceManager.loadImage(PIC_MINI_RSC);
+		ResourceManager.loadImage(PIC_MINI_RSC);
 
 		ResourceManager.loadImage(METAL_RSC);
+		ResourceManager.loadImage(METAL_Vertical_RSC);
+		ResourceManager.loadImage(METAL_RIGHT_RSC);
+		ResourceManager.loadImage(METAL_LEFT_RSC);
+		ResourceManager.loadImage(METAL_CENTER_RSC);
+		ResourceManager.loadImage(CONCRETE1_RSC);
+		ResourceManager.loadImage(CONCRETE2_RSC);
+		ResourceManager.loadImage(BOX_RSC);
+
 		ResourceManager.loadImage(GROUND1_RSC);
 		ResourceManager.loadImage(GROUND2_RSC);
+
+		ResourceManager.loadImage(BAR1_RSC);
+		ResourceManager.loadImage(BAR2_RSC);
+		ResourceManager.loadImage(BAR3_RSC);
+		ResourceManager.loadImage(BAR4_RSC);
+		ResourceManager.loadImage(BAR5_RSC);
 
 		ResourceManager.loadImage(NIGHT_1_RSC);
 		ResourceManager.loadImage(NIGHT_2_RSC);
