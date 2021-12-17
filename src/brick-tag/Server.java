@@ -486,12 +486,6 @@ class ClientHandler implements Runnable{
 
 	private void checkIfGotPowerUp(int playerX, int playerY, Tile tile1,Tile[][] tempMap) {
 		int powerUpType = tile1.designation;
-
-		//If we want to remove the comments and take out this section in the if statement
-//		tempMap[playerX][playerY].designation = 0;
-//		Predicate<Tile> condition = tile -> tile.getX() == playerX && tile.getY() == playerY;
-//		Server.BTGV.powerUpTiles.removeIf(condition);
-
 		//99 is the flag and technically not a power up
 		if (powerUpType == 99) {
 			tempMap[playerX][playerY].designation = 0;
@@ -502,7 +496,12 @@ class ClientHandler implements Runnable{
 			tempMap[playerX][playerY].designation = 0;
 			Predicate<Tile> condition = tile -> tile.getX() == playerX && tile.getY() == playerY;
 			Server.BTGV.powerUpTiles.removeIf(condition);
-			this.PV.powerUpBrick();
+			if(powerUpType==23) {
+				this.PV.powerUpBrick();
+				Server.BTGV.scoreList.set(this.playerIndex,this.PV.getScore());
+			}else if(powerUpType==24){
+				this.PV.powerUpScore();
+			}
 		}else {
 			// the designation of power up tiles start after 20, so send that minus 20 to get the
 			// correct power up int for the PlayerVariables
@@ -629,6 +628,7 @@ class ClientHandler implements Runnable{
 		for(int i = 0; i < Server.BTGV.scoreList.size();i++){
 			//Currently, the score is set at 25 but that can be played with
 			if(Server.BTGV.scoreList.get(i)>=25){
+				Server.BTGV.scoreList.set(i,25);
 				return i;
 			}
 		}

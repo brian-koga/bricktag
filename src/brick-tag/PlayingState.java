@@ -242,6 +242,8 @@ class PlayingState extends BasicGameState {
 				g.drawImage(ResourceManager.getImage(BrickTagGame.METAL_Vertical_RSC),objectToRender.x,objectToRender.y);
 			}else if(objectToRender.objectType == 'e'){
 				g.drawImage(ResourceManager.getImage(BrickTagGame.MORE_BRICKS_RSC), objectToRender.x ,objectToRender.y);
+			}else if(objectToRender.objectType == 'v'){
+				g.drawImage(ResourceManager.getImage(BrickTagGame.SCORE_UP_RSC), objectToRender.x ,objectToRender.y);
 			}
 
 			else if(objectToRender.objectType == 'p'){
@@ -622,6 +624,8 @@ class PlayingState extends BasicGameState {
 					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 'a'));
 				}else if(t.designation == 23){
 					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 'e'));
+				}else if(t.designation == 24){
+					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff, 'v'));
 				}else if(t.designation == 99){
 					PV.objectsToRender.add(new VisibleObject(t.x*btgV.tileSize - xDiff, t.y*btgV.tileSize - yDiff,'f'));
 				}
