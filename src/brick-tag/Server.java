@@ -674,7 +674,6 @@ class ClientHandler implements Runnable{
 	private void setNewPowerUp(){
 		if(Server.powerUpCountdown<0){
 			int[] coords = Server.BTGV.addNewPowerUp();
-			System.out.println(coords[0]);
 			Server.tileGrid[coords[0]][coords[1]].designation=coords[2];
 			Server.powerUpCountdown=1000;
 		}

@@ -13,9 +13,9 @@ After one player scores 25 points that player wins
 
 You may place blocks to hinder your opponents from stealing the flag from you
 
-Each players starts with 25 bricks and can gain more bricks by breaking bricks
+Each players starts with 15 bricks and can gain more bricks by breaking bricks
 
-With out the pickaxe power up the only way to break a brick is to jump underneath the brick similar to Mario
+With out the hammer power up the only way to break a brick is to jump underneath the brick similar to Mario
 
 Controls
 W - Place block above
@@ -28,4 +28,19 @@ SPACE BAR - Jump
 
 Power-ups
 Speed Power Up (Boot icon) - Speeds up the player for a limited amount of time
-Pickaxe (Pickaxe icon) - Lets you press L_SHIFT or F to break blocks directly to your left or right respectively
+Hammer (Hammer icon) - Lets you press L_SHIFT or F to break blocks directly to your left or right respectively
+Battery (Battery icon) - Adds 2 points to your score
++5 Brick (Colored Bricks Icon) - Gives the player 5 extra bricks
+
+Low Bar Objectives
+(Done) Server/Client system - A system will need to be created for the players to play together on separate computers
+(Done) Tile-based map - A map will need to be created for the game to be played on
+(Done) Scrolling world - the map will be designed to scroll left & right for the players to navigate
+(Done) Art - Pixel art for each player, the bricks, and the flag will need to be created or found
+(Done) Physics - The players will need to adhere to gravity
+(Done) Point System - track player points to determine a winner
+(Done) Objective - functioning chase item (flag for example) that the players will compete to control for points
+(Done) Player movement - players will need to have control of an in-game character that moves and feels smooth to play
+(Done) Player brick placement - The players will need to be able to place bricks in the tile map & start with a set amount that they can place
+(Done) Player jumping - this will take advantage of gravity to implement a jumping system for the player when the spacebar is pressed
+(Done) Power-ups - items in the game that have special effects when claimed
