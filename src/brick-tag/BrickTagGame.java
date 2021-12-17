@@ -16,6 +16,7 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 	public static final int GAMEOVERSTATE = 2;
 
 	public static final String STARTUP_SCREEN_RSC = "resource/StartScreen.png";
+	public static final String GAMEOVER_SCREEN_RSC = "resource/GameOver.png";
 
 	public static final String Block_RSC = "resource/red_outlet_tile_64px.png";
 	public static final String PLAYER_RSC = "resource/player.png";
@@ -111,6 +112,7 @@ public class BrickTagGame extends StateBasedGame implements Serializable {
 
 		// preload all the resources to avoid warnings & minimize latency...
 		ResourceManager.loadImage(STARTUP_SCREEN_RSC);
+		ResourceManager.loadImage(GAMEOVER_SCREEN_RSC);
 		ResourceManager.loadImage(Block_RSC);
 		ResourceManager.loadImage(PLAYER_RSC);
 		ResourceManager.loadImage(FLAG_RSC);
