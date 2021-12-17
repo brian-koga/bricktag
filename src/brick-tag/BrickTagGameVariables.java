@@ -113,12 +113,15 @@ public class BrickTagGameVariables implements Serializable {
 	public int getFlagHolder() {return this.flagHolder;}
 
 	public void setPowerUpTiles() {
-		this.powerUpTiles.add(new Tile(9, 12, 21, true));
-		this.powerUpTiles.add(new Tile(54, 1, 21, true));
-		this.powerUpTiles.add(new Tile(55, 19, 21, true));
-		this.powerUpTiles.add(new Tile(25,16,22,true));
-		this.powerUpTiles.add(new Tile(49,11,22,true));
-		this.powerUpTiles.add(new Tile(14,1,22,true));
+		this.powerUpTiles.add(new Tile(5, 2, 22, true));
+		this.powerUpTiles.add(new Tile(54, 2, 22, true));
+		this.powerUpTiles.add(new Tile(40, 13, 22, true));
+		this.powerUpTiles.add(new Tile(20, 13, 22, true));
+		this.powerUpTiles.add(new Tile(15, 6, 21, true));
+		this.powerUpTiles.add(new Tile(45, 4, 21, true));
+		this.powerUpTiles.add(new Tile(7, 16, 21, true));
+		this.powerUpTiles.add(new Tile(52, 16, 21, true));
+
 	}
 
 	public void toggleShowGrid() {this.showGrid = !this.showGrid;}
